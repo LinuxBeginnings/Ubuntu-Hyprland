@@ -5,14 +5,17 @@
 set -euo pipefail
 
 # Discover repo root and source helpers
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PARENT_DIR="$SCRIPT_DIR/.."
-cd "$PARENT_DIR" || { echo "[ERROR] Failed to change directory to $PARENT_DIR"; exit 1; }
+cd "$PARENT_DIR" || {
+    echo "[ERROR] Failed to change directory to $PARENT_DIR"
+    exit 1
+}
 
 # Optional helper functions (not required for apt upgrades, but source if present)
 if [ -f "$(dirname "$(readlink -f "$0")")/Global_functions.sh" ]; then
-  # shellcheck disable=SC1090
-  source "$(dirname "$(readlink -f "$0")")/Global_functions.sh"
+    # shellcheck disable=SC1090
+    source "$(dirname "$(readlink -f "$0")")/Global_functions.sh"
 fi
 
 LOG="Install-Logs/install-$(date +%d-%H%M%S)_hyprland-ppa.log"
@@ -33,18 +36,13 @@ sudo apt install -y hyprland | tee -a "$LOG"
 
 printf "[INFO] Installing remaining Hyprland-related packages from PPA...\n" | tee -a "$LOG"
 sudo apt install -y \
-  hypridle \
-  hyprlock \
-  hyprsunset \
-  hyprpaper \
-  hyprpicker \
-  waybar \
-  hyprutils \
-  hyprwayland-scanner \
-  hyprgraphics \
-  hyprcursor \
-  aquamarine \
-  hyprland-qtutils \
-  xdg-desktop-portal-hyprland | tee -a "$LOG"
+    hypridle \
+    hyprlock \
+    hyprsunset \
+    hyprpaper \
+    hyprpicker \
+    waybar \
+    hyprwayland-scanner \
+    xdg-desktop-portal-hyprland | tee -a "$LOG"
 
 printf "[OK] Hyprland PPA setup and package installation complete.\n" | tee -a "$LOG"
