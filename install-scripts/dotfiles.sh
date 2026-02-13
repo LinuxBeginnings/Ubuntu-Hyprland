@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 💫 https://github.com/JaKooLit 💫 #
+# 💫 https://github.com/LinuxBeginnings 💫 #
 # Ensure Hyprland-Dots is synced to the latest from the main branch
 
 set -euo pipefail
@@ -19,7 +19,7 @@ if ! source "$(dirname "$(readlink -f "$0")")/Global_functions.sh"; then
     echo "Failed to source Global_functions.sh"; exit 1
 fi
 
-REPO_URL="https://github.com/JaKooLit/Hyprland-Dots.git"
+REPO_URL="https://github.com/LinuxBeginnings/Hyprland-Dots.git"
 BRANCH="$dots_tag"
 TARGET_DIR="Hyprland-Dots-Ubuntu"
 

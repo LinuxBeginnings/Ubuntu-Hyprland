@@ -5,10 +5,10 @@
 ## For Ubuntu 25.10 Questing Quokka
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/JaKooLit/Hyprland-Dots/main/assets/latte.png" width="400" />
+  <img src="https://raw.githubusercontent.com/LinuxBeginnings/Hyprland-Dots/main/assets/latte.png" width="400" />
 </p>
 
-![GitHub Repo stars](https://img.shields.io/github/stars/JaKooLit/Ubuntu-Hyprland?style=for-the-badge&color=cba6f7) ![GitHub last commit](https://img.shields.io/github/last-commit/JaKooLit/Ubuntu-Hyprland?style=for-the-badge&color=b4befe) ![GitHub repo size](https://img.shields.io/github/repo-size/JaKooLit/Ubuntu-Hyprland?style=for-the-badge&color=cba6f7) <a href="https://discord.gg/kool-tech-world"> <img src="https://img.shields.io/discord/1151869464405606400?style=for-the-badge&logo=discord&color=cba6f7&link=https%3A%2F%2Fdiscord.gg%kool-tech-world"> </a>
+![GitHub Repo stars](https://img.shields.io/github/stars/LinuxBeginnings/Ubuntu-Hyprland?style=for-the-badge&color=cba6f7) ![GitHub last commit](https://img.shields.io/github/last-commit/LinuxBeginnings/Ubuntu-Hyprland?style=for-the-badge&color=b4befe) ![GitHub repo size](https://img.shields.io/github/repo-size/LinuxBeginnings/Ubuntu-Hyprland?style=for-the-badge&color=cba6f7) <a href="https://discord.gg/kool-tech-world"> <img src="https://img.shields.io/discord/1151869464405606400?style=for-the-badge&logo=discord&color=cba6f7&link=https%3A%2F%2Fdiscord.gg%kool-tech-world"> </a>
 
 <br/>
 </div>
@@ -21,7 +21,7 @@
  </div><br>
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/JaKooLit/Hyprland-Dots/main/assets/latte.png" width="200" />
+  <img src="https://raw.githubusercontent.com/LinuxBeginnings/Hyprland-Dots/main/assets/latte.png" width="200" />
 </p>
 
 <div align="center">
@@ -30,22 +30,22 @@
 </div>
 <div align="center">
 <br>
-  <a href="https://github.com/JaKooLit/Hyprland-Dots/tree/Deb-Untu-Dots"><kbd> <br> Hyprland-Dots Ubuntu repo <br> </kbd></a>&ensp;&ensp;
+  <a href="https://github.com/LinuxBeginnings/Hyprland-Dots/tree/Deb-Untu-Dots"><kbd> <br> Hyprland-Dots Ubuntu repo <br> </kbd></a>&ensp;&ensp;
   <a href="https://www.youtube.com/playlist?list=PLDtGd5Fw5_GjXCznR0BzCJJDIQSZJRbxx"><kbd> <br> Youtube <br> </kbd></a>&ensp;&ensp;
-  <a href="https://github.com/JaKooLit/Hyprland-Dots/wiki"><kbd> <br> Wiki <br> </kbd></a>&ensp;&ensp;
-  <a href="https://github.com/JaKooLit/Hyprland-Dots/wiki/Keybinds"><kbd> <br> Keybinds <br> </kbd></a>&ensp;&ensp;
-  <a href="https://github.com/JaKooLit/Hyprland-Dots/wiki/FAQ"><kbd> <br> FAQ <br> </kbd></a>&ensp;&ensp;
+  <a href="https://github.com/LinuxBeginnings/Hyprland-Dots/wiki"><kbd> <br> Wiki <br> </kbd></a>&ensp;&ensp;
+  <a href="https://github.com/LinuxBeginnings/Hyprland-Dots/wiki/Keybinds"><kbd> <br> Keybinds <br> </kbd></a>&ensp;&ensp;
+  <a href="https://github.com/LinuxBeginnings/Hyprland-Dots/wiki/FAQ"><kbd> <br> FAQ <br> </kbd></a>&ensp;&ensp;
   <a href="https://discord.gg/kool-tech-world"><kbd> <br> Discord <br> </kbd></a>
 </div><br>
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/JaKooLit/Hyprland-Dots/main/assets/latte.png" width="200" />
+  <img src="https://raw.githubusercontent.com/LinuxBeginnings/Hyprland-Dots/main/assets/latte.png" width="200" />
 </p>
 
 <h3 align="center">
-	<img src="https://github.com/JaKooLit/Telegram-Animated-Emojis/blob/main/Activity/Sparkles.webp" alt="Sparkles" width="38" height="38" />
+	<img src="https://github.com/LinuxBeginnings/Telegram-Animated-Emojis/blob/main/Activity/Sparkles.webp" alt="Sparkles" width="38" height="38" />
 	KooL Hyprland-Dotfiles Showcase 
-	<img src="https://github.com/JaKooLit/Telegram-Animated-Emojis/blob/main/Activity/Sparkles.webp" alt="Sparkles" width="38" height="38" />
+	<img src="https://github.com/LinuxBeginnings/Telegram-Animated-Emojis/blob/main/Activity/Sparkles.webp" alt="Sparkles" width="38" height="38" />
 </h3>
 
 <div align="center">
@@ -64,7 +64,7 @@ https://github.com/user-attachments/assets/49bc12b2-abaf-45de-a21c-67aacd9bb872
 
 - Do not run this installer as sudo or as root
 - This Installer requires a user with a priviledge to install packages
-- This is only 25.10 Questing Quokka and above. Check [`MAIN BRANCH`](https://github.com/JaKooLit/Ubuntu-Hyprland/tree/main) for other Ubuntu Versions
+- This is only 25.10 Questing Quokka and above. Check [`MAIN BRANCH`](https://github.com/LinuxBeginnings/Ubuntu-Hyprland/tree/main) for other Ubuntu Versions
 
 ### Gallery and Videos
 
@@ -75,17 +75,17 @@ https://github.com/user-attachments/assets/49bc12b2-abaf-45de-a21c-67aacd9bb872
 
 ### 🪧🪧🪧 ANNOUNCEMENT 🪧🪧🪧
 
-- This Repo does not contain Hyprland Dots or configs! Dotfiles can be checked here [`Hyprland-Dots`](https://github.com/JaKooLit/Hyprland-Dots/tree/Deb-Untu-Dots) . During installation, if you opt to copy pre-configured dots, it will be downloaded from that centralized repo.
-- Hyprland-Dots use are constantly evolving / improving. you can check CHANGELOGS here [`Hyprland-Dots-Changelogs`](https://github.com/JaKooLit/Hyprland-Dots/wiki/Changelogs)
+- This Repo does not contain Hyprland Dots or configs! Dotfiles can be checked here [`Hyprland-Dots`](https://github.com/LinuxBeginnings/Hyprland-Dots/tree/Deb-Untu-Dots) . During installation, if you opt to copy pre-configured dots, it will be downloaded from that centralized repo.
+- Hyprland-Dots use are constantly evolving / improving. you can check CHANGELOGS here [`Hyprland-Dots-Changelogs`](https://github.com/LinuxBeginnings/Hyprland-Dots/wiki/Changelogs)
 - Since the Hyprland-Dots are evolving, some of the screenshots maybe old
-- the wallpaper offered to be downloaded towards the end is from this [`REPO`](https://github.com/JaKooLit/Wallpaper-Bank)
+- the wallpaper offered to be downloaded towards the end is from this [`REPO`](https://github.com/LinuxBeginnings/Wallpaper-Bank)
 - The dotfiles that will be pulled by this installer is only specific. Since newer dotfiles might not work properly
 
 ### ✨ Some notes on this installer / Prerequisites
 
 - This script is to install Hyprland on Ubuntu 25.10 Questing Quokka or later.
 - If you have nvidia, and wanted to use proprietary drivers, uninstall nouveau first (if installed). This script will be installing proprietary nvidia drivers and will not deal with removal of nouveau.
-- NVIDIA users / owners, after installation, check [`THIS`](https://github.com/JaKooLit/Hyprland-Dots/wiki/Notes_to_remember#--for-nvidia-gpu-users)
+- NVIDIA users / owners, after installation, check [`THIS`](https://github.com/LinuxBeginnings/Hyprland-Dots/wiki/Notes_to_remember#--for-nvidia-gpu-users)
 
 #### ✨ Costumize the packages to be installed
 
@@ -106,8 +106,8 @@ sudo apt install --no-install-recommends -y sddm
 
 #### 💫 SDDM and GTK Themes offered
 
-- If you opted to install SDDM theme, here's the [`LINK`](https://github.com/JaKooLit/simple-sddm-2) which is a modified fork of [`LINK`](https://github.com/Keyitdev/sddm-astronaut-theme)
-- If you opted to install GTK Themes, Icons, here's the [`LINK`](https://github.com/JaKooLit/GTK-themes-icons). This also includes Bibata Modern Ice cursor.
+- If you opted to install SDDM theme, here's the [`LINK`](https://github.com/LinuxBeginnings/simple-sddm-2) which is a modified fork of [`LINK`](https://github.com/Keyitdev/sddm-astronaut-theme)
+- If you opted to install GTK Themes, Icons, here's the [`LINK`](https://github.com/LinuxBeginnings/GTK-themes-icons). This also includes Bibata Modern Ice cursor.
 
 ####
 
@@ -120,7 +120,7 @@ sudo apt install --no-install-recommends -y sddm
 - NOTE: `curl` package is required before running this command
 
 ```bash
-sh <(curl -L https://raw.githubusercontent.com/JaKooLit/Ubuntu-Hyprland/25.10/auto-install.sh)
+sh <(curl -L https://raw.githubusercontent.com/LinuxBeginnings/Ubuntu-Hyprland/25.10/auto-install.sh)
 ```
 
 ## ✨ to use this script
@@ -128,7 +128,7 @@ sh <(curl -L https://raw.githubusercontent.com/JaKooLit/Ubuntu-Hyprland/25.10/au
 > clone this repo (latest commit only) by using git. Change directory, make executable and run the script
 
 ```bash
-git clone --depth=1 -b 25.10 https://github.com/JaKooLit/Ubuntu-Hyprland.git ~/Ubuntu-Hyprland-25.10
+git clone --depth=1 -b 25.10 https://github.com/LinuxBeginnings/Ubuntu-Hyprland.git ~/Ubuntu-Hyprland-25.10
 cd ~/Ubuntu-Hyprland-25.10
 chmod +x install.sh
 ./install.sh
@@ -168,7 +168,7 @@ source ~/.zshrc
 #### ✨ TO DO once installation done and dotfiles copied
 
 - SUPER H for HINT or click on the waybar HINT! Button
-- Head over to [FAQ](https://github.com/JaKooLit/Hyprland-Dots/wiki/FAQ) and [TIPS](https://github.com/JaKooLit/Hyprland-Dots/wiki/TIPS)
+- Head over to [FAQ](https://github.com/LinuxBeginnings/Hyprland-Dots/wiki/FAQ) and [TIPS](https://github.com/LinuxBeginnings/Hyprland-Dots/wiki/TIPS)
 
 - if you installed in your laptop and Brightness and Keyboard brightness does not work you can execute this command `sudo chmod +s $(which brightnessctl)`
 
@@ -199,15 +199,15 @@ source ~/.zshrc
 #### ✨ TO DO once installation done and dotfiles copied
 
 - SUPER H for HINT or click on the waybar HINT! Button
-- Head over to [KooL Hyprland WIKI](https://github.com/JaKooLit/Hyprland-Dots/wiki)
+- Head over to [KooL Hyprland WIKI](https://github.com/LinuxBeginnings/Hyprland-Dots/wiki)
 
 #### 🙋 Got a questions regarding the Hyprland Dots or configurations? 🙋
 
-- Head over to wiki Link [`WIKI`](https://github.com/JaKooLit/Hyprland-Dots/wiki)
+- Head over to wiki Link [`WIKI`](https://github.com/LinuxBeginnings/Hyprland-Dots/wiki)
 
 #### ⌨ Keybinds
 
-- Keybinds [`CLICK`](https://github.com/JaKooLit/Hyprland-Dots/wiki/Keybinds)
+- Keybinds [`CLICK`](https://github.com/LinuxBeginnings/Hyprland-Dots/wiki/Keybinds)
 
 > [!TIP]
 > KooL Hyprland has a searchable keybind function via rofi. (SUPER SHIFT K) or right click the `HINTS` waybar button
@@ -222,7 +222,7 @@ source ~/.zshrc
 #### 🙋 👋 Having issues or questions?
 
 - for the install part, kindly open issue on this repo
-- for the Pre-configured Hyprland dots / configuration, submit issue [`here`](https://github.com/JaKooLit/Hyprland-Dots/issues)
+- for the Pre-configured Hyprland dots / configuration, submit issue [`here`](https://github.com/LinuxBeginnings/Hyprland-Dots/issues)
 
 #### 🔧 Proper way to re-installing a particular script from install-scripts directory
 
@@ -263,7 +263,7 @@ env = WLR_RENDERER_ALLOW_SOFTWARE,1
 
 #### 🫥 Improving performance for Older Nvidia Cards using driver 470
 
-- [`SEE HERE`](https://github.com/JaKooLit/Hyprland-Dots/discussions/123#discussion-6035205)
+- [`SEE HERE`](https://github.com/LinuxBeginnings/Hyprland-Dots/discussions/123#discussion-6035205)
 
 #### ❗ other known issues
 
@@ -283,7 +283,7 @@ cd ~/Ubuntu-Hyprland
 - [ ] Rofi-wayland is compatible with x11 so no need to worry.
 - [ ] Does not work in Ubuntu 23.10 and older
 - [ ] sddm blackscreen when log-out
-- [ ] Installing SDDM if or any other Login Manager installed. See [`Issue 2 - SDDM`](https://github.com/JaKooLit/Ubuntu-Hyprland/issues/2)
+- [ ] Installing SDDM if or any other Login Manager installed. See [`Issue 2 - SDDM`](https://github.com/LinuxBeginnings/Ubuntu-Hyprland/issues/2)
 - [ ] network is down or become unmanaged [`This`](https://askubuntu.com/questions/71159/network-manager-says-device-not-managed) might help
 - [ ] See note above about Hyprland-Dots newer version incompatibility
 
@@ -295,9 +295,9 @@ cd ~/Ubuntu-Hyprland
 #### ✍️ Contributing
 
 - As stated above, these script does not contain actual config files. These are only the installer of packages
-- If you want to contribute and/or test the Hyprland-Dotfiles (development branch), [`Hyprland-Dots-Development`](https://github.com/JaKooLit/Hyprland-Dots/tree/development)
-- Want to contribute on KooL-Hyprland-Dots Click [`HERE`](https://github.com/JaKooLit/Hyprland-Dots/blob/main/CONTRIBUTING.md) for a guide how to contribute
-- Want to contribute on This Installer? Click [`HERE`](https://github.com/JaKooLit/Ubuntu-Hyprland/blob/25.04/CONTRIBUTING.md) for a guide how to contribute
+- If you want to contribute and/or test the Hyprland-Dotfiles (development branch), [`Hyprland-Dots-Development`](https://github.com/LinuxBeginnings/Hyprland-Dots/tree/development)
+- Want to contribute on KooL-Hyprland-Dots Click [`HERE`](https://github.com/LinuxBeginnings/Hyprland-Dots/blob/main/CONTRIBUTING.md) for a guide how to contribute
+- Want to contribute on This Installer? Click [`HERE`](https://github.com/LinuxBeginnings/Ubuntu-Hyprland/blob/25.04/CONTRIBUTING.md) for a guide how to contribute
 
 #### 👍👍👍 Thanks and Credits!
 
@@ -311,11 +311,11 @@ cd ~/Ubuntu-Hyprland
 
 - you can also give support through coffee's or btc 😊
 
-[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/jakoolit)
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/linuxbeginnings)
 
 or
 
-[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/JaKooLit)
+[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/LinuxBeginnings)
 
 Or you can donate cryto on my btc wallet :)
 
@@ -325,8 +325,8 @@ Or you can donate cryto on my btc wallet :)
 
 #### 📹 Youtube videos (Click to view and watch the playlist) 📹
 
-[![Youtube Playlist Thumbnail](https://raw.githubusercontent.com/JaKooLit/screenshots/main/Youtube.png)](https://youtube.com/playlist?list=PLDtGd5Fw5_GjXCznR0BzCJJDIQSZJRbxx&si=iaNjLulFdsZ6AV-t)
+[![Youtube Playlist Thumbnail](https://raw.githubusercontent.com/LinuxBeginnings/screenshots/main/Youtube.png)](https://youtube.com/playlist?list=PLDtGd5Fw5_GjXCznR0BzCJJDIQSZJRbxx&si=iaNjLulFdsZ6AV-t)
 
 ## 🥰🥰 💖💖 👍👍👍
 
-[![Stargazers over time](https://starchart.cc/JaKooLit/Ubuntu-Hyprland.svg?variant=adaptive)](https://starchart.cc/JaKooLit/Ubuntu-Hyprland)
+[![Stargazers over time](https://starchart.cc/LinuxBeginnings/Ubuntu-Hyprland.svg?variant=adaptive)](https://starchart.cc/LinuxBeginnings/Ubuntu-Hyprland)

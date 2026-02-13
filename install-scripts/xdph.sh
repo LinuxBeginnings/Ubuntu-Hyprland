@@ -1,5 +1,5 @@
 #!/bin/bash
-# 💫 https://github.com/JaKooLit 💫 #
+# 💫 https://github.com/LinuxBeginnings 💫 #
 # XDG-Desktop-Portal-Hyprland (build from source)
 
 xdg_deps=(

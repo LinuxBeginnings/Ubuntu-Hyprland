@@ -1,4 +1,4 @@
-# 💫 https://github.com/JaKooLit 💫 #
+# 💫 https://github.com/LinuxBeginnings 💫 #
 
 ## -- Make sure you use the right answer or install script will fail ###
 # Use only Y for Yes and N for No . If you put other letter, the script will fail
