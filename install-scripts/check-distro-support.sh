@@ -1,5 +1,5 @@
 #!/bin/bash
-# 💫 https://github.com/JaKooLit 💫 #
+# 💫 https://github.com/LinuxBeginnings 💫 #
 # Check current distro against a blocklist before using the Hyprland PPA.
 #
 # How to add more blocked distros:

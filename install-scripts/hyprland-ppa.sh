@@ -1,5 +1,5 @@
 #!/bin/bash
-# 💫 https://github.com/JaKooLit 💫 #
+# 💫 https://github.com/LinuxBeginnings 💫 #
 # Add Hyprland PPA and install Hyprland stack from PPA
 
 set -euo pipefail

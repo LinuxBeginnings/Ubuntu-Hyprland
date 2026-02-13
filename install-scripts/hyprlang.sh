@@ -1,5 +1,5 @@
 #!/bin/bash
-# 💫 https://github.com/JaKooLit 💫 #
+# 💫 https://github.com/LinuxBeginnings 💫 #
 # hyprlang - hyprland and xdg-desktop-portal- dependencies #
 
 #specific branch or release

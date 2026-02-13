@@ -1,5 +1,5 @@
 #!/bin/bash
-# 💫 https://github.com/JaKooLit 💫 #
+# 💫 https://github.com/LinuxBeginnings 💫 #
 # SDDM themes for ubuntu 24.04 #
 
 ## WARNING: DO NOT EDIT BEYOND THIS LINE IF YOU DON'T KNOW WHAT YOU ARE DOING! ##
@@ -33,7 +33,7 @@ if [ -d "$theme" ]; then
 fi
 
 # Clone the repository if it's not already cloned
-if git clone https://github.com/JaKooLit/simple-sddm.git; then
+if git clone https://github.com/LinuxBeginnings/simple-sddm.git; then
   # Wait until the directory is fully cloned
   while [ ! -d "$theme" ]; do
     sleep 1
