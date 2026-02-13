@@ -5,20 +5,20 @@
 ## For Ubuntu-Hyprland
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/JaKooLit/Hyprland-Dots/main/assets/latte.png" width="400" />
+  <img src="https://raw.githubusercontent.com/LinuxBeginnings/Hyprland-Dots/main/assets/latte.png" width="400" />
 </p>
 
 
-![GitHub Repo stars](https://img.shields.io/github/stars/JaKooLit/Ubuntu-Hyprland?style=for-the-badge&color=cba6f7) ![GitHub last commit](https://img.shields.io/github/last-commit/JaKooLit/Ubuntu-Hyprland?style=for-the-badge&color=b4befe) ![GitHub repo size](https://img.shields.io/github/repo-size/JaKooLit/Ubuntu-Hyprland?style=for-the-badge&color=cba6f7) <a href="https://discord.gg/kool-tech-world"> <img src="https://img.shields.io/discord/1151869464405606400?style=for-the-badge&logo=discord&color=cba6f7&link=https%3A%2F%2Fdiscord.gg%kool-tech-world"> </a>
+![GitHub Repo stars](https://img.shields.io/github/stars/LinuxBeginnings/Ubuntu-Hyprland?style=for-the-badge&color=cba6f7) ![GitHub last commit](https://img.shields.io/github/last-commit/LinuxBeginnings/Ubuntu-Hyprland?style=for-the-badge&color=b4befe) ![GitHub repo size](https://img.shields.io/github/repo-size/LinuxBeginnings/Ubuntu-Hyprland?style=for-the-badge&color=cba6f7) <a href="https://discord.gg/kool-tech-world"> <img src="https://img.shields.io/discord/1151869464405606400?style=for-the-badge&logo=discord&color=cba6f7&link=https%3A%2F%2Fdiscord.gg%kool-tech-world"> </a>
 
 <br/>
 </div>
 
 
 <h3 align="center">
-	<img src="https://github.com/JaKooLit/Telegram-Animated-Emojis/blob/main/Activity/Sparkles.webp" alt="Sparkles" width="38" height="38" />
+	<img src="https://github.com/LinuxBeginnings/Telegram-Animated-Emojis/blob/main/Activity/Sparkles.webp" alt="Sparkles" width="38" height="38" />
 	KooL's Hyprland Dotfiles Showcase 
-	<img src="https://github.com/JaKooLit/Telegram-Animated-Emojis/blob/main/Activity/Sparkles.webp" alt="Sparkles" width="38" height="38" />
+	<img src="https://github.com/LinuxBeginnings/Telegram-Animated-Emojis/blob/main/Activity/Sparkles.webp" alt="Sparkles" width="38" height="38" />
 </h3>
 
 <div align="center">
@@ -38,12 +38,12 @@ https://github.com/user-attachments/assets/49bc12b2-abaf-45de-a21c-67aacd9bb872
 
 ###  💥  Ubuntu 25.10 Questing Quokka 
 <h4 align="left">
-<img src="https://github.com/JaKooLit/Telegram-Animated-Emojis/blob/main/Activity/Sparkles.webp" alt="Sparkles" width="38" height="38" />  <a href="https://github.com/JaKooLit/Ubuntu-Hyprland/tree/25.10"> Ubuntu 25.10 Questing Quokka Hyprland install script branch </a><br><br>
+<img src="https://github.com/LinuxBeginnings/Telegram-Animated-Emojis/blob/main/Activity/Sparkles.webp" alt="Sparkles" width="38" height="38" />  <a href="https://github.com/LinuxBeginnings/Ubuntu-Hyprland/tree/25.10"> Ubuntu 25.10 Questing Quokka Hyprland install script branch </a><br><br>
 </h4>
 
 ###  💥  Ubuntu 24.04 Noble Numbat
 <h4 align="left">
-<img src="https://github.com/JaKooLit/Telegram-Animated-Emojis/blob/main/Objects/File Folder.webp" alt="File Folder" width="38" height="38" />   <a href="https://github.com/JaKooLit/Ubuntu-Hyprland/tree/24.04"> 👉 Ubuntu 24.04 LTS Noble Numbat Hyprland install script branch </a><br><br>
+<img src="https://github.com/LinuxBeginnings/Telegram-Animated-Emojis/blob/main/Objects/File Folder.webp" alt="File Folder" width="38" height="38" />   <a href="https://github.com/LinuxBeginnings/Ubuntu-Hyprland/tree/24.04"> 👉 Ubuntu 24.04 LTS Noble Numbat Hyprland install script branch </a><br><br>
 </h4>
 
 #### ⁉️ 🙋🏻 🙋‍♀ FAQ ⁉ WILL WORK ON Ubuntu 24.04.1 LTS ⁉
@@ -56,13 +56,13 @@ https://github.com/user-attachments/assets/49bc12b2-abaf-45de-a21c-67aacd9bb872
 
 ###  -  Ubuntu 24.10 Oracular Oriole  
 <h4 align="left">
-<img src="https://github.com/JaKooLit/Telegram-Animated-Emojis/blob/main/Activity/Sparkles.webp" alt="Sparkles" width="38" height="38" />  <a href="https://github.com/JaKooLit/Ubuntu-Hyprland/tree/24.10"> Ubuntu 24.10 Oracular Oriole Hyprland install script branch </a><br><br>
+<img src="https://github.com/LinuxBeginnings/Telegram-Animated-Emojis/blob/main/Activity/Sparkles.webp" alt="Sparkles" width="38" height="38" />  <a href="https://github.com/LinuxBeginnings/Ubuntu-Hyprland/tree/24.10"> Ubuntu 24.10 Oracular Oriole Hyprland install script branch </a><br><br>
 </h4>
 
 
 ###  -  Ubuntu 25.04 Plucky Puffin  
 <h4 align="left">
-<img src="https://github.com/JaKooLit/Telegram-Animated-Emojis/blob/main/Activity/Sparkles.webp" alt="Sparkles" width="38" height="38" />  <a href="https://github.com/JaKooLit/Ubuntu-Hyprland/tree/25.04"> Ubuntu 25.04 Plucky Puffin Hyprland install script branch </a><br><br>
+<img src="https://github.com/LinuxBeginnings/Telegram-Animated-Emojis/blob/main/Activity/Sparkles.webp" alt="Sparkles" width="38" height="38" />  <a href="https://github.com/LinuxBeginnings/Ubuntu-Hyprland/tree/25.04"> Ubuntu 25.04 Plucky Puffin Hyprland install script branch </a><br><br>
 </h4>
 
 
@@ -77,7 +77,7 @@ https://github.com/user-attachments/assets/49bc12b2-abaf-45de-a21c-67aacd9bb872
 ## 💥 For Ubuntu 24.04 (Includes 24.04.1, 24.04.1,24.04.3 etc)
 - (Uses PPA to install current Hyprland version) 
 ```bash
-git clone -b 24.04 --depth=1  https://github.com/JaKooLit/Ubuntu-Hyprland.git ~/Ubuntu-Hyprland-24.04
+git clone -b 24.04 --depth=1  https://github.com/LinuxBeginnings/Ubuntu-Hyprland.git ~/Ubuntu-Hyprland-24.04
 cd ~/Ubuntu-Hyprland-24.04
 chmod +x install.sh
 ./install.sh
@@ -88,7 +88,7 @@ chmod +x install.sh
 - (Uses PPA to install current Hyprland version) 
 
 ```
-git clone -b 25.10 --depth=1  https://github.com/JaKooLit/Ubuntu-Hyprland.git ~/Ubuntu-Hyprland-25.10
+git clone -b 25.10 --depth=1  https://github.com/LinuxBeginnings/Ubuntu-Hyprland.git ~/Ubuntu-Hyprland-25.10
 cd ~/Ubuntu-Hyprland-25.10
 chmod +x install.sh
 ./install.sh
@@ -101,7 +101,7 @@ chmod +x install.sh
 
 ## 💢 For Ubuntu 24.10
 ```bash
-git clone -b 24.10 --depth=1  https://github.com/JaKooLit/Ubuntu-Hyprland.git ~/Ubuntu-Hyprland-24.10
+git clone -b 24.10 --depth=1  https://github.com/LinuxBeginnings/Ubuntu-Hyprland.git ~/Ubuntu-Hyprland-24.10
 cd ~/Ubuntu-Hyprland-24.10
 chmod +x install.sh
 ./install.sh
@@ -109,7 +109,7 @@ chmod +x install.sh
 
 ## 💫 For Ubuntu 25.04  
 ```bash
-git clone -b 25.04 --depth=1  https://github.com/JaKooLit/Ubuntu-Hyprland.git ~/Ubuntu-Hyprland-25.04
+git clone -b 25.04 --depth=1  https://github.com/LinuxBeginnings/Ubuntu-Hyprland.git ~/Ubuntu-Hyprland-25.04
 cd ~/Ubuntu-Hyprland-25.04
 chmod +x install.sh
 ./install.sh
@@ -129,14 +129,14 @@ chmod +x install.sh
 
 
 ## Some Links of Projects used for this project
-- KooL's Hyprland Dots [`LINK`](https://github.com/JaKooLit/Hyprland-Dots)
-- SDDM Theme [`LINK`](https://github.com/JaKooLit/simple-sddm.git) - for Ubuntu 24.04
-- Wallpapers - which was offered to download at the end of installation ['LINK'](https://github.com/JaKooLit/Wallpaper-Bank)
-- GTK Themes and Icons [`LINK`](https://github.com/JaKooLit/GTK-themes-icons)
+- KooL's Hyprland Dots [`LINK`](https://github.com/LinuxBeginnings/Hyprland-Dots)
+- SDDM Theme [`LINK`](https://github.com/LinuxBeginnings/simple-sddm.git) - for Ubuntu 24.04
+- Wallpapers - which was offered to download at the end of installation ['LINK'](https://github.com/LinuxBeginnings/Wallpaper-Bank)
+- GTK Themes and Icons [`LINK`](https://github.com/LinuxBeginnings/GTK-themes-icons)
 
 
 ## KooL's Hyprland Dots very own wiki
-- KooL's Dots [`WIKI`](https://github.com/JaKooLit/Hyprland-Dots/wiki) . In that wiki are FAQ, TIPS, Changelogs, and more
+- KooL's Dots [`WIKI`](https://github.com/LinuxBeginnings/Hyprland-Dots/wiki) . In that wiki are FAQ, TIPS, Changelogs, and more
 
 ### Gallery and Videos
 #### 🎥 Feb 2025 Video explanation of installation with preset
@@ -157,11 +157,11 @@ chmod +x install.sh
 
 - you can also give support through coffee's or btc 😊
 
-[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/jakoolit)
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/linuxbeginnings)
 
 or
 
-[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/JaKooLit)
+[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/LinuxBeginnings)
 
 Or you can donate cryto on my btc wallet :)  
 > 1N3MeV2dsX6gQB42HXU6MF2hAix1mqjo8i
@@ -170,4 +170,4 @@ Or you can donate cryto on my btc wallet :)
 
 
 ## 🥰🥰 💖💖 👍👍👍
-[![Stargazers over time](https://starchart.cc/JaKooLit/Ubuntu-Hyprland.svg?variant=adaptive)](https://starchart.cc/JaKooLit/Ubuntu-Hyprland)
+[![Stargazers over time](https://starchart.cc/LinuxBeginnings/Ubuntu-Hyprland.svg?variant=adaptive)](https://starchart.cc/LinuxBeginnings/Ubuntu-Hyprland)
