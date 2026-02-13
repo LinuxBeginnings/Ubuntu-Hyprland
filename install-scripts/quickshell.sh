@@ -1,5 +1,5 @@
 #!/bin/bash
-# 💫 https://github.com/JaKooLit 💫 #
+# 💫 https://github.com/LinuxBeginnings 💫 #
 # Quickshell (QtQuick-based shell toolkit) - Ubuntu 26.04 builder
 
 set -Eeuo pipefail

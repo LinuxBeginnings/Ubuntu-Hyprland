@@ -1,5 +1,5 @@
 #!/bin/bash
-# 💫 https://github.com/JaKooLit 💫 #
+# 💫 https://github.com/LinuxBeginnings 💫 #
 # Enable the Hyprland PPA and install packages (best-effort; guards for 26.04 support)
 
 set -euo pipefail

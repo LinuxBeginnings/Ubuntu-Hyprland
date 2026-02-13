@@ -1,5 +1,5 @@
 #!/bin/bash
-# 💫 https://github.com/JaKooLit 💫 #
+# 💫 https://github.com/LinuxBeginnings 💫 #
 # Install Hyprland and related packages from Ubuntu repositories (remove PPA if present)
 
 set -e
