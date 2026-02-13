@@ -1,19 +1,17 @@
-
 <div align="center">
 
 # 💌 KooL's Ubuntu Hyprland Install Script 💌
+
 ## For Ubuntu-Hyprland
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/LinuxBeginnings/Hyprland-Dots/main/assets/latte.png" width="400" />
 </p>
 
-
 ![GitHub Repo stars](https://img.shields.io/github/stars/LinuxBeginnings/Ubuntu-Hyprland?style=for-the-badge&color=cba6f7) ![GitHub last commit](https://img.shields.io/github/last-commit/LinuxBeginnings/Ubuntu-Hyprland?style=for-the-badge&color=b4befe) ![GitHub repo size](https://img.shields.io/github/repo-size/LinuxBeginnings/Ubuntu-Hyprland?style=for-the-badge&color=cba6f7) <a href="https://discord.gg/kool-tech-world"> <img src="https://img.shields.io/discord/1151869464405606400?style=for-the-badge&logo=discord&color=cba6f7&link=https%3A%2F%2Fdiscord.gg%kool-tech-world"> </a>
 
 <br/>
 </div>
-
 
 <h3 align="center">
 	<img src="https://github.com/LinuxBeginnings/Telegram-Animated-Emojis/blob/main/Activity/Sparkles.webp" alt="Sparkles" width="38" height="38" />
@@ -28,54 +26,56 @@ https://github.com/user-attachments/assets/49bc12b2-abaf-45de-a21c-67aacd9bb872
 </div>
 
 ### BRANCHES on this Repo
+
 - Branches on this repo corresponds Ubuntu Versions.
 - In July 2025 we stopped supporting ubuntu because the hyprland version is very old.
-- With the addtion of a PPA we can now support ubuntu 24.04 and 25.10 
+- With the addtion of a PPA we can now support ubuntu 24.04 and 25.10
 - When 26.04 LTS is released, we will drop support for 25.10
-- These the only versions we are supporting for ubuntu long term 
+- These the only versions we are supporting for ubuntu long term
 - They use the same Hyprland configuration files, which allows our small team to maintain feature parity
 
+### 💥 Ubuntu 25.10 Questing Quokka
 
-###  💥  Ubuntu 25.10 Questing Quokka 
 <h4 align="left">
 <img src="https://github.com/LinuxBeginnings/Telegram-Animated-Emojis/blob/main/Activity/Sparkles.webp" alt="Sparkles" width="38" height="38" />  <a href="https://github.com/LinuxBeginnings/Ubuntu-Hyprland/tree/25.10"> Ubuntu 25.10 Questing Quokka Hyprland install script branch </a><br><br>
 </h4>
 
-###  💥  Ubuntu 24.04 Noble Numbat
+### 💥 Ubuntu 24.04 Noble Numbat
+
 <h4 align="left">
 <img src="https://github.com/LinuxBeginnings/Telegram-Animated-Emojis/blob/main/Objects/File Folder.webp" alt="File Folder" width="38" height="38" />   <a href="https://github.com/LinuxBeginnings/Ubuntu-Hyprland/tree/24.04"> 👉 Ubuntu 24.04 LTS Noble Numbat Hyprland install script branch </a><br><br>
 </h4>
 
 #### ⁉️ 🙋🏻 🙋‍♀ FAQ ⁉ WILL WORK ON Ubuntu 24.04.1 LTS ⁉
+
 - YES! 24.04.1 Ubuntu is just an updated Ubuntu 24.04 . Use the 24.04 Branch / Script.
-- This also means if Ubuntu decide to have another major update say 24.04.2 or .3 etc.. 
+- This also means if Ubuntu decide to have another major update say 24.04.2 or .3 etc..
 
+## Archived / Unsupported versions:
 
+### - Ubuntu 24.10 Oracular Oriole
 
-## Archived / Unsupported versions: 
-
-###  -  Ubuntu 24.10 Oracular Oriole  
 <h4 align="left">
 <img src="https://github.com/LinuxBeginnings/Telegram-Animated-Emojis/blob/main/Activity/Sparkles.webp" alt="Sparkles" width="38" height="38" />  <a href="https://github.com/LinuxBeginnings/Ubuntu-Hyprland/tree/24.10"> Ubuntu 24.10 Oracular Oriole Hyprland install script branch </a><br><br>
 </h4>
 
+### - Ubuntu 25.04 Plucky Puffin
 
-###  -  Ubuntu 25.04 Plucky Puffin  
 <h4 align="left">
 <img src="https://github.com/LinuxBeginnings/Telegram-Animated-Emojis/blob/main/Activity/Sparkles.webp" alt="Sparkles" width="38" height="38" />  <a href="https://github.com/LinuxBeginnings/Ubuntu-Hyprland/tree/25.04"> Ubuntu 25.04 Plucky Puffin Hyprland install script branch </a><br><br>
 </h4>
 
-
-
 ## ✨ Installation:
+
 > clone repo including the branch.
 
 > [!IMPORTANT]
 > Make SURE you include the branch by adding -b BRANCH.
 
-
 ## 💥 For Ubuntu 24.04 (Includes 24.04.1, 24.04.1,24.04.3 etc)
-- (Uses PPA to install current Hyprland version) 
+
+- (Uses PPA to install current Hyprland version)
+
 ```bash
 git clone -b 24.04 --depth=1  https://github.com/LinuxBeginnings/Ubuntu-Hyprland.git ~/Ubuntu-Hyprland-24.04
 cd ~/Ubuntu-Hyprland-24.04
@@ -83,9 +83,9 @@ chmod +x install.sh
 ./install.sh
 ```
 
+## 💫 For Ubuntu 25.10
 
-## 💫 For Ubuntu 25.10  
-- (Uses PPA to install current Hyprland version) 
+- (Uses PPA to install current Hyprland version)
 
 ```
 git clone -b 25.10 --depth=1  https://github.com/LinuxBeginnings/Ubuntu-Hyprland.git ~/Ubuntu-Hyprland-25.10
@@ -98,8 +98,8 @@ chmod +x install.sh
 > 25 July 2025
 > End of Support for Ubuntu 24.10/25.04 - Hyprland project
 
-
 ## 💢 For Ubuntu 24.10
+
 ```bash
 git clone -b 24.10 --depth=1  https://github.com/LinuxBeginnings/Ubuntu-Hyprland.git ~/Ubuntu-Hyprland-24.10
 cd ~/Ubuntu-Hyprland-24.10
@@ -107,14 +107,14 @@ chmod +x install.sh
 ./install.sh
 ```
 
-## 💫 For Ubuntu 25.04  
+## 💫 For Ubuntu 25.04
+
 ```bash
 git clone -b 25.04 --depth=1  https://github.com/LinuxBeginnings/Ubuntu-Hyprland.git ~/Ubuntu-Hyprland-25.04
 cd ~/Ubuntu-Hyprland-25.04
 chmod +x install.sh
 ./install.sh
 ```
- 
 
 > [!IMPORTANT]
 > Read through the Readme on each Branches for installation
@@ -122,52 +122,38 @@ chmod +x install.sh
 > [!IMPORTANT]
 > make sure to disable any idle or suspend functions on your system else script will fail
 
-
 ## FAQ 🙋‍♂️ Will this work on other Distro Based on Ubuntu? Like Linux mint?
-- Yes, BUT ensure to use the appropriate Ubuntu version. Like latest Linux mint is based on Ubuntu 24.04, you should use the 24.04 branch.
-- So kindly search which version of Ubuntu is your system running and use appropriate branch!! 
 
+- Yes, BUT ensure to use the appropriate Ubuntu version. Like latest Linux mint is based on Ubuntu 24.04, you should use the 24.04 branch.
+- So kindly search which version of Ubuntu is your system running and use appropriate branch!!
 
 ## Some Links of Projects used for this project
+
 - KooL's Hyprland Dots [`LINK`](https://github.com/LinuxBeginnings/Hyprland-Dots)
 - SDDM Theme [`LINK`](https://github.com/LinuxBeginnings/simple-sddm.git) - for Ubuntu 24.04
 - Wallpapers - which was offered to download at the end of installation ['LINK'](https://github.com/LinuxBeginnings/Wallpaper-Bank)
 - GTK Themes and Icons [`LINK`](https://github.com/LinuxBeginnings/GTK-themes-icons)
 
-
 ## KooL's Hyprland Dots very own wiki
+
 - KooL's Dots [`WIKI`](https://github.com/LinuxBeginnings/Hyprland-Dots/wiki) . In that wiki are FAQ, TIPS, Changelogs, and more
 
 ### Gallery and Videos
+
 #### 🎥 Feb 2025 Video explanation of installation with preset
+
 - [YOUTUBE-LINK](https://youtu.be/wQ70lo7P6vA?si=_QcbrNKh_Bg0L3wC)
 - [YOUTUBE-Hyprland-Playlist](https://youtube.com/playlist?list=PLDtGd5Fw5_GjXCznR0BzCJJDIQSZJRbxx&si=iaNjLulFdsZ6AV-t)
 
-## 🛎 *** DEBIAN and UBUNTU Hyprland Dots UPDATING NOTES ***
+## 🛎 **_ DEBIAN and UBUNTU Hyprland Dots UPDATING NOTES _**
+
 > [!IMPORTANT]
 
 > Ubuntu and Debian are now using the same dotfiles as the version of Hyprland for both is v0.53.1
 > Ubuntu has a PPA, and debian is compiled from source from Hyprland GIT repo
 
-
 ### 💖 Support
+
 - a Star on my Github repos would be nice 🌟
 
-- Subscribe to my Youtube Channel [YouTube](https://www.youtube.com/@Ja.KooLit) 
-
-- you can also give support through coffee's or btc 😊
-
-[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/linuxbeginnings)
-
-or
-
-[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/LinuxBeginnings)
-
-Or you can donate cryto on my btc wallet :)  
-> 1N3MeV2dsX6gQB42HXU6MF2hAix1mqjo8i
-
-![Bitcoin](https://github.com/user-attachments/assets/7ed32f8f-c499-46f0-a53c-3f6fbd343699)
-
-
-## 🥰🥰 💖💖 👍👍👍
-[![Stargazers over time](https://starchart.cc/LinuxBeginnings/Ubuntu-Hyprland.svg?variant=adaptive)](https://starchart.cc/LinuxBeginnings/Ubuntu-Hyprland)
+- Subscribe to my Youtube Channel [YouTube](https://www.youtube.com/@Ja.KooLit)
