@@ -1,4 +1,10 @@
 #!/bin/bash
+# ==================================================
+#  KoolDots (2026)
+#  Project URL: https://github.com/LinuxBeginnings
+#  License: GNU GPLv3
+#  SPDX-License-Identifier: GPL-3.0-or-later
+# ==================================================
 # ml4w-deps.sh — install packages from the ML4W list that are missing from this repo's install-scripts
 # Target: Ubuntu 25.10+/26.04+
 # Usage: run from repo root: ./install-scripts/ml4w-deps.sh

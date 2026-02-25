@@ -1,3 +1,9 @@
+# ==================================================
+#  KoolDots (2026)
+#  Project URL: https://github.com/LinuxBeginnings
+#  License: GNU GPLv3
+#  SPDX-License-Identifier: GPL-3.0-or-later
+# ==================================================
 # Building Quickshell from source (Ubuntu/Debian)
 
 This document records the exact requirements and steps we used to build Quickshell from source on Ubuntu 26.04, and how it integrates with this repository’s installer. It’s intended to be reusable for other Ubuntu/Debian versions that follow the same install layout and script logic.
