@@ -1,4 +1,10 @@
 #!/bin/bash
+# ==================================================
+#  KoolDots (2026)
+#  Project URL: https://github.com/LinuxBeginnings
+#  License: GNU GPLv3
+#  SPDX-License-Identifier: GPL-3.0-or-later
+# ==================================================
 # 💫 https://github.com/LinuxBeginnings 💫 #
 # Hyprland-Dots to download a specific release #
 
@@ -21,7 +27,7 @@ fi
 printf "${NOTE} Downloading the Hyprland-Dots-${specific_version} source code release...\n"
 
 # Fetch the tag name for the specific release using the GitHub API
-release_info=$(curl -s "https://api.github.com/repos/JaKooLit/Hyprland-Dots/releases/tags/${specific_version}")
+release_info=$(curl -s "https://api.github.com/repos/KoolDots/Hyprland-Dots/releases/tags/${specific_version}")
 if [ -z "$release_info" ]; then
   echo -e "${ERROR} Unable to fetch information for release ${specific_version}." 2>&1 | tee -a "../Install-Logs/install-$(date +'%d-%H%M%S')_dotfiles.log"
   exit 1
@@ -42,21 +48,21 @@ if curl -L "$tarball_url" -o "Hyprland-Dots-${specific_version}.tar.gz"; then
   tar -xzf "Hyprland-Dots-${specific_version}.tar.gz" || exit 1
 
   # Delete existing Hyprland-Dots
-  rm -rf JaKooLit-Hyprland-Dots
+  rm -rf KoolDots-Hyprland-Dots
 
   # Identify the extracted directory
   extracted_directory=$(tar -tf "Hyprland-Dots-${specific_version}.tar.gz" | grep -o '^[^/]\+' | uniq)
 
-  # Rename the extracted directory to JaKooLit-Hyprland-Dots
-  mv "$extracted_directory" JaKooLit-Hyprland-Dots || exit 1
+  # Rename the extracted directory to KoolDots-Hyprland-Dots
+  mv "$extracted_directory" KoolDots-Hyprland-Dots || exit 1
 
-  cd "JaKooLit-Hyprland-Dots" || exit 1
+  cd "KoolDots-Hyprland-Dots" || exit 1
 
   # Set execute permission for copy.sh and execute it
   chmod +x copy.sh
   ./copy.sh 
 
-  echo -e "${OK} Hyprland-Dots-${specific_version} release downloaded, extracted, and processed successfully. Check JaKooLit-Hyprland-Dots directory for more detailed install logs" 2>&1 | tee -a "../Install-Logs/install-$(date +'%d-%H%M%S')_dotfiles.log"
+  echo -e "${OK} Hyprland-Dots-${specific_version} release downloaded, extracted, and processed successfully. Check KoolDots-Hyprland-Dots directory for more detailed install logs" 2>&1 | tee -a "../Install-Logs/install-$(date +'%d-%H%M%S')_dotfiles.log"
 else
   echo -e "${ERROR} Failed to download Hyprland-Dots-${specific_version} release." 2>&1 | tee -a "../Install-Logs/install-$(date +'%d-%H%M%S')_dotfiles.log"
   exit 1
