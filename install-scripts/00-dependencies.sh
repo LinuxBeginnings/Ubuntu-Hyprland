@@ -89,6 +89,7 @@ dependencies=(
     qml6-module-qtquick-layouts
     qt6-tools-dev
     qt6-tools-dev-tools
+    rsync
     spirv-tools
     unzip
     vulkan-validationlayers
