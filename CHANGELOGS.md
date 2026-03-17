@@ -1,5 +1,24 @@
 ## CHANGELOGS
 
+## Mar 2026
+
+- Added rofi version/presence check
+- Manually Added Hyprland PPA for testing
+    - When ubuntu v26.04 is released the PPA repo will add support
+- Added `hyprland-guituils` to dependencies
+- Removed Jak ko-fi, stars from README
+- Updated `swww` to v0.11.2
+- Added version checks for `wallust` and `rust` to prevent re-installation
+- Updtated discord links
+- Added Spanish Translations
+- Added `go`
+    - To build `nwg-drawer` and `dock-hyprland`
+- Fixed flatpak install
+- Installed `gum` from snap
+- Added missing dependencies for `quickshell`
+    - Created document on how to build `quickshell`
+    - Lists packages, scripts and common errors
+
 ## Dec 2025
 
 - Started work on supporting ubuntu 26.04
