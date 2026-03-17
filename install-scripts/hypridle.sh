@@ -13,7 +13,7 @@ idle=(
 )
 
 #specific branch or release
-idle_tag="v0.1.2"
+idle_tag="v0.1.6"
 
 ## WARNING: DO NOT EDIT BEYOND THIS LINE IF YOU DON'T KNOW WHAT YOU ARE DOING! ##
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -55,7 +55,13 @@ if git clone --recursive -b $idle_tag https://github.com/hyprwm/hypridle.git; th
 	cmake --no-warn-unused-cli -DCMAKE_BUILD_TYPE:STRING=Release -S . -B ./build
 	cmake --build ./build --config Release --target hypridle -j`nproc 2>/dev/null || getconf NPROCESSORS_CONF`
     if sudo cmake --install ./build 2>&1 | tee -a "$MLOG" ; then
+<<<<<<< HEAD
         printf "${OK} ${MAGENTA}hypridle $idle_tag${RESET} has been successfully installed.\n" 2>&1 | tee -a "$MLOG"
+||||||| 814e28a
+        printf "${OK} hypridle installed successfully.\n" 2>&1 | tee -a "$MLOG"
+=======
+        printf "${OK} ${MAGENTA}hypridle $idle_tag${RESET} installed successfully.\n" 2>&1 | tee -a "$MLOG"
+>>>>>>> 25.10-development
     else
         echo -e "${ERROR} Installation failed for ${YELLOW}hypridle $idle_tag${RESET}" 2>&1 | tee -a "$MLOG"
     fi
@@ -66,4 +72,12 @@ else
     echo -e "${ERROR} Download failed for ${YELLOW}hypridle $idle_tag${RESET}" 2>&1 | tee -a "$LOG"
 fi
 
+<<<<<<< HEAD
 printf "\n%.0s" {1..2}
+||||||| 814e28a
+clear
+
+
+=======
+printf "\n%.0s" {1..2}
+>>>>>>> 25.10-development

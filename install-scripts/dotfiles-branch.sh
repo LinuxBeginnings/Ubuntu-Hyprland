@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #!/bin/bash
 # ==================================================
 #  KoolDots (2026)
@@ -46,3 +47,52 @@ else
 fi
 
 printf "\n%.0s" {1..2}
+||||||| 814e28a
+=======
+#!/bin/bash
+# ==================================================
+#  KoolDots (2026)
+#  Project URL: https://github.com/LinuxBeginnings
+#  License: GNU GPLv3
+#  SPDX-License-Identifier: GPL-3.0-or-later
+# ==================================================
+# 💫 https://github.com/LinuxBeginnings 💫 #
+# Hyprland-Dots to download from main #
+
+#specific branch or release
+dots_tag="main"
+
+## WARNING: DO NOT EDIT BEYOND THIS LINE IF YOU DON'T KNOW WHAT YOU ARE DOING! ##
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+# Change the working directory to the parent directory of the script
+PARENT_DIR="$SCRIPT_DIR/.."
+cd "$PARENT_DIR" || { echo "${ERROR} Failed to change directory to $PARENT_DIR"; exit 1; }
+
+# Source the global functions script
+if ! source "$(dirname "$(readlink -f "$0")")/Global_functions.sh"; then
+  echo "Failed to source Global_functions.sh"
+  exit 1
+fi
+
+# Check if Hyprland-Dots exists
+printf "${NOTE} Cloning and Installing ${SKY_BLUE}KooL's Hyprland Dots for Ubuntu${RESET}....\n"
+
+# Check if Hyprland-Dots exists
+if [ -d Hyprland-Dots-Ubuntu ]; then
+  cd Hyprland-Dots-Ubuntu
+  git stash && git pull
+  chmod +x copy.sh
+  ./copy.sh 
+else
+  if git clone --depth=1 https://github.com/LinuxBeginnings/Hyprland-Dots Hyprland-Dots-Ubuntu; then
+    cd Hyprland-Dots-Ubuntu || exit 1
+    chmod +x copy.sh
+    ./copy.sh 
+  else
+    echo -e "$ERROR Can't download ${YELLOW}KooL's Hyprland-Dots-Ubuntu${RESET}"
+  fi
+fi
+
+printf "\n%.0s" {1..2}
+>>>>>>> 25.10-development

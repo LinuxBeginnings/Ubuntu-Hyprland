@@ -9,10 +9,20 @@
 # Zsh and Oh my Zsh + Optional Pokemon ColorScripts#
 
 zsh=(
+<<<<<<< HEAD
     lsd
     zsh
     mercurial
     zplug
+||||||| 814e28a
+zsh
+zplug
+=======
+  lsd
+  zsh
+  mercurial
+  zplug
+>>>>>>> 25.10-development
 )
 
 ## WARNING: DO NOT EDIT BEYOND THIS LINE IF YOU DON'T KNOW WHAT YOU ARE DOING! ##
@@ -100,6 +110,7 @@ if command -v zsh >/dev/null; then
 
 fi
 
+<<<<<<< HEAD
 # copy additional oh-my-zsh themes from assets
 if [ -d "$HOME/.oh-my-zsh/themes" ]; then
     cp -r assets/add_zsh_theme/* ~/.oh-my-zsh/themes >> "$LOG" 2>&1
@@ -116,3 +127,13 @@ curl -s https://api.github.com/repos/fastfetch-cli/fastfetch/releases/latest \
 sudo dpkg -i *fastfetch-linux-amd64.deb
 
 printf "\n%.0s" {1..2}
+||||||| 814e28a
+clear
+=======
+# copy additional oh-my-zsh themes from assets
+if [ -d "$HOME/.oh-my-zsh/themes" ]; then
+    cp -r assets/add_zsh_theme/* ~/.oh-my-zsh/themes >> "$LOG" 2>&1
+fi
+
+printf "\n%.0s" {1..2}
+>>>>>>> 25.10-development

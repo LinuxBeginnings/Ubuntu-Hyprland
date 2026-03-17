@@ -7,6 +7,7 @@
 # ==================================================
 # 💫 https://github.com/LinuxBeginnings 💫 #
 # SWWW - Wallpaper Utility #
+<<<<<<< HEAD
 set -euo pipefail
 
 # Resolve locations and load globals early (defines ${OK}, ${INFO}, etc.)
@@ -42,19 +43,73 @@ if command -v swww &>/dev/null; then
 else
     echo -e "${NOTE} ${MAGENTA}swww${RESET} is not installed. Proceeding with installation."
 fi
+||||||| 814e28a
+=======
+set -euo pipefail
+
+# Resolve locations and load globals early (defines ${OK}, ${INFO}, etc.)
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+if ! source "$(dirname "$(readlink -f "$0")")/Global_functions.sh"; then
+  echo "Failed to source Global_functions.sh"
+  exit 1
+fi
+
+# Pin to last supported release
+swww_tag="v0.11.2"
+swww_min="0.11.2"
+
+# Version compare helper (dpkg preferred; fallback to sort -V)
+version_ge() {
+  local a="$1" b="$2"
+  if command -v dpkg >/dev/null 2>&1; then
+    dpkg --compare-versions "$a" ge "$b"
+    return $?
+  fi
+  [ "$(printf '%s\n%s\n' "$b" "$a" | sort -V | tail -n1)" = "$a" ]
+}
+
+# Check if 'swww' is installed and sufficient
+if command -v swww &>/dev/null; then
+  SWWW_VERSION=$( (swww --version 2>/dev/null || swww -V 2>/dev/null || true) | grep -oE '[0-9]+(\.[0-9]+){1,3}' | head -1)
+  if [ -n "$SWWW_VERSION" ] && version_ge "$SWWW_VERSION" "$swww_min"; then
+    echo -e "${OK} ${MAGENTA}swww ${SWWW_VERSION}${RESET} detected (>= ${swww_min}). Skipping installation."
+    exit 0
+  else
+    echo -e "${INFO} swww ${SWWW_VERSION:-unknown} found; upgrading to ${swww_tag}."
+  fi
+else
+  echo -e "${NOTE} ${MAGENTA}swww${RESET} is not installed. Proceeding with installation."
+fi
+>>>>>>> 25.10-development
 
 swww=(
+<<<<<<< HEAD
     liblz4-dev
+||||||| 814e28a
+cargo
+liblz4-dev
+rustc
+=======
+  liblz4-dev
+>>>>>>> 25.10-development
 )
 
 ## WARNING: DO NOT EDIT BEYOND THIS LINE IF YOU DON'T KNOW WHAT YOU ARE DOING! ##
 
 # Change the working directory to the parent directory of the script
 PARENT_DIR="$SCRIPT_DIR/.."
+<<<<<<< HEAD
 cd "$PARENT_DIR" || {
     echo "${ERROR} Failed to change directory to $PARENT_DIR"
     exit 1
 }
+||||||| 814e28a
+cd "$PARENT_DIR" || exit 1
+
+source "$(dirname "$(readlink -f "$0")")/Global_functions.sh"
+=======
+cd "$PARENT_DIR" || { echo "${ERROR} Failed to change directory to $PARENT_DIR"; exit 1; }
+>>>>>>> 25.10-development
 
 # Set the name of the log file to include the current date and time
 LOG="Install-Logs/install-$(date +%d-%H%M%S)_swww.log"
@@ -64,14 +119,41 @@ MLOG="install-$(date +%d-%H%M%S)_swww2.log"
 printf "\n%s - Installing ${SKY_BLUE}swww $swww_tag and dependencies${RESET} .... \n" "${NOTE}"
 
 for PKG1 in "${swww[@]}"; do
+<<<<<<< HEAD
     install_package "$PKG1" "$LOG"
+||||||| 814e28a
+  install_package "$PKG1" 2>&1 | tee -a "$LOG"
+  if [ $? -ne 0 ]; then
+    echo -e "\e[1A\e[K${ERROR} - $PKG1 Package installation failed, Please check the installation logs"
+    exit 1
+  fi
+=======
+  install_package "$PKG1" "$LOG"
+>>>>>>> 25.10-development
 done
 
 printf "\n%.0s" {1..2}
 
 # Fetch sources at exact tag
 if [ -d "swww" ]; then
+<<<<<<< HEAD
+||||||| 814e28a
+  printf "${NOTE} swww folder exists. Pulling latest changes...\n"
+  cd swww || exit 1
+  git pull origin main 2>&1 | tee -a "$MLOG"
+else
+  printf "${NOTE} Cloning swww repository...\n"
+  if git clone --recursive https://github.com/Horus645/swww.git; then
+=======
+  cd swww || exit 1
+  git fetch --tags --force 2>&1 | tee -a "$MLOG"
+  git checkout -f "$swww_tag" 2>&1 | tee -a "$MLOG"
+  git reset --hard "$swww_tag" 2>&1 | tee -a "$MLOG"
+else
+  if git clone --recursive -b "$swww_tag" https://github.com/LGFae/swww.git; then
+>>>>>>> 25.10-development
     cd swww || exit 1
+<<<<<<< HEAD
     git fetch --tags --force 2>&1 | tee -a "$MLOG"
     git checkout -f "$swww_tag" 2>&1 | tee -a "$MLOG"
     git reset --hard "$swww_tag" 2>&1 | tee -a "$MLOG"
@@ -82,6 +164,17 @@ else
         echo -e "${ERROR} Download failed for ${YELLOW}swww $swww_tag${RESET}" 2>&1 | tee -a "$LOG"
         exit 1
     fi
+||||||| 814e28a
+  else
+    echo -e "${ERROR} Download failed for swww" 2>&1 | tee -a "$LOG"
+    exit 1
+  fi
+=======
+  else
+    echo -e "${ERROR} Download failed for ${YELLOW}swww $swww_tag${RESET}" 2>&1 | tee -a "$LOG"
+    exit 1
+  fi
+>>>>>>> 25.10-development
 fi
 
 # Proceed with the rest of the installation steps
@@ -89,12 +182,25 @@ source "$HOME/.cargo/env" || true
 
 cargo build --release 2>&1 | tee -a "$MLOG"
 
+<<<<<<< HEAD
 # Remove any old distro-installed copies to avoid path confusion
 for f in /usr/bin/swww /usr/bin/swww-daemon; do
     if [ -f "$f" ]; then
         sudo rm -f "$f"
     fi
 done
+||||||| 814e28a
+# Checking if swww is previously installed and delete before copying
+file1="/usr/bin/swww"
+file2="/usr/bin/swww-daemon"
+=======
+# Remove any old distro-installed copies to avoid path confusion
+for f in /usr/bin/swww /usr/bin/swww-daemon; do
+  if [ -f "$f" ]; then
+    sudo rm -f "$f"
+  fi
+done
+>>>>>>> 25.10-development
 
 # Install locally built binaries under /usr/local/bin
 sudo install -m 0755 target/release/swww /usr/local/bin/swww 2>&1 | tee -a "$MLOG"
@@ -112,5 +218,11 @@ sudo cp -r completions/_swww /usr/share/zsh/site-functions/_swww 2>&1 | tee -a "
 mv "$MLOG" ../Install-Logs/ || true
 cd - || exit 1
 
+<<<<<<< HEAD
 printf "\n%.0s" {1..2}
 
+||||||| 814e28a
+clear
+=======
+printf "\n%.0s" {1..2}
+>>>>>>> 25.10-development

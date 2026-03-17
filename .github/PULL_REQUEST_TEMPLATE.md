@@ -25,11 +25,23 @@ Please put an `x` in the boxes that apply:
 
 Please put an `x` in the boxes that apply:
 
+<<<<<<< HEAD
 - [ ] I have read the [CONTRIBUTING](https://github.com/LinuxBeginnings/Debian-Hyprland/blob/main/CONTRIBUTING.md) document.
+||||||| 814e28a
+- [ ] I have read the [CONTRIBUTING](https://github.com/JaKooLit/Debian-Hyprland/blob/main/CONTRIBUTING.md) document.
+=======
+- [ ] I have read the [CONTRIBUTING](https://github.com/LinuxBeginnings/Ubuntu-Hyprland/blob/main/CONTRIBUTING.md) document.
+>>>>>>> 25.10-development
 - [ ] My code follows the code style of this project.
+<<<<<<< HEAD
 - [ ] My commit message follows the [commit guidelines](https://github.com/LinuxBeginnings/Debian-Hyprland/blob/main/CONTRIBUTING.md#git-commit-messages).
+||||||| 814e28a
+- [ ] My commit message follows the [commit guidelines](https://github.com/JaKooLit/Debian-Hyprland/blob/main/CONTRIBUTING.md#git-commit-messages).
+=======
+- [ ] My commit message follows the [commit guidelines](https://github.com/LinuxBeginnings/Ubuntu-Hyprland/blob/main/CONTRIBUTING.md#git-commit-messages).
+>>>>>>> 25.10-development
 - [ ] My change requires a change to the documentation.
-- [ ] I want to add something in Debian-Hyprland wiki.
+- [ ] I want to add something in Ubuntu-Hyprland wiki.
 - [ ] I have added tests to cover my changes.
 - [ ] I have tested my code locally and it works as expected.
 - [ ] All new and existing tests passed.
