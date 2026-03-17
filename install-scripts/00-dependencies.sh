@@ -81,6 +81,7 @@ dependencies=(
     python3-yaml
     python3-pyquery
     qt6-base-dev
+    rsync
     qt6-base-private-dev
     qt6-wayland-dev
     qt6-wayland-private-dev

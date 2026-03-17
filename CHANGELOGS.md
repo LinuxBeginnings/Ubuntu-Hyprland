@@ -1,5 +1,13 @@
 ## CHANGELOGS
 
+## Mar 2026
+
+- PPA updated to Hyprland v0.54.2
+- Added check for `rofi` it was begin removed
+    - Script was trying to install `rofi-wayland`
+    - Package no longer exists
+    - Now checks for rofi installed and correct version
+
 ## Oct 2025
 
 - Added PPA to install Hyprland from packages
