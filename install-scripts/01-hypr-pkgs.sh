@@ -27,9 +27,11 @@ hypr_package=(
   python3-requests
   python3-pip
   qt5ct
+  qt-style-kvantum
   qt5-style-kvantum
   qt5-style-kvantum-themes
   qt6ct
+  qt6-style-kvantum
   slurp
   sway-notification-center
   unzip # required later
@@ -42,6 +44,7 @@ hypr_package=(
   yad
   hypridle
   hyprlock
+  xfce-polkit
 )
 
 # the following packages can be deleted. however, dotfiles may not work properly
