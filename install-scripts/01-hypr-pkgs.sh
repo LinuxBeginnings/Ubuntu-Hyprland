@@ -36,6 +36,8 @@ hypr_package=(
     qt5ct
     qt5-style-kvantum
     qt5-style-kvantum-themes
+    qt-style-kvantum
+    qt6-style-kvantum
     qt6ct
     slurp
     swappy
@@ -65,6 +67,7 @@ hypr_package_2=(
     nvtop
     pamixer
     qalculate-gtk
+    xfce-polkit
 )
 
 # packages to force reinstall 

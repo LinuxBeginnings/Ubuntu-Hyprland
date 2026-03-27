@@ -103,8 +103,10 @@ packages=(
     "polkit-kde-agent-1" "polkit agent" "off"
     "imagemagick" "Image manipulation tool" "off"
     "kitty" "kitty-terminal" "off"
+    "qt-style-kvantum" "QT apps theming" "off"
     "qt5-style-kvantum" "QT apps theming" "off"
     "qt5-style-kvantum-themes" "QT apps theming" "off"
+    "qt6-style-kvantum" "QT apps theming" "off"
     "mousepad" "simple text editor" "off"
     "mpv" "multi-media player" "off"
     "mpv-mpris" "mpv-plugin" "off"
@@ -135,6 +137,7 @@ packages=(
     "yt-dlp" "video downloader" "off"
     "xarchiver" "Archive Manager" "off"
     "hyprland" "hyprland main package" "off"
+    "xfce-polkit" "polkit agent" "off"
 )
 
 # Define the list of directories to choose from (with options_command tags)
