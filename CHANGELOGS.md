@@ -1,5 +1,16 @@
 ## CHANGELOGS
 
+## March 2026
+
+- Fixed policy kit issues preventing permission escalation
+- Added `rsync` to dependencies
+- Added missing pulseaudio-utils
+- Removed `JakooLit` ko-fi, etc
+- Updated package names
+- Script now does better checking for installed pkgs
+    - Prevents needless re-installation
+- Updated discord link
+
 ## December 2025
 
 - Ubuntu 24.04 supports Hyprland v0.53.1
