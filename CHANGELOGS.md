@@ -1,9 +1,20 @@
 ## CHANGELOGS
 
+## Mar 2025
+
+- Fixed policy kit issues preventing permission escalation
+- Added `rsync` to dependencies
+- Added missing pulseaudio-utils
+- Removed `JakooLit` ko-fi, etc
+- Updated package names
+- Script now does better checking for installed pkgs
+    - Prevents needless re-installation
+- Updated discord link
+
 ## Oct 2025
 
 - Added PPA to install Hyprland from packages
-- https://github.com/cpiber/hyprland-ppa
+    - https://github.com/cpiber/hyprland-ppa
 - No more building from source - but it remains a fallback option
 - Updated Hyprland packages should not be installed during normal updates
 
