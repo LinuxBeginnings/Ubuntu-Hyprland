@@ -1,6 +1,6 @@
 <div align="center">
 
-# 💌 KooL's Ubuntu Hyprland Install Script 💌
+# 💌 Ubuntu Hyprland Install Script 💌
 
 ## For Ubuntu 26.04 Resolute Raccoon ONLY!!!
 
@@ -25,7 +25,7 @@
 </p>
 
 <div align="center">
-👇 KOOL's Hyprland-Dots related Links 👇
+👇 KOOLDOTS Hyprland-Dots related Links 👇
 <br/>
 </div>
 <div align="center">
