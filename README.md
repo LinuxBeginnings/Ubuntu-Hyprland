@@ -64,7 +64,8 @@ https://github.com/user-attachments/assets/49bc12b2-abaf-45de-a21c-67aacd9bb872
 
 - Do not run this installer as sudo or as root
 - This Installer requires a user with a priviledge to install packages
-- This installer supports Ubuntu 24.04, 25.10, and newer. Use the `ubuntu-install` branch.
+- This installer supports Ubuntu 24.04, 25.10, and 26.04+. Use the `ubuntu-install` branch.
+- Ubuntu 26.04 uses Hyprland from Ubuntu repositories (PPA disabled by default).
 
 ### Gallery and Videos
 
@@ -133,6 +134,13 @@ cd ~/Ubuntu-Hyprland
 chmod +x install.sh
 ./install.sh
 ```
+
+#### 🔧 Version override flags
+
+- If version detection fails, you can override:
+  - `./install.sh --24.04`
+  - `./install.sh --25.10`
+  - `./install.sh --26.04`
 
 ### 💥 💥 UNINSTALL SCRIPT / Removal of Config Files
 

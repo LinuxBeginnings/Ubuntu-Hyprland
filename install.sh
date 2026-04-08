@@ -45,6 +45,10 @@ for arg in "$@"; do
             UBUNTU_VERSION_ID="25.10"
             UBUNTU_CODENAME="questing"
             ;;
+        --26.04)
+            UBUNTU_VERSION_ID="26.04"
+            UBUNTU_CODENAME="resolute"
+            ;;
     esac
 done
 
@@ -200,10 +204,12 @@ execute_script() {
     fi
 }
 
-# Block unsupported distros for the Hyprland PPA early
-if ! execute_script "check-distro-support.sh"; then
-    echo "${ERROR} Distro check failed. See above for details." | tee -a "$LOG"
-    exit 1
+# Block unsupported distros for the Hyprland PPA early (skip for Ubuntu 26.04 repo installs)
+if [ "$UBUNTU_VERSION_ID" != "26.04" ]; then
+    if ! execute_script "check-distro-support.sh"; then
+        echo "${ERROR} Distro check failed. See above for details." | tee -a "$LOG"
+        exit 1
+    fi
 fi
 
 #################
@@ -448,10 +454,18 @@ if [ "$FROM_SOURCE" -eq 1 ]; then
     sleep 1
     execute_script "hyprland.sh"
 else
-    echo "${INFO} Installing Hyprland from ${SKY_BLUE}PPA${RESET}..." | tee -a "$LOG"
-    export HYPR_USE_PPA=1
-    sleep 1
-    execute_script "hyprland-ppa.sh"
+    if [ "$UBUNTU_VERSION_ID" = "26.04" ]; then
+        echo "${INFO} Installing Hyprland from ${SKY_BLUE}Ubuntu repositories${RESET} (PPA disabled)..." | tee -a "$LOG"
+        # To enable PPA on 26.04 (not recommended), uncomment the line below:
+        # export HYPR_USE_PPA=1
+        sleep 1
+        execute_script "hyprland-ppa.sh"
+    else
+        echo "${INFO} Installing Hyprland from ${SKY_BLUE}PPA${RESET}..." | tee -a "$LOG"
+        export HYPR_USE_PPA=1
+        sleep 1
+        execute_script "hyprland-ppa.sh"
+    fi
 fi
 
 # Rest of the desktop stack
