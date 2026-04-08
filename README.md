@@ -2,7 +2,7 @@
 
 # 💌 KooL's Ubuntu Hyprland Install Script 💌
 
-## For Ubuntu 25.10 Questing Quokka
+## For Ubuntu 24.04 Noble Numbat, 25.10 Questing Quokka, and newer
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/LinuxBeginnings/Hyprland-Dots/main/assets/latte.png" width="400" />
@@ -64,7 +64,7 @@ https://github.com/user-attachments/assets/49bc12b2-abaf-45de-a21c-67aacd9bb872
 
 - Do not run this installer as sudo or as root
 - This Installer requires a user with a priviledge to install packages
-- This is only 25.10 Questing Quokka and above. Check [`MAIN BRANCH`](https://github.com/LinuxBeginnings/Ubuntu-Hyprland/tree/main) for other Ubuntu Versions
+- This installer supports Ubuntu 24.04, 25.10, and newer. Use the `ubuntu-install` branch.
 
 ### Gallery and Videos
 
@@ -120,7 +120,7 @@ sudo apt install --no-install-recommends -y sddm
 - NOTE: `curl` package is required before running this command
 
 ```bash
-sh <(curl -L https://raw.githubusercontent.com/LinuxBeginnings/Ubuntu-Hyprland/25.10/auto-install.sh)
+sh <(curl -L https://raw.githubusercontent.com/LinuxBeginnings/Ubuntu-Hyprland/ubuntu-install/auto-install.sh)
 ```
 
 ## ✨ to use this script
@@ -128,8 +128,8 @@ sh <(curl -L https://raw.githubusercontent.com/LinuxBeginnings/Ubuntu-Hyprland/2
 > clone this repo (latest commit only) by using git. Change directory, make executable and run the script
 
 ```bash
-git clone --depth=1 -b 25.10 https://github.com/LinuxBeginnings/Ubuntu-Hyprland.git ~/Ubuntu-Hyprland-25.10
-cd ~/Ubuntu-Hyprland-25.10
+git clone --depth=1 -b ubuntu-install https://github.com/LinuxBeginnings/Ubuntu-Hyprland.git ~/Ubuntu-Hyprland
+cd ~/Ubuntu-Hyprland
 chmod +x install.sh
 ./install.sh
 ```

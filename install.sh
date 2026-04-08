@@ -24,17 +24,75 @@ print_color() {
     printf "%b%s%b\n" "$1" "$2" "$RESET"
 }
 
+# Detect Ubuntu version/codename
+UBUNTU_VERSION_ID=""
+UBUNTU_CODENAME=""
+if [ -f /etc/os-release ]; then
+    # shellcheck disable=SC1091
+    source /etc/os-release
+    UBUNTU_VERSION_ID="${VERSION_ID:-}"
+    UBUNTU_CODENAME="${UBUNTU_CODENAME:-${VERSION_CODENAME:-}}"
+fi
+
+# Allow manual override when detection fails
+for arg in "$@"; do
+    case "$arg" in
+        --24.04)
+            UBUNTU_VERSION_ID="24.04"
+            UBUNTU_CODENAME="noble"
+            ;;
+        --25.10)
+            UBUNTU_VERSION_ID="25.10"
+            UBUNTU_CODENAME="questing"
+            ;;
+    esac
+done
+
+export UBUNTU_VERSION_ID UBUNTU_CODENAME
+
+is_version_ge() {
+    local current="$1"
+    local target="$2"
+    [ -n "$current" ] && dpkg --compare-versions "$current" ge "$target"
+}
+
+IS_25_10_PLUS=false
+if is_version_ge "$UBUNTU_VERSION_ID" "25.10"; then
+    IS_25_10_PLUS=true
+fi
+
+UBUNTU_LABEL="Ubuntu"
+if [ -n "$UBUNTU_VERSION_ID" ]; then
+    UBUNTU_LABEL="Ubuntu ${UBUNTU_VERSION_ID}"
+fi
+if [ -n "$UBUNTU_CODENAME" ]; then
+    UBUNTU_LABEL="${UBUNTU_LABEL} (${UBUNTU_CODENAME})"
+fi
+
+# Dotfiles and SDDM theme variants per Ubuntu version
+DOTS_BRANCH="Deb-Untu-Dots"
+DOTS_TARGET_DIR="Hyprland-Dots"
+SDDM_THEME_REPO="https://github.com/LinuxBeginnings/simple-sddm-2.git"
+SDDM_THEME_NAME="simple_sddm_2"
+if [ "$UBUNTU_VERSION_ID" = "24.04" ]; then
+    DOTS_BRANCH="Ubuntu-24.04-Dots"
+    DOTS_TARGET_DIR="Hyprland-Dots"
+    SDDM_THEME_REPO="https://github.com/LinuxBeginnings/simple-sddm.git"
+    SDDM_THEME_NAME="simple-sddm"
+fi
+export DOTS_BRANCH DOTS_TARGET_DIR SDDM_THEME_REPO SDDM_THEME_NAME
+
 # Display warning message
 printf "\n%.0s" {1..2}
 print_color $WARNING "
     █▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀█
-                KooL's UBUNTU 25.10+ - Hyprland               
+                KooL's ${UBUNTU_LABEL} - Hyprland               
     █▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄█
-
+    This script will install Hyprland from a PPA
     This script will install Hyprland 0.51.1 from a PPA
      - https://github.com/cpiber/hyprland-ppa - 
-    This is only supported on ubuntu 25.10 or greater! 
-    If you are not at that level do NOT continue!
+    Supported targets: Ubuntu 24.04 (Noble), 25.10 (Questing),
+    and newer releases when the PPA publishes builds.
          
 "
 printf "\n%.0s" {1..2}
@@ -84,13 +142,13 @@ printf "\n%.0s" {1..2}
 echo -e "\e[35m
 	╦╔═┌─┐┌─┐╦    ╦ ╦┬ ┬┌─┐┬─┐┬  ┌─┐┌┐┌┌┬┐
 	╠╩╗│ ││ │║    ╠═╣└┬┘├─┘├┬┘│  ├─┤│││ ││ 2025
-	╩ ╩└─┘└─┘╩═╝  ╩ ╩ ┴ ┴  ┴└─┴─┘┴ ┴┘└┘─┴┘ Ubuntu 25.10+
+	╩ ╩└─┘└─┘╩═╝  ╩ ╩ ┴ ┴  ┴└─┴─┘┴ ┴┘└┘─┴┘ ${UBUNTU_LABEL}
 \e[0m"
 printf "\n%.0s" {1..1}
 
 # Welcome message using whiptail (for displaying information)
-whiptail --title "KooL Ubuntu 25.10+ - Hyprland (2025) Install Script" \
-    --msgbox "Welcome to KooL Ubuntu 25.10+ - Hyprland (2025) Install Script!!!\n\n\
+whiptail --title "KooL ${UBUNTU_LABEL} - Hyprland (2025) Install Script" \
+    --msgbox "Welcome to KooL ${UBUNTU_LABEL} - Hyprland (2025) Install Script!!!\n\n\
 ATTENTION: Run a full system update and Reboot first !!! (Highly Recommended)\n\n\
 NOTE: If you are installing on a VM, ensure to enable 3D acceleration else Hyprland may NOT start!" \
     15 80
@@ -258,6 +316,12 @@ options_command+=(
     "dots" "Install KooL's Hyprland dotfiles?" "OFF"
 )
 
+if [ "$UBUNTU_VERSION_ID" = "24.04" ]; then
+    options_command+=(
+        "nwg-look" "Install nwg-look for GTK theming? WARNING This Package Takes long time to build!" "OFF"
+    )
+fi
+
 # Capture the selected options before the while loop starts
 while true; do
     selected_options=$("${options_command[@]}" 3>&1 1>&2 2>&3)
@@ -393,10 +457,18 @@ fi
 # Rest of the desktop stack
 sleep 1
 execute_script "wallust.sh"
+if [ "$UBUNTU_VERSION_ID" = "24.04" ]; then
+    sleep 1
+    execute_script "swappy.sh"
+fi
 sleep 1
 execute_script "swww.sh"
 sleep 1
 execute_script "rofi-wayland.sh"
+if [ "$UBUNTU_VERSION_ID" = "24.04" ]; then
+    sleep 1
+    execute_script "nwg-displays.sh"
+fi
 sleep 1
 execute_script "hyprlock.sh"
 sleep 1
@@ -461,6 +533,10 @@ for option in "${options[@]}"; do
     pokemon)
         echo "${INFO} Adding ${SKY_BLUE}Pokemon color scripts to terminal...${RESET}" | tee -a "$LOG"
         execute_script "zsh_pokemon.sh"
+        ;;
+    nwg-look)
+        echo "${INFO} Installing ${SKY_BLUE}nwg-look...${RESET}" | tee -a "$LOG"
+        execute_script "nwg-look.sh"
         ;;
     rog)
         echo "${INFO} Installing ${SKY_BLUE}ROG laptop packages...${RESET}" | tee -a "$LOG"

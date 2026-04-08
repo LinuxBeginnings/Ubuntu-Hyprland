@@ -1,6 +1,6 @@
 #!/bin/bash
 # 💫 https://github.com/LinuxBeginnings 💫 #
-# KooL Ubuntu-25.04-Hyprland uninstall script #
+# KooL Ubuntu-Hyprland uninstall script #
 
 clear
 
@@ -23,13 +23,13 @@ RESET="$(tput sgr0)"
 printf "\n%.0s" {1..2}
 echo -e "\e[35m
 	╦╔═┌─┐┌─┐╦    ╦ ╦┬ ┬┌─┐┬─┐┬  ┌─┐┌┐┌┌┬┐
-	╠╩╗│ ││ │║    ╠═╣└┬┘├─┘├┬┘│  ├─┤│││ ││ UNINSTALL
-	╩ ╩└─┘└─┘╩═╝  ╩ ╩ ┴ ┴  ┴└─┴─┘┴ ┴┘└┘─┴┘ Ubuntu-25.04
+\t╠╩╗│ ││ │║    ╠═╣└┬┘├─┘├┬┘│  ├─┤│││ ││ UNINSTALL
+\t╩ ╩└─┘└─┘╩═╝  ╩ ╩ ┴ ┴  ┴└─┴─┘┴ ┴┘└┘─┴┘ Ubuntu-Hyprland
 \e[0m"
 printf "\n%.0s" {1..1}
 
 # Show welcome message using whiptail with Yes/No options
-whiptail --title "Ubuntu-25.04-Hyprland KooL Dots Uninstall Script" --yesno \
+whiptail --title "Ubuntu-Hyprland KooL Dots Uninstall Script" --yesno \
 "Hello! This script will uninstall KooL Hyprland packages and configs.
 
 You can choose packages and directories you want to remove.

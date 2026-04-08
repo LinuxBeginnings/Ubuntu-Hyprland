@@ -1,6 +1,14 @@
 ## CHANGELOGS
 
-## Mar 2025
+## Apr 2026
+
+- Created universal `ubuntu-install` branch
+    - Currently supporting `24.04`, `25.10`, beta `26.04`
+        - `26.04` beta runs and older version of `Hyprland`
+        - Note all the KoolDots features are supported yet
+        - Once it's released and the PPA is updated it will have feature parity
+
+## Mar 2026
 
 - Fixed policy kit issues preventing permission escalation
 - Added `rsync` to dependencies

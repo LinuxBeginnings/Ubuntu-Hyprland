@@ -5,7 +5,7 @@
 set -euo pipefail
 
 # specific branch or release (default: main)
-dots_tag="main"
+dots_tag="${DOTS_BRANCH:-Deb-Untu-Dots}"
 
 ## WARNING: DO NOT EDIT BEYOND THIS LINE IF YOU DON'T KNOW WHAT YOU ARE DOING! ##
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -21,7 +21,7 @@ fi
 
 REPO_URL="https://github.com/LinuxBeginnings/Hyprland-Dots.git"
 BRANCH="$dots_tag"
-TARGET_DIR="Hyprland-Dots-Ubuntu"
+TARGET_DIR="${DOTS_TARGET_DIR:-Hyprland-Dots}"
 
 printf "${NOTE} Syncing KooL's Hyprland Dots (${YELLOW}%s${RESET}) from ${YELLOW}%s${RESET}...\n" "$BRANCH" "$REPO_URL"
 

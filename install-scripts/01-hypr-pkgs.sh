@@ -9,59 +9,122 @@
 Extra=(
 
 )
+# Detect Ubuntu version (fallback to /etc/os-release when not exported)
+if [ -z "${UBUNTU_VERSION_ID:-}" ] && [ -f /etc/os-release ]; then
+    # shellcheck disable=SC1091
+    source /etc/os-release
+    UBUNTU_VERSION_ID="${VERSION_ID:-}"
+fi
 
 # packages needed
-hypr_package=(
-    cliphist
-    fastfetch
-    grim
-    gvfs
-    gvfs-backends
-    inxi
-    imagemagick
-    kitty
-    nano
-    pavucontrol
-    pulseaudio-utils
-    playerctl
-    polkit-kde-agent-1
-    python3-requests
-    python3-pip
-    qt5ct
-    qt5-style-kvantum
-    qt5-style-kvantum-themes
-    qt-style-kvantum
-    qt6-style-kvantum
-    qt6ct
-    slurp
-    swappy
-    sway-notification-center
-    unzip
-    waybar
-    wget
-    wl-clipboard
-    wlogout
-    xdg-user-dirs
-    xdg-utils
-    yad
-)
+hypr_package=()
+hypr_package_2=()
 
-# the following packages can be deleted. however, dotfiles may not work properly
-hypr_package_2=(
-    brightnessctl
-    btop
-    cava
-    loupe
-    gnome-system-monitor
-    mousepad
-    mpv
-    mpv-mpris
-    nwg-look
-    nwg-displays
-    nvtop
-    pamixer
-    qalculate-gtk
-    xfce-polkit
+if [ "$UBUNTU_VERSION_ID" = "24.04" ]; then
+    hypr_package=(
+      cliphist
+      grim
+      gvfs
+      gvfs-backends
+      inxi
+      imagemagick
+      kitty
+      nano
+      pavucontrol
+      pulseaudio-utils
+      playerctl
+      polkit-kde-agent-1
+      python3-requests
+      python3-pip
+      qt5ct
+      qt-style-kvantum
+      qt5-style-kvantum
+      qt5-style-kvantum-themes
+      qt6ct
+      qt6-style-kvantum
+      slurp
+      sway-notification-center
+      unzip
+      waybar
+      wget
+      wl-clipboard
+      wlogout
+      xdg-user-dirs
+      xdg-utils
+      yad
+      hypridle
+      hyprlock
+      xfce-polkit
+    )
+
+    # the following packages can be deleted. however, dotfiles may not work properly
+    hypr_package_2=(
+      brightnessctl
+      btop
+      cava
+      loupe
+      gnome-system-monitor
+      mousepad
+      mpv
+      mpv-mpris
+      nvtop
+      pamixer
+      qalculate-gtk
+    )
+else
+    hypr_package=(
+        cliphist
+        fastfetch
+        grim
+        gvfs
+        gvfs-backends
+        inxi
+        imagemagick
+        kitty
+        nano
+        pavucontrol
+        pulseaudio-utils
+        playerctl
+        polkit-kde-agent-1
+        python3-requests
+        python3-pip
+        qt5ct
+        qt5-style-kvantum
+        qt5-style-kvantum-themes
+        qt-style-kvantum
+        qt6-style-kvantum
+        qt6ct
+        slurp
+        swappy
+        sway-notification-center
+        unzip
+        waybar
+        wget
+        wl-clipboard
+        wlogout
+        xdg-user-dirs
+        xdg-utils
+        yad
+    )
+
+    # the following packages can be deleted. however, dotfiles may not work properly
+    hypr_package_2=(
+        brightnessctl
+        btop
+        cava
+        loupe
+        gnome-system-monitor
+        mousepad
+        mpv
+        mpv-mpris
+        nwg-look
+        nwg-displays
+        nvtop
+        pamixer
+        qalculate-gtk
+        xfce-polkit
+    )
+fi
 )
 
 # packages to force reinstall 
