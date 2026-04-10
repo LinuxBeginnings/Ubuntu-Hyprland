@@ -53,6 +53,9 @@ hypr_package_2=(
     cava
     loupe
     gnome-system-monitor
+    hyprlauncher
+    hyprshutdown
+    hyprpaper
     mousepad
     mpv
     mpv-mpris
