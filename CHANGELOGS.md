@@ -1,5 +1,14 @@
 ## CHANGELOGS
 
+## Apr 2026
+
+- Fixed: Polkit issues take two.
+    - Added missing QT kvantum pkgs
+    - This prevented some applications from being escalated
+    ```bash
+      sudo apt install libqt5quick5 libqt5qml5 qt6-declarative-dev
+    ```
+
 ## March 2026
 
 - Fixed policy kit issues preventing permission escalation

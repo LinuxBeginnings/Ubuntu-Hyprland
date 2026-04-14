@@ -29,8 +29,11 @@ hypr_package=(
   qt5ct
   qt-style-kvantum
   qt5-style-kvantum
+  libqt5quick5
+  libqt5qml5
   qt5-style-kvantum-themes
   qt6ct
+  qt6-declarative-dev
   qt6-style-kvantum
   slurp
   sway-notification-center
