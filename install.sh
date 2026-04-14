@@ -122,12 +122,15 @@ execute_script() {
     if [ -f "$script_path" ]; then
         chmod +x "$script_path"
         if [ -x "$script_path" ]; then
-            env "$script_path"
+            bash "$script_path"
+            return $?
         else
             echo "Failed to make script '$script' executable." | tee -a "$LOG"
+            return 1
         fi
     else
         echo "Script '$script' not found in '$script_directory'." | tee -a "$LOG"
+        return 1
     fi
 }
 
@@ -320,20 +323,20 @@ sudo apt update
 
 # Add Hyprland PPA and install Hyprland stack early (ensures newer versions like Waybar)
 export HYPR_USE_PPA=1
-execute_script "hyprland-ppa.sh"
+execute_script "hyprland-ppa.sh" || { echo "${ERROR:-[ERROR]} Hyprland PPA setup failed" | tee -a "$LOG"; exit 1; }
 
 echo "${INFO} Installing ${SKY_BLUE}necessary dependencies...${RESET}" | tee -a "$LOG"
 sleep 1
-execute_script "00-dependencies.sh" | tee -a "$LOG"
+execute_script "00-dependencies.sh" | tee -a "$LOG" || { echo "${ERROR:-[ERROR]} Dependencies installation failed" | tee -a "$LOG"; exit 1; }
 
 echo "${INFO} Installing ${SKY_BLUE}necessary fonts...${RESET}" | tee -a "$LOG"
 sleep 1
-execute_script "fonts.sh"
+execute_script "fonts.sh" || { echo "${ERROR:-[ERROR]} Fonts installation failed" | tee -a "$LOG"; exit 1; }
 
 echo "${INFO} Installing ${SKY_BLUE}KooL Hyprland packages (via PPA)...${RESET}" | tee -a "$LOG"
 sleep 1
 # Install remaining desktop packages from Ubuntu repos/PPAs
-execute_script "01-hypr-pkgs.sh"
+execute_script "01-hypr-pkgs.sh" || { echo "${ERROR:-[ERROR]} Hyprland packages installation failed" | tee -a "$LOG"; exit 1; }
 sleep 1
 execute_script "wallust.sh"
 sleep 1
@@ -419,7 +422,7 @@ for option in "${options[@]}"; do
         ;;
     dots)
         echo "${INFO}Installing pre-configured ${SKY_BLUE}KooL Hyprland dotfiles...${RESET}" | tee -a "$LOG"
-        execute_script "dotfiles.sh"
+        execute_script "dotfiles.sh" || { echo "${ERROR:-[ERROR]} Dotfiles installation failed" | tee -a "$LOG"; exit 1; }
         ;;
     *)
         echo "Unknown option: $option" | tee -a "$LOG"
