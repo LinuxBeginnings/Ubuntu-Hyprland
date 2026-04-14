@@ -9,6 +9,9 @@
    sudo apt install libqt5quick5 libqt5qml5 qt6-declarative-dev
 ```
 
+- Improved: Error handling in the `install.sh` script
+    - Thank you `@moukhtar22` for finding this and filing an issue
+
 ## Mar 2025
 
 - Fixed policy kit issues preventing permission escalation
