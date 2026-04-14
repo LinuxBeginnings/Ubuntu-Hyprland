@@ -1,5 +1,14 @@
 ## CHANGELOGS
 
+## Apr 2025
+
+- Fixed: Polkit issue #2
+    - Added missing QT kvantum pkgs
+
+```bash
+   sudo apt install libqt5quick5 libqt5qml5 qt6-declarative-dev
+```
+
 ## Mar 2025
 
 - Fixed policy kit issues preventing permission escalation
