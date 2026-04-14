@@ -1,5 +1,14 @@
 ## CHANGELOGS
 
+## Apr 2026
+
+- Fixed: Polkit issue
+    - Added missing QT kvantum pkgs
+
+```bash
+  sudo apt install libqt5quick5 libqt5qml5 qt6-declarative-dev
+```
+
 ## Mar 2026
 
 - Added rofi version/presence check
