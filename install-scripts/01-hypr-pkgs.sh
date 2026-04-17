@@ -10,6 +10,7 @@ Extra=(
 
 )
 
+
 # packages neeeded
 hypr_package=(
     cliphist
@@ -73,8 +74,8 @@ force=(
 uninstall=(
     cargo
     mako
-    rofi
 )
+
 
 ## WARNING: DO NOT EDIT BEYOND THIS LINE IF YOU DON'T KNOW WHAT YOU ARE DOING! ##
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -94,6 +95,23 @@ fi
 
 # Set the name of the log file to include the current date and time
 LOG="Install-Logs/install-$(date +%d-%H%M%S)_hypr-pkgs.log"
+
+# Check rofi presence/version (require v2.0+)
+rofi_version_ok=false
+rofi_version=""
+if command -v rofi >/dev/null 2>&1; then
+    rofi_version="$(rofi -version 2>/dev/null | awk 'NR==1{print $2}')"
+    rofi_major="${rofi_version%%.*}"
+    if [[ "$rofi_major" =~ ^[0-9]+$ ]] && [ "$rofi_major" -ge 2 ]; then
+        rofi_version_ok=true
+        echo "${INFO} rofi ${rofi_version} detected (v2.0+). Keeping existing install."
+    else
+        echo "${WARN} rofi ${rofi_version:-unknown} detected (< v2.0). It will be removed for upgrade."
+        uninstall+=("rofi")
+    fi
+else
+    echo "${WARN} rofi not found. It will be installed later if required."
+fi
 
 # conflicting packages removal
 overall_failed=0

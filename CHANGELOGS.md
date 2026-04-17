@@ -2,6 +2,10 @@
 
 ## Apr 2026
 
+- Added: Version Check for `rofi`
+    - It was being removed, and re-installed needlessly
+    - This was a left over from when `rofi` only supported X11
+    - `rofi` v2.x supports both X11 and Wayland
 - Fixed: Polkit issues take two.
     - Added missing QT kvantum pkgs
     - This prevented some applications from being escalated
