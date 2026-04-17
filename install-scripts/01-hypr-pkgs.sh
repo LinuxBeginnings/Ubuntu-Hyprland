@@ -1,7 +1,7 @@
 #!/bin/bash
 # 💫 https://github.com/LinuxBeginnings 💫 #
 # Hyprland-Dots Packages #
-# edit your packages desired here. 
+# edit your packages desired here.
 # WARNING! If you remove packages here, dotfiles may not work properly.
 # and also, ensure that packages are present in Debian Official Repo
 
@@ -11,101 +11,102 @@ Extra=(
 )
 
 # packages neeeded
-hypr_package=( 
-  cliphist
-  grim
-  gvfs
-  gvfs-backends
-  inxi
-  imagemagick
-  kitty
-  nano
-  pavucontrol
+hypr_package=(
+    cliphist
+    grim
+    gvfs
+    gvfs-backends
+    inxi
+    imagemagick
+    kitty
+    nano
+    pavucontrol
     pulseaudio-utils
-  playerctl
-  polkit-kde-agent-1
-  python3-requests
-  python3-pip
-  qt5ct
-  qt-style-kvantum
-  qt-style-kvantum-themes
-  libqt5quick5
-  libqt5qml5
-  qt6ct
-  qt6-declarative-dev
-  slurp
-  sway-notification-center
-  unzip # required later
-  waybar
-  wget
-  wl-clipboard
-  wlogout
-  xdg-user-dirs
-  xdg-utils
-  yad
-  hypridle
-  hyprlock
-  xfce-polkit
+    playerctl
+    polkit-kde-agent-1
+    python3-requests
+    python3-pip
+    qt5ct
+    #qt-style-kvantum   # Invalid pkg
+    #qt-style-kvantum-themes  # Invalid pkg
+    libqt5quick5
+    libqt5qml5
+    qt6ct
+    qt6-declarative-dev
+    slurp
+    sway-notification-center
+    unzip # required later
+    waybar
+    wget
+    wl-clipboard
+    wlogout
+    xdg-user-dirs
+    xdg-utils
+    yad
+    hypridle
+    hyprlock
+    xfce-polkit
 )
 
 # the following packages can be deleted. however, dotfiles may not work properly
 hypr_package_2=(
-  brightnessctl
-  btop
-  cava
-  loupe
-  gnome-system-monitor
-  mousepad
-  mpv
-  mpv-mpris
-  nvtop
-  pamixer
-  qalculate-gtk
+    brightnessctl
+    btop
+    cava
+    loupe
+    gnome-system-monitor
+    mousepad
+    mpv
+    mpv-mpris
+    nvtop
+    pamixer
+    qalculate-gtk
 )
 
-# packages to force reinstall 
+# packages to force reinstall
 force=(
-  imagemagick
-  wayland-protocols
+    imagemagick
+    wayland-protocols
 )
 
 # List of packages to uninstall as it conflicts with lots of things
 uninstall=(
-  cargo
-  dunst
-  mako
-  rofi
+    cargo
+    mako
+    rofi
 )
 
 ## WARNING: DO NOT EDIT BEYOND THIS LINE IF YOU DON'T KNOW WHAT YOU ARE DOING! ##
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Change the working directory to the parent directory of the script
 PARENT_DIR="$SCRIPT_DIR/.."
-cd "$PARENT_DIR" || { echo "${ERROR} Failed to change directory to $PARENT_DIR"; exit 1; }
+cd "$PARENT_DIR" || {
+    echo "${ERROR} Failed to change directory to $PARENT_DIR"
+    exit 1
+}
 
 # Source the global functions script
 if ! source "$(dirname "$(readlink -f "$0")")/Global_functions.sh"; then
-  echo "Failed to source Global_functions.sh"
-  exit 1
+    echo "Failed to source Global_functions.sh"
+    exit 1
 fi
 
 # Set the name of the log file to include the current date and time
 LOG="Install-Logs/install-$(date +%d-%H%M%S)_hypr-pkgs.log"
 
-
 # conflicting packages removal
 overall_failed=0
 printf "\n%s - ${SKY_BLUE}Removing some packages${RESET} as it conflicts with KooL's Hyprland Dots \n" "${NOTE}"
 for PKG in "${uninstall[@]}"; do
-  uninstall_package "$PKG" 2>&1 | tee -a "$LOG"
-  if [ $? -ne 0 ]; then
-    overall_failed=1
-  fi
+    uninstall_package "$PKG" 2>&1 | tee -a "$LOG"
+    if [ $? -ne 0 ]; then
+        overall_failed=1
+    fi
 done
 
 if [ $overall_failed -ne 0 ]; then
-  echo -e "${ERROR} Some packages failed to uninstall. Please check the log."
+    echo -e "${ERROR} Some packages failed to uninstall. Please check the log."
 fi
 
 printf "\n%.0s" {1..1}
@@ -114,13 +115,13 @@ printf "\n%.0s" {1..1}
 printf "\n%s - Installing ${SKY_BLUE}KooL's hyprland necessary packages${RESET} .... \n" "${NOTE}"
 
 for PKG1 in "${hypr_package[@]}" "${hypr_package_2[@]}" "${Extra[@]}"; do
-  install_package "$PKG1" "$LOG"
+    install_package "$PKG1" "$LOG"
 done
 
 printf "\n%.0s" {1..1}
 
 for PKG2 in "${force[@]}"; do
-  re_install_package "$PKG2" "$LOG"
+    re_install_package "$PKG2" "$LOG"
 done
 
 printf "\n%.0s" {1..1}
