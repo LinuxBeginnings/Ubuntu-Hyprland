@@ -1,5 +1,22 @@
 ## CHANGELOGS
 
+## Apr 2026
+
+- Added: Version Check for `rofi`
+    - It was being removed, and re-installed needlessly
+    - This was a left over from when `rofi` only supported X11
+    - `rofi` v2.x supports both X11 and Wayland
+- Fixed: Polkit issues take two.
+    - Added missing QT kvantum pkgs
+    - This prevented some applications from being escalated
+    ```bash
+      sudo apt install libqt5quick5 libqt5qml5 qt6-declarative-dev
+    ```
+- Improved: Error handling in the `install.sh` script
+    - Thank you `@moukhtar22` for finding this and filing an issue
+- Removed incorrect `qt` packages
+    - Thank you `@moukhtar22` for finding this and filing an issue
+
 ## March 2026
 
 - Fixed policy kit issues preventing permission escalation
