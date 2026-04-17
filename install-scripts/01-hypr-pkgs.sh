@@ -33,6 +33,10 @@ hypr_package=(
     #qt-style-kvantum    # can't find pkg
     #qt-style-kvantum-themes  # can't find pkg
     qt6-declarative-dev
+    qt5-style-kvantum
+    qt5-style-kvantum-themes
+    qt-style-kvantum
+    qt6-style-kvantum
     qt6ct
     slurp
     swappy
@@ -54,6 +58,9 @@ hypr_package_2=(
     cava
     loupe
     gnome-system-monitor
+    hyprlauncher
+    hyprshutdown
+    hyprpaper
     mousepad
     mpv
     mpv-mpris
