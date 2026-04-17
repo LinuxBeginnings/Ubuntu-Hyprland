@@ -33,9 +33,8 @@ hypr_package=(
     #qt-style-kvantum    # can't find pkg
     #qt-style-kvantum-themes  # can't find pkg
     qt6-declarative-dev
-    qt5-style-kvantum
-    qt5-style-kvantum-themes
-    qt-style-kvantum
+    # qt5-style-kvantum      # can't find pkg
+    # qt5-style-kvantum-themes   # can't find pkg
     qt6-style-kvantum
     qt6ct
     slurp
