@@ -30,7 +30,7 @@ printf "\n%.0s" {1..1}
 
 # Show welcome message using whiptail with Yes/No options
 whiptail --title "Ubuntu-24.04-Hyprland KooL Dots Uninstall Script" --yesno \
-"Hello! This script will uninstall KooL Hyprland packages and configs.
+    "Hello! This script will uninstall KooL Hyprland packages and configs.
 
 You can choose packages and directories you want to remove.
 NOTE: This will remove configs from ~/.config
@@ -61,16 +61,14 @@ remove_packages() {
         else
             echo "$INFO Package ${YELLOW}$package${RESET} not found. Skipping."
         fi
-    done < "$selected_packages_file"
+    done <"$selected_packages_file"
 }
-
-
 
 # Function to remove selected directories
 remove_directories() {
     local selected_dirs_file=$1
     while read -r dir; do
-        pattern="$HOME/.config/$dir*"        
+        pattern="$HOME/.config/$dir*"
         # Loop through directories matching the pattern
         for dir_to_remove in $pattern; do
             if [ -d "$dir_to_remove" ]; then
@@ -84,7 +82,7 @@ remove_directories() {
                 echo "$INFO Directory ${YELLOW}$dir_to_remove${RESET} not found. Skipping."
             fi
         done
-    done < "$selected_dirs_file"
+    done <"$selected_dirs_file"
 }
 
 # Define the list of packages to choose from (with options_command tags)
@@ -97,7 +95,6 @@ packages=(
     "ffmpegthumbnailer" "FFmpeg Thumbnailer" "off"
     "grim" "screenshot tool" "off"
     "polkit-kde-agent-1" "polkit agent" "off"
-    "xfce-polkit" "polkit agent" "off"
     "imagemagick" "Image manipulation tool" "off"
     "kitty" "kitty-terminal" "off"
     "qt-style-kvantum" "QT apps theming" "off"
@@ -153,14 +150,14 @@ directories=(
     "Thunar" "Thunar file manager configuration" "off"
     "wallust" "wallust (color pallete) configuration" "off"
     "waybar" "waybar configuration" "off"
-    "wlogout" "wlogout (logout menu) configuration" "off"    
+    "wlogout" "wlogout (logout menu) configuration" "off"
 )
 
 # Loop for package selection until user selects something or cancels
 while true; do
     package_choices=$(whiptail --title "Select Packages to Uninstall" --checklist \
-    "Select the packages you want to remove\nNOTE: 'SPACEBAR' to select & 'TAB' key to change selection" 35 90 25 \
-    "${packages[@]}" 3>&1 1>&2 2>&3)
+        "Select the packages you want to remove\nNOTE: 'SPACEBAR' to select & 'TAB' key to change selection" 35 90 25 \
+        "${packages[@]}" 3>&1 1>&2 2>&3)
 
     # Check if the user canceled the operation
     if [ $? -eq 1 ]; then
@@ -172,7 +169,7 @@ while true; do
     if [[ -z "$package_choices" ]]; then
         echo "$NOTE No packages selected. Please select at least one package."
     else
-        echo "$package_choices" | tr -d '"' | tr ' ' '\n' > /tmp/selected_packages.txt
+        echo "$package_choices" | tr -d '"' | tr ' ' '\n' >/tmp/selected_packages.txt
         echo "Packages to remove: $package_choices"
         break
     fi
@@ -181,8 +178,8 @@ done
 # Loop for directory selection until user selects something or cancels
 while true; do
     dir_choices=$(whiptail --title "Select Directories to Remove" --checklist \
-    "Select the directories you want to remove\nNOTE: This will remove configs from ~/.config\n\nNOTE: 'SPACEBAR' to select & 'TAB' key to change selection" 28 90 18 \
-    "${directories[@]}" 3>&1 1>&2 2>&3)
+        "Select the directories you want to remove\nNOTE: This will remove configs from ~/.config\n\nNOTE: 'SPACEBAR' to select & 'TAB' key to change selection" 28 90 18 \
+        "${directories[@]}" 3>&1 1>&2 2>&3)
 
     # Check if the user canceled the operation
     if [ $? -eq 1 ]; then
@@ -195,7 +192,7 @@ while true; do
         echo "$NOTE No directories selected. Please select at least one directory."
     else
         # Save each selected directory to a new line in the temporary file
-        echo "$dir_choices" | tr -d '"' | tr ' ' '\n' > /tmp/selected_directories.txt
+        echo "$dir_choices" | tr -d '"' | tr ' ' '\n' >/tmp/selected_directories.txt
         echo "Directories to remove: $dir_choices"
         break
     fi
@@ -203,16 +200,16 @@ done
 
 # First confirmation - Warning about potential instability
 if ! whiptail --title "Warning" --yesno \
-"Warning: Removing these packages and directories may cause your system to become unstable and you may not be able to recover it.\n\nAre you sure you want to proceed?" \
-10 80; then
+    "Warning: Removing these packages and directories may cause your system to become unstable and you may not be able to recover it.\n\nAre you sure you want to proceed?" \
+    10 80; then
     echo "$INFO uninstall process canceled."
     exit 0
 fi
 
 # Second confirmation - Final confirmation to proceed
 if ! whiptail --title "Final Confirmation" --yesno \
-"Are you absolutely sure you want to remove the selected packages and directories?\n\nWARNING! This action is irreversible." \
-10 80; then
+    "Are you absolutely sure you want to remove the selected packages and directories?\n\nWARNING! This action is irreversible." \
+    10 80; then
     echo "$INFO uninstall process canceled."
     exit 0
 fi
@@ -232,7 +229,7 @@ while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
         if dpkg -l | grep -q "^ii  $package "; then
             MISSING_PACKAGE_COUNT=$((MISSING_PACKAGE_COUNT + 1))
         fi
-    done < /tmp/selected_packages.txt
+    done </tmp/selected_packages.txt
 
     if [ $MISSING_PACKAGE_COUNT -gt 0 ]; then
         ATTEMPT=$((ATTEMPT + 1))
@@ -244,20 +241,20 @@ done
 
 # Local packages:
 local=(
-  ags
-  hypridle
-  Hyprland 
-  hyprpm
-  nwg-look
-  rofi
-  rofi-sensible-terminal
-  swappy
-  rofi-theme-selector
-  hyprctl
-  hyprland  
-  hyprlock
-  nwg-displays
-  wallust
+    ags
+    hypridle
+    Hyprland
+    hyprpm
+    nwg-look
+    rofi
+    rofi-sensible-terminal
+    swappy
+    rofi-theme-selector
+    hyprctl
+    hyprland
+    hyprlock
+    nwg-displays
+    wallust
 )
 
 printf "\n%.0s" {1..1}
@@ -272,7 +269,6 @@ for file in "${local[@]}"; do
         echo "$file not found in /usr/local/bin/, skipping."
     fi
 done
-
 
 printf "\n%.0s" {1..1}
 printf "\n%s${SKY_BLUE}Attempting to remove selected directories${RESET}\n" "${NOTE}"

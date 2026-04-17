@@ -10,7 +10,6 @@ Extra=(
 
 )
 
-
 # packages neeeded
 hypr_package=(
     cliphist
@@ -46,7 +45,6 @@ hypr_package=(
     yad
     hypridle
     hyprlock
-    xfce-polkit
 )
 
 # the following packages can be deleted. however, dotfiles may not work properly
@@ -75,7 +73,6 @@ uninstall=(
     cargo
     mako
 )
-
 
 ## WARNING: DO NOT EDIT BEYOND THIS LINE IF YOU DON'T KNOW WHAT YOU ARE DOING! ##
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
