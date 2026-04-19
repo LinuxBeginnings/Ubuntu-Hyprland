@@ -68,7 +68,6 @@ if [[ $EUID -eq 0 ]]; then
     exit 1
 fi
 
-
 # install whiptails if detected not installed. Necessary for this version
 if ! command -v whiptail >/dev/null; then
     echo "${NOTE} - whiptail is not installed. Installing..." | tee -a "$LOG"
@@ -323,20 +322,32 @@ sudo apt update
 
 # Add Hyprland PPA and install Hyprland stack early (ensures newer versions like Waybar)
 export HYPR_USE_PPA=1
-execute_script "hyprland-ppa.sh" || { echo "${ERROR:-[ERROR]} Hyprland PPA setup failed" | tee -a "$LOG"; exit 1; }
+execute_script "hyprland-ppa.sh" || {
+    echo "${ERROR:-[ERROR]} Hyprland PPA setup failed" | tee -a "$LOG"
+    exit 1
+}
 
 echo "${INFO} Installing ${SKY_BLUE}necessary dependencies...${RESET}" | tee -a "$LOG"
 sleep 1
-execute_script "00-dependencies.sh" | tee -a "$LOG" || { echo "${ERROR:-[ERROR]} Dependencies installation failed" | tee -a "$LOG"; exit 1; }
+execute_script "00-dependencies.sh" | tee -a "$LOG" || {
+    echo "${ERROR:-[ERROR]} Dependencies installation failed" | tee -a "$LOG"
+    exit 1
+}
 
 echo "${INFO} Installing ${SKY_BLUE}necessary fonts...${RESET}" | tee -a "$LOG"
 sleep 1
-execute_script "fonts.sh" || { echo "${ERROR:-[ERROR]} Fonts installation failed" | tee -a "$LOG"; exit 1; }
+execute_script "fonts.sh" || {
+    echo "${ERROR:-[ERROR]} Fonts installation failed" | tee -a "$LOG"
+    exit 1
+}
 
 echo "${INFO} Installing ${SKY_BLUE}KooL Hyprland packages (via PPA)...${RESET}" | tee -a "$LOG"
 sleep 1
 # Install remaining desktop packages from Ubuntu repos/PPAs
-execute_script "01-hypr-pkgs.sh" || { echo "${ERROR:-[ERROR]} Hyprland packages installation failed" | tee -a "$LOG"; exit 1; }
+execute_script "01-hypr-pkgs.sh" || {
+    echo "${ERROR:-[ERROR]} Hyprland packages installation failed" | tee -a "$LOG"
+    exit 1
+}
 sleep 1
 execute_script "wallust.sh"
 sleep 1
@@ -422,7 +433,10 @@ for option in "${options[@]}"; do
         ;;
     dots)
         echo "${INFO}Installing pre-configured ${SKY_BLUE}KooL Hyprland dotfiles...${RESET}" | tee -a "$LOG"
-        execute_script "dotfiles.sh" || { echo "${ERROR:-[ERROR]} Dotfiles installation failed" | tee -a "$LOG"; exit 1; }
+        execute_script "dotfiles.sh" || {
+            echo "${ERROR:-[ERROR]} Dotfiles installation failed" | tee -a "$LOG"
+            exit 1
+        }
         ;;
     *)
         echo "Unknown option: $option" | tee -a "$LOG"
@@ -442,11 +456,6 @@ for file in "${files_to_delete[@]}"; do
 done
 
 clear
-
-# copy fastfetch config if ubuntu is not present
-if [ ! -f "$HOME/.config/fastfetch/ubuntu.png" ]; then
-    cp -r assets/fastfetch "$HOME/.config/"
-fi
 
 printf "\n%.0s" {1..2}
 # final check essential packages if it is installed
