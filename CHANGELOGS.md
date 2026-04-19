@@ -2,6 +2,7 @@
 
 ## Apr 2026
 
+- Fixed: Stopped `install.sh` from overwritting fastfetch config
 - Added: Version Check for `rofi`
     - It was being removed, and re-installed needlessly
     - This was a left over from when `rofi` only supported X11
