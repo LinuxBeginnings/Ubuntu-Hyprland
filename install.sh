@@ -31,18 +31,18 @@ DO_DRY_RUN=0
 SHOW_HELP=0
 for arg in "$@"; do
     case "$arg" in
-        --install-ppa)
-            INSTALL_MODE=ppa
-            ;;
-        --install-ubuntu)
-            INSTALL_MODE=ubuntu
-            ;;
-        --dry-run)
-            DO_DRY_RUN=1
-            ;;
-        -h|--help)
-            SHOW_HELP=1
-            ;;
+    --install-ppa)
+        INSTALL_MODE=ppa
+        ;;
+    --install-ubuntu)
+        INSTALL_MODE=ubuntu
+        ;;
+    --dry-run)
+        DO_DRY_RUN=1
+        ;;
+    -h | --help)
+        SHOW_HELP=1
+        ;;
     esac
 done
 
@@ -67,12 +67,12 @@ fi
 if [ "$DO_DRY_RUN" = "1" ]; then
     echo "[DRY-RUN] Hyprland install mode: $INSTALL_MODE"
     case "$INSTALL_MODE" in
-        ubuntu)
-            echo "[DRY-RUN] Would run: install-scripts/hyprland-ppa.sh (Ubuntu repo path)"
-            ;;
-        ppa)
-            echo "[DRY-RUN] Would run: install-scripts/hyprland-ppa-enable.sh (enable PPA and install)"
-            ;;
+    ubuntu)
+        echo "[DRY-RUN] Would run: install-scripts/hyprland-ppa.sh (Ubuntu repo path)"
+        ;;
+    ppa)
+        echo "[DRY-RUN] Would run: install-scripts/hyprland-ppa-enable.sh (enable PPA and install)"
+        ;;
     esac
     exit 0
 fi
@@ -127,7 +127,6 @@ export REPO_ROOT="$SCRIPT_DIR"
 : "${BUILD_BIN:=$BUILD_ROOT/bin}"
 export BUILD_ROOT BUILD_SRC BUILD_BIN
 mkdir -p "$BUILD_SRC" "$BUILD_BIN" "$REPO_ROOT/Install-Logs"
-
 
 # Check if running as root. If root, script will exit
 if [[ $EUID -eq 0 ]]; then
@@ -185,7 +184,6 @@ fi
 
 # Path to the install-scripts directory
 script_directory=install-scripts
-
 
 # Function to execute a script if it exists and make it executable
 execute_script() {
@@ -394,29 +392,44 @@ execute_script "02-pre-cleanup.sh"
 
 echo "${INFO} Installing ${SKY_BLUE}necessary dependencies...${RESET}" | tee -a "$LOG"
 sleep 1
-execute_script "00-dependencies.sh" | tee -a "$LOG" || { echo "${ERROR:-[ERROR]} Dependencies installation failed" | tee -a "$LOG"; exit 1; }
+execute_script "00-dependencies.sh" | tee -a "$LOG" || {
+    echo "${ERROR:-[ERROR]} Dependencies installation failed" | tee -a "$LOG"
+    exit 1
+}
 
 echo "${INFO} Installing ${SKY_BLUE}necessary fonts...${RESET}" | tee -a "$LOG"
 sleep 1
-execute_script "fonts.sh" || { echo "${ERROR:-[ERROR]} Fonts installation failed" | tee -a "$LOG"; exit 1; }
+execute_script "fonts.sh" || {
+    echo "${ERROR:-[ERROR]} Fonts installation failed" | tee -a "$LOG"
+    exit 1
+}
 
 echo "${INFO} Installing ${SKY_BLUE}KooL Hyprland packages...${RESET}" | tee -a "$LOG"
 sleep 1
-execute_script "01-hypr-pkgs.sh" || { echo "${ERROR:-[ERROR]} Hyprland packages installation failed" | tee -a "$LOG"; exit 1; }
+execute_script "01-hypr-pkgs.sh" || {
+    echo "${ERROR:-[ERROR]} Hyprland packages installation failed" | tee -a "$LOG"
+    exit 1
+}
 
 # Install Hyprland from Ubuntu repositories by default; optional PPA when requested
 case "$INSTALL_MODE" in
-  ubuntu)
+ubuntu)
     echo "${INFO} Installing Hyprland from ${SKY_BLUE}Ubuntu repositories${RESET}..." | tee -a "$LOG"
     sleep 1
-    execute_script "hyprland-ppa.sh" || { echo "${ERROR:-[ERROR]} Hyprland repository setup failed" | tee -a "$LOG"; exit 1; }
+    execute_script "hyprland-ppa.sh" || {
+        echo "${ERROR:-[ERROR]} Hyprland repository setup failed" | tee -a "$LOG"
+        exit 1
+    }
     ;;
-  ppa)
+ppa)
     echo "${INFO} Installing Hyprland from ${SKY_BLUE}community PPA${RESET} (if available)..." | tee -a "$LOG"
     sleep 1
-    execute_script "hyprland-ppa-enable.sh" || { echo "${ERROR:-[ERROR]} Hyprland PPA setup failed" | tee -a "$LOG"; exit 1; }
+    execute_script "hyprland-ppa-enable.sh" || {
+        echo "${ERROR:-[ERROR]} Hyprland PPA setup failed" | tee -a "$LOG"
+        exit 1
+    }
     ;;
-  *)
+*)
     echo "${ERROR} Unknown install mode: $INSTALL_MODE" | tee -a "$LOG"
     exit 1
     ;;
@@ -504,7 +517,10 @@ for option in "${options[@]}"; do
         ;;
     dots)
         echo "${INFO} Installing pre-configured ${SKY_BLUE}KooL Hyprland dotfiles...${RESET}" | tee -a "$LOG"
-        execute_script "dotfiles-branch.sh" || { echo "${ERROR:-[ERROR]} Dotfiles installation failed" | tee -a "$LOG"; exit 1; }
+        execute_script "dotfiles-branch.sh" || {
+            echo "${ERROR:-[ERROR]} Dotfiles installation failed" | tee -a "$LOG"
+            exit 1
+        }
         ;;
     *)
         echo "Unknown option: $option" | tee -a "$LOG"
@@ -524,11 +540,6 @@ for file in "${files_to_delete[@]}"; do
 done
 
 clear
-
-# copy fastfetch config if ubuntu is not present
-if [ ! -f "$HOME/.config/fastfetch/ubuntu.png" ]; then
-    cp -r assets/fastfetch "$HOME/.config/"
-fi
 
 printf "\n%.0s" {1..2}
 # final check essential packages if it is installed

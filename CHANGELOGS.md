@@ -2,6 +2,7 @@
 
 ## Apr 2026
 
+- Fixed: `install.sh` was overwritting fastfetch config
 - Fixed: Polkit issue
     - Added missing QT kvantum pkgs
 
