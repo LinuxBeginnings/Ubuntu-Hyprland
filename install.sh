@@ -337,15 +337,24 @@ execute_script "02-pre-cleanup.sh"
 
 echo "${INFO} Installing ${SKY_BLUE}necessary dependencies...${RESET}" | tee -a "$LOG"
 sleep 1
-execute_script "00-dependencies.sh" | tee -a "$LOG" || { echo "${ERROR:-[ERROR]} Dependencies installation failed" | tee -a "$LOG"; exit 1; }
+execute_script "00-dependencies.sh" | tee -a "$LOG" || {
+    echo "${ERROR:-[ERROR]} Dependencies installation failed" | tee -a "$LOG"
+    exit 1
+}
 
 echo "${INFO} Installing ${SKY_BLUE}necessary fonts...${RESET}" | tee -a "$LOG"
 sleep 1
-execute_script "fonts.sh" || { echo "${ERROR:-[ERROR]} Fonts installation failed" | tee -a "$LOG"; exit 1; }
+execute_script "fonts.sh" || {
+    echo "${ERROR:-[ERROR]} Fonts installation failed" | tee -a "$LOG"
+    exit 1
+}
 
 echo "${INFO} Installing ${SKY_BLUE}KooL Hyprland packages...${RESET}" | tee -a "$LOG"
 sleep 1
-execute_script "01-hypr-pkgs.sh" || { echo "${ERROR:-[ERROR]} Hyprland packages installation failed" | tee -a "$LOG"; exit 1; }
+execute_script "01-hypr-pkgs.sh" || {
+    echo "${ERROR:-[ERROR]} Hyprland packages installation failed" | tee -a "$LOG"
+    exit 1
+}
 
 # Default: install from PPA. Optional: build from source when requested.
 FROM_SOURCE=0
@@ -385,12 +394,18 @@ if [ "$FROM_SOURCE" -eq 1 ]; then
 
     # Now build and install Hyprland itself
     sleep 1
-    execute_script "hyprland.sh" || { echo "${ERROR:-[ERROR]} Hyprland build failed" | tee -a "$LOG"; exit 1; }
+    execute_script "hyprland.sh" || {
+        echo "${ERROR:-[ERROR]} Hyprland build failed" | tee -a "$LOG"
+        exit 1
+    }
 else
     echo "${INFO} Installing Hyprland from ${SKY_BLUE}PPA${RESET}..." | tee -a "$LOG"
     export HYPR_USE_PPA=1
     sleep 1
-    execute_script "hyprland-ppa.sh" || { echo "${ERROR:-[ERROR]} Hyprland PPA setup failed" | tee -a "$LOG"; exit 1; }
+    execute_script "hyprland-ppa.sh" || {
+        echo "${ERROR:-[ERROR]} Hyprland PPA setup failed" | tee -a "$LOG"
+        exit 1
+    }
 fi
 
 # Rest of the desktop stack
@@ -471,7 +486,10 @@ for option in "${options[@]}"; do
         ;;
     dots)
         echo "${INFO} Installing pre-configured ${SKY_BLUE}KooL Hyprland dotfiles...${RESET}" | tee -a "$LOG"
-        execute_script "dotfiles.sh" || { echo "${ERROR:-[ERROR]} Dotfiles installation failed" | tee -a "$LOG"; exit 1; }
+        execute_script "dotfiles.sh" || {
+            echo "${ERROR:-[ERROR]} Dotfiles installation failed" | tee -a "$LOG"
+            exit 1
+        }
         ;;
     *)
         echo "Unknown option: $option" | tee -a "$LOG"
@@ -491,11 +509,6 @@ for file in "${files_to_delete[@]}"; do
 done
 
 clear
-
-# copy fastfetch config if ubuntu is not present
-if [ ! -f "$HOME/.config/fastfetch/ubuntu.png" ]; then
-    cp -r assets/fastfetch "$HOME/.config/"
-fi
 
 printf "\n%.0s" {1..2}
 # final check essential packages if it is installed
