@@ -89,8 +89,8 @@ for PKG1 in "${build_dep[@]}"; do
   build_dep "$PKG1" "$LOG"
 done
 
-#install typescript by npm
-sudo npm install --global typescript 2>&1 | tee -a "$LOG"
+#install typescript by npm (pin v5 to avoid TS6 tsconfig errors)
+sudo npm install --global typescript@5 2>&1 | tee -a "$LOG"
 
 # ags v1
 printf "${NOTE} Install and Compiling ${SKY_BLUE}Aylur's GTK shell $ags_tag${RESET}..\n"
