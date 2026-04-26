@@ -63,9 +63,11 @@ https://github.com/user-attachments/assets/49bc12b2-abaf-45de-a21c-67aacd9bb872
 #### ⚠️ Pre-requisites and VERY Important!
 
 - Do not run this installer as `sudo` or as `root`
-- This Installer requires a user with priviledge to install packages
-- Choose the branch that matches your Ubuntu release (e.g., `24.04`, `25.10`)
-    > Note: When ubuntu v26.04 is released support for v25.10 will end
+- This Installer requires a user with `sudo `priviledge to install packages
+    - Priviledge escalation is handled inside the script
+- Choose the branch that matches your Ubuntu release (e.g., `24.04`, `26.04`)
+    > Note: With the release of ubuntu v26.04 support for v25.10 has ended
+    > Going forward interim releases won't be tested. (26.10,...)
 
 ### Gallery and Videos
 
@@ -138,7 +140,15 @@ chmod +x install.sh
 ./install.sh
 ```
 
-> Branch examples: `24.04`, `25.10`
+> Branch examples: `24.04`, `26.04`
+
+```bash
+git clone --depth=1 -b 26.04 https://github.com/LinuxBeginnings/Ubuntu-Hyprland.git ~/Ubuntu-Hyprland
+```
+
+```bash
+git clone --depth=1 -b 24.04 https://github.com/LinuxBeginnings/Ubuntu-Hyprland.git ~/Ubuntu-Hyprland
+```
 
 ### 💥 💥 UNINSTALL SCRIPT / Removal of Config Files
 
