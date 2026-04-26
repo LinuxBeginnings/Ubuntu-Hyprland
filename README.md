@@ -2,7 +2,7 @@
 
 # 💌 Ubuntu Hyprland Install Script 💌
 
-## For Ubuntu 26.04 Resolute Raccoon ONLY!!!
+## For Ubuntu 26.04 Resolute Raccoon
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/LinuxBeginnings/Hyprland-Dots/main/assets/latte.png" width="400" />
@@ -119,7 +119,7 @@ sudo apt install --no-install-recommends -y sddm
 - NOTE: `curl` package is required before running this command
 
 ```bash
-sh <(curl -L https://raw.githubusercontent.com/LinuxBeginnings/Ubuntu-Hyprland/25.10/auto-install.sh)
+sh <(curl -L https://raw.githubusercontent.com/LinuxBeginnings/Ubuntu-Hyprland/26.04/auto-install.sh)
 ```
 
 ## ✨ to use this script
@@ -127,8 +127,8 @@ sh <(curl -L https://raw.githubusercontent.com/LinuxBeginnings/Ubuntu-Hyprland/2
 > clone this repo (latest commit only) by using git. Change directory, make executable and run the script
 
 ```bash
-git clone --depth=1 -b 26.04 https://github.com/LinuxBeginnings/Ubuntu-Hyprland.git ~/Ubuntu-Hyprland-25.10
-cd ~/Ubuntu-Hyprland-26.04
+git clone --depth=1 -b 26.04 https://github.com/LinuxBeginnings/Ubuntu-Hyprland.git ~/Ubuntu-Hyprland
+cd ~/Ubuntu-Hyprland
 chmod +x install.sh
 ./install.sh
 ```
