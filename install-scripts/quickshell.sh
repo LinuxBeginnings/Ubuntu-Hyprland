@@ -73,6 +73,7 @@ DEPS=(
     libpolkit-gobject-1-dev
     libpolkit-agent-1-dev
     libjemalloc-dev
+    libunwind-dev
     # X11 (optional but harmless)
     libxcb1-dev
     # SVG support (package name differs across releases; try both)
@@ -155,6 +156,27 @@ PCEOF
     fi
 fi
 
+# Build cpptrace from source if CMake package is missing
+if ! cmake --find-package -DNAME=cpptrace -DCOMPILER_ID=GNU -DLANGUAGE=CXX -DMODE=EXIST >/dev/null 2>&1; then
+  note "Building cpptrace from source..."
+  CP_DIR="$BUILD_SRC/.thirdparty/cpptrace"
+  rm -rf "$CP_DIR"
+  mkdir -p "$CP_DIR"
+  (
+    set -Eeuo pipefail
+    git clone --depth=1 https://github.com/jeremy-rifkin/cpptrace.git "$CP_DIR" 2>&1 | tee -a "$MLOG"
+    cmake -S "$CP_DIR" -B "$CP_DIR/build" \
+      -DCMAKE_BUILD_TYPE=Release \
+      -DCMAKE_INSTALL_PREFIX=/usr/local \
+      -DCPPTRACE_UNWIND_WITH_LIBUNWIND=ON \
+      -DCPPTRACE_BUILD_TESTING=OFF \
+      -DCPPTRACE_BUILD_EXAMPLES=OFF \
+      -DCPPTRACE_BUILD_BENCHMARKS=OFF 2>&1 | tee -a "$MLOG"
+    cmake --build "$CP_DIR/build" 2>&1 | tee -a "$MLOG"
+    sudo cmake --install "$CP_DIR/build" 2>&1 | tee -a "$MLOG"
+  ) || { echo "${ERROR} cpptrace build failed." | tee -a "$LOG"; exit 1; }
+fi
+
 # Clone source (prefer upstream forgejo; mirror available at github:quickshell-mirror/quickshell)
 SRC_DIR="$BUILD_SRC/quickshell-src"
 if [ -d "$SRC_DIR" ]; then
@@ -176,6 +198,7 @@ CMAKE_FLAGS=(
     -B build
     -DCMAKE_BUILD_TYPE=RelWithDebInfo
     -DDISTRIBUTOR="Ubuntu-Hyprland installer"
+    -DVENDOR_CPPTRACE=ON
 )
 
 note "Configuring Quickshell (CMake)..."

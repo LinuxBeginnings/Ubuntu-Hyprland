@@ -1,5 +1,9 @@
 ## CHANGELOGS
 
+## May 2026
+
+- Fixed `quickshell.sh` Missing `cpptrace` and other deps 
+
 ## Apr 2026
 
 - Fixed: `install.sh` set color to dark contrast for readability
