@@ -1,6 +1,8 @@
 <div align="center">
 
-# 💌 KooL's Ubuntu Hyprland Install Script 💌
+# 💌  Ubuntu Hyprland Install Script 💌
+
+## ** With the release of ubuntu 26.04  ubuntu 25.10 is no longer supported. **
 
 ## For Ubuntu 25.10 Questing Quokka
 
