@@ -105,9 +105,8 @@ hyprland_dep=(
     binutils
     libc6
     libcairo2
-    libdisplay-info2
+    libdisplay-info3
     libdrm2
-    hyprland-guiutils
     libpam0g-dev
 )
 
