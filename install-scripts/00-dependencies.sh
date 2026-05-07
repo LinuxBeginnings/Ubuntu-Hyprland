@@ -94,6 +94,7 @@ dependencies=(
     rsync
     scdoc
     seatd
+    socat # Needed for Tak0 scripts
     spirv-tools
     unzip
     vulkan-validationlayers

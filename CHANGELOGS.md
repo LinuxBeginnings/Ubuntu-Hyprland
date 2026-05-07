@@ -1,5 +1,9 @@
 ## CHANGELOGS
 
+## May 2026
+
+- Added `socat` for `Tak0` scripts
+
 ## Apr 2026
 
 - Fixed: Stopped `install.sh` from overwritting fastfetch config
