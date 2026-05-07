@@ -21,6 +21,7 @@ dependencies=(
     cmake
     cmake-extras
     curl
+    ddcutil # Needed for ExternalBrightness script
     findutils
     gawk
     gettext
