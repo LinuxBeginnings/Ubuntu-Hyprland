@@ -91,7 +91,7 @@ dependencies=(
     qt6-tools-dev
     qt6-tools-dev-tools
     rsync
-    socat # needed for Tak0 scripts
+    socat # Needed for Tak0 scripts
     spirv-tools
     unzip
     vulkan-validationlayers

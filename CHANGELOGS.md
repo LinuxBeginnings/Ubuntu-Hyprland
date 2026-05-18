@@ -2,6 +2,21 @@
 
 ## May 2026
 
+- Fixed:
+    - Some scripts not executable
+    - `libdisplay-info3` for 26.04
+    - Link in `README.md`
+    - Set dark theme for whiptail fixes colors washed out on some terminals
+        - Removed some duplicate colors
+        - Fixed hight on OK/Cancel button
+- Added:
+    - `update-deps.sh` Install new dependencies since last install
+        - You don't have to re-install everything, verifies you have all new deps
+        - If not it will install them
+    - `ddcutil` to support external monitor brightness
+    - `socat` to fix `Tak0` scripts
+    - `stylua` COPR for LUA support
+- Removed hyprland-qtutils not used anymore
 - Fixed `quickshell.sh` Missing `cpptrace` and other deps
 - Disabled `hyprland-qtuils` it's no longer used
 - Removed duplicate `hyprland-guituils`
