@@ -17,6 +17,9 @@
     - `socat` to fix `Tak0` scripts
     - `stylua` COPR for LUA support
 - Removed hyprland-qtutils not used anymore
+- Fixed `quickshell.sh` Missing `cpptrace` and other deps
+- Disabled `hyprland-qtuils` it's no longer used
+- Removed duplicate `hyprland-guituils`
 
 ## Apr 2026
 
