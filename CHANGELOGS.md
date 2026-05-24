@@ -9,6 +9,11 @@
     - Set dark theme for whiptail fixes colors washed out on some terminals
         - Removed some duplicate colors
         - Fixed hight on OK/Cancel button
+    - `auto-install.sh`
+        - The script would got a git pull if Distro-Hyprland directory exsited
+        - If user started with JakooLit installer it would not get updated code
+        - Changed to remove `Distro-Hyprland` and do fresh git clone
+
 - Added:
     - `update-deps.sh` Install new dependencies since last install
         - You don't have to re-install everything, verifies you have all new deps
