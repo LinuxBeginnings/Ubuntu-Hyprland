@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # ==================================================
 #  KoolDots (2026)
 #  Project URL: https://github.com/LinuxBeginnings
@@ -468,6 +468,12 @@ sleep 1
 execute_script "hyprlock.sh"
 sleep 1
 execute_script "hypridle.sh"
+sleep 1
+echo "${INFO} Installing ${SKY_BLUE}Yazi file manager...${RESET}" | tee -a "$LOG"
+execute_script "yazi.sh" || {
+    echo "${ERROR:-[ERROR]} Yazi installation failed" | tee -a "$LOG"
+    exit 1
+}
 
 #execute_script "imagemagick.sh" #this is for compiling from source. 07 Sep 2024
 # execute_script "waybar-git.sh" only if waybar on repo is old

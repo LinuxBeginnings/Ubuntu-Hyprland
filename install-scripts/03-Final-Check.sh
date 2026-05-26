@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # ==================================================
 #  KoolDots (2026)
 #  Project URL: https://github.com/LinuxBeginnings
@@ -11,6 +11,13 @@
 
 packages=(
   imagemagick
+  7zip
+  fd-find
+  ffmpeg
+  fzf
+  jq
+  poppler-utils
+  ripgrep
   sway-notification-center
   waybar
   wl-clipboard
@@ -18,6 +25,8 @@ packages=(
   wlogout
   kitty
   hyprland
+  yazi
+  zoxide
 )
 
 # Binaries expected to be available (installed via PPA into /usr/bin)
