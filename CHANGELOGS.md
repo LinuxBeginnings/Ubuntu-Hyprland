@@ -15,6 +15,10 @@
         - Changed to remove `Distro-Hyprland` and do fresh git clone
 
 - Added:
+    - New GH repo for `yazi`
+        - `dariogriffo/yazi-debian`
+        - Up to date and has deb pkgs for all debian and ubuntu versions
+        - Kept the original debian only repo as backup
     - CLI File manager `yazi`
     - `update-deps.sh` Install new dependencies since last install
         - You don't have to re-install everything, verifies you have all new deps
