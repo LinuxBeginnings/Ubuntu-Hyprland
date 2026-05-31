@@ -384,6 +384,8 @@ sleep 1
 execute_script "hyprlock.sh"
 sleep 1
 execute_script "hypridle.sh"
+sleep 1
+execute_script "yazi.sh"
 
 #execute_script "imagemagick.sh" #this is for compiling from source. 07 Sep 2024
 # execute_script "waybar-git.sh" only if waybar on repo is old

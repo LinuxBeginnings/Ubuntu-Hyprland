@@ -5,6 +5,7 @@
 
 packages=(
   imagemagick
+  yazi
   sway-notification-center
   waybar
   wl-clipboard
@@ -22,6 +23,7 @@ path_cmds=(
   rofi
   wallust
   nwg-displays
+  yazi
 )
 
 ## WARNING: DO NOT EDIT BEYOND THIS LINE IF YOU DON'T KNOW WHAT YOU ARE DOING! ##

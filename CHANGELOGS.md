@@ -15,6 +15,7 @@
         - Changed to remove `Distro-Hyprland` and do fresh git clone
 
 - Added:
+    - `yazi.sh` script added to install current `yazi` file mgr
     - `update-deps.sh` Install new dependencies since last install
         - You don't have to re-install everything, verifies you have all new deps
         - If not it will install them
