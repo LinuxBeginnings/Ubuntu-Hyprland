@@ -38,6 +38,23 @@ SYSTEM_ARCH=""
 YAZI_RELEASE_TAG=""
 YAZI_ASSET_NAME=""
 YAZI_ASSET_URL=""
+cleanup_local_yazi_binaries() {
+    local local_bins=("/usr/local/bin/ya" "/usr/local/bin/yazi")
+    local bin_path=""
+
+    for bin_path in "${local_bins[@]}"; do
+        if [ -e "$bin_path" ]; then
+            if [ "${DRY_RUN:-0}" = "1" ]; then
+                echo "[DRY-RUN] sudo rm -f $bin_path" | tee -a "$LOG"
+            else
+                echo "${INFO} Removing conflicting local binary ${YELLOW}${bin_path}${RESET}..." | tee -a "$LOG"
+                if ! sudo rm -f "$bin_path" 2>&1 | tee -a "$LOG"; then
+                    echo "${WARN} Failed to remove ${bin_path}; it may shadow packaged yazi binaries." | tee -a "$LOG"
+                fi
+            fi
+        fi
+    done
+}
 
 detect_system_info() {
     if [ -r /etc/os-release ]; then
@@ -228,6 +245,7 @@ install_yazi_from_fallback_repo() {
 
 printf "\n%s - Installing ${SKY_BLUE}Yazi file manager${RESET}...\n" "${NOTE}"
 detect_system_info
+cleanup_local_yazi_binaries
 
 if ! install_yazi_from_github_release; then
     echo "${WARN} Falling back to debian.griffo.io apt repository for Yazi." | tee -a "$LOG"

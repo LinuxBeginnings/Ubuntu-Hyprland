@@ -20,6 +20,7 @@ Options:
 Env overrides:
   DEPENDENCIES_SCRIPT     Path to dependencies script
   PACKAGES_SCRIPT         Path to packages script
+  YAZI_SCRIPT             Path to yazi script
   CHECK_SCRIPT            Path to final check script
 EOF
 }
@@ -74,6 +75,7 @@ pick_script() {
 
 DEPENDENCIES_SCRIPT="${DEPENDENCIES_SCRIPT:-$(pick_script "dependencies" || pick_script "base")}"
 PACKAGES_SCRIPT="${PACKAGES_SCRIPT:-$(pick_script "hypr-pkgs" || pick_script "pkgs")}"
+YAZI_SCRIPT="${YAZI_SCRIPT:-$SCRIPT_DIR/yazi.sh}"
 CHECK_SCRIPT="${CHECK_SCRIPT:-$(pick_script "Final-Check" || pick_script "Final")}"
 PRE_CLEANUP_SCRIPT="$(pick_script "pre-cleanup" || true)"
 
@@ -83,6 +85,10 @@ if [ -n "$DEPENDENCIES_SCRIPT" ] && [ ! -f "$DEPENDENCIES_SCRIPT" ]; then
 fi
 if [ -n "$PACKAGES_SCRIPT" ] && [ ! -f "$PACKAGES_SCRIPT" ]; then
   echo "Script not found: $PACKAGES_SCRIPT"
+  exit 1
+fi
+if [ -n "$YAZI_SCRIPT" ] && [ ! -f "$YAZI_SCRIPT" ]; then
+  echo "Script not found: $YAZI_SCRIPT"
   exit 1
 fi
 if [ -n "$CHECK_SCRIPT" ] && [ ! -f "$CHECK_SCRIPT" ]; then
@@ -98,6 +104,7 @@ if [ "$DRY_RUN" -eq 1 ]; then
   echo "Dry run. Scripts that would execute:"
   [ -n "$DEPENDENCIES_SCRIPT" ] && echo "  dependencies: $DEPENDENCIES_SCRIPT"
   [ -n "$PACKAGES_SCRIPT" ] && echo "  packages: $PACKAGES_SCRIPT"
+  [ -n "$YAZI_SCRIPT" ] && echo "  yazi: $YAZI_SCRIPT"
   [ "$INCLUDE_PRE_CLEANUP" -eq 1 ] && [ -n "$PRE_CLEANUP_SCRIPT" ] && echo "  pre-cleanup: $PRE_CLEANUP_SCRIPT"
   [ -n "$CHECK_SCRIPT" ] && echo "  final check: $CHECK_SCRIPT"
   exit 0
@@ -106,6 +113,7 @@ fi
 RUN_STAMP="$(date +%d-%H%M%S)"
 DEPENDENCIES_LOG="$LOG_DIR/update-deps-${RUN_STAMP}_dependencies.log"
 PACKAGES_LOG="$LOG_DIR/update-deps-${RUN_STAMP}_packages.log"
+YAZI_LOG="$LOG_DIR/update-deps-${RUN_STAMP}_yazi.log"
 PRE_CLEANUP_LOG="$LOG_DIR/update-deps-${RUN_STAMP}_pre-cleanup.log"
 CHECK_LOG="$LOG_DIR/update-deps-${RUN_STAMP}_check.log"
 
@@ -115,6 +123,7 @@ strip_ansi() {
 
 dependencies_status=0
 packages_status=0
+yazi_status=0
 pre_cleanup_status=0
 check_status=0
 
@@ -129,6 +138,13 @@ if [ -n "$PACKAGES_SCRIPT" ]; then
   echo "Running packages script: $(basename "$PACKAGES_SCRIPT")"
   bash "$PACKAGES_SCRIPT" 2>&1 | tee "$PACKAGES_LOG"
   packages_status=${PIPESTATUS[0]}
+fi
+
+if [ -n "$YAZI_SCRIPT" ]; then
+  echo
+  echo "Running yazi script: $(basename "$YAZI_SCRIPT")"
+  bash "$YAZI_SCRIPT" 2>&1 | tee "$YAZI_LOG"
+  yazi_status=${PIPESTATUS[0]}
 fi
 
 if [ "$INCLUDE_PRE_CLEANUP" -eq 1 ] && [ -n "$PRE_CLEANUP_SCRIPT" ]; then
@@ -147,6 +163,7 @@ fi
 
 clean_dependencies_log="$(mktemp)"
 clean_packages_log="$(mktemp)"
+clean_yazi_log="$(mktemp)"
 clean_check_log="$(mktemp)"
 if [ -f "$DEPENDENCIES_LOG" ]; then
   strip_ansi < "$DEPENDENCIES_LOG" > "$clean_dependencies_log"
@@ -154,12 +171,15 @@ fi
 if [ -f "$PACKAGES_LOG" ]; then
   strip_ansi < "$PACKAGES_LOG" > "$clean_packages_log"
 fi
+if [ -f "$YAZI_LOG" ]; then
+  strip_ansi < "$YAZI_LOG" > "$clean_yazi_log"
+fi
 if [ -f "$CHECK_LOG" ]; then
   strip_ansi < "$CHECK_LOG" > "$clean_check_log"
 fi
 
-mapfile -t installed_pkgs < <(awk '/\[OK\] Package /{print $3}' "$clean_packages_log" 2>/dev/null | sort -u)
-mapfile -t failed_pkgs < <(awk '/failed to install/{print $2}' "$clean_packages_log" 2>/dev/null | sort -u)
+mapfile -t installed_pkgs < <(cat "$clean_packages_log" "$clean_yazi_log" 2>/dev/null | awk '/\[OK\] Package /{print $3}' | sort -u)
+mapfile -t failed_pkgs < <(cat "$clean_packages_log" "$clean_yazi_log" 2>/dev/null | awk '/failed to install/{print $2}' | sort -u)
 
 latest_final_log="$(ls -t "$LOG_DIR"/00_CHECK-*_installed.log 2>/dev/null | head -n 1)"
 missing_pkgs=()
@@ -167,19 +187,21 @@ if [ -n "$latest_final_log" ] && [ -f "$latest_final_log" ]; then
   mapfile -t missing_pkgs < <(strip_ansi < "$latest_final_log" | awk 'NF==1')
 fi
 
-rm -f "$clean_dependencies_log" "$clean_packages_log" "$clean_check_log"
+rm -f "$clean_dependencies_log" "$clean_packages_log" "$clean_yazi_log" "$clean_check_log"
 
 echo
 echo "Summary"
 echo "-------"
 echo "Dependencies script: ${DEPENDENCIES_SCRIPT:-none}"
 echo "Packages script: ${PACKAGES_SCRIPT:-none}"
+echo "Yazi script: ${YAZI_SCRIPT:-none}"
 if [ "$INCLUDE_PRE_CLEANUP" -eq 1 ]; then
   echo "Pre-cleanup script: ${PRE_CLEANUP_SCRIPT:-none}"
 fi
 echo "Final check script: ${CHECK_SCRIPT:-none}"
 echo "Dependencies exit status: $dependencies_status"
 echo "Packages exit status: $packages_status"
+echo "Yazi exit status: $yazi_status"
 if [ "$INCLUDE_PRE_CLEANUP" -eq 1 ]; then
   echo "Pre-cleanup exit status: $pre_cleanup_status"
 fi
