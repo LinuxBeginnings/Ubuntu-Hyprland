@@ -75,7 +75,7 @@ pick_script() {
 
 DEPENDENCIES_SCRIPT="${DEPENDENCIES_SCRIPT:-$(pick_script "dependencies" || pick_script "base")}"
 PACKAGES_SCRIPT="${PACKAGES_SCRIPT:-$(pick_script "hypr-pkgs" || pick_script "pkgs")}"
-YAZI_SCRIPT="${YAZI_SCRIPT:-$(pick_script "yazi" || true)}"
+YAZI_SCRIPT="${YAZI_SCRIPT:-$SCRIPT_DIR/yazi.sh}"
 CHECK_SCRIPT="${CHECK_SCRIPT:-$(pick_script "Final-Check" || pick_script "Final")}"
 PRE_CLEANUP_SCRIPT="$(pick_script "pre-cleanup" || true)"
 
