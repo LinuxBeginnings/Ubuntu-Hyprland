@@ -3,6 +3,8 @@
 ## May 2026
 
 - Fixed:
+    - LinuxMint OS ID breaks `yazi.sh` script
+        - It will now check for `UBUNTU_CODENAME` as backup
     - Some scripts not executable
     - `libdisplay-info3` for 26.04
     - Link in `README.md`

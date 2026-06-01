@@ -63,7 +63,12 @@ detect_system_info() {
     fi
 
     DISTRO_ID="${ID:-}"
-    DISTRO_CODENAME="${VERSION_CODENAME:-${UBUNTU_CODENAME:-}}"
+    if [ "$DISTRO_ID" = "linuxmint" ] && [ -n "${UBUNTU_CODENAME:-}" ]; then
+        DISTRO_ID="ubuntu"
+        DISTRO_CODENAME="${UBUNTU_CODENAME}"
+    else
+        DISTRO_CODENAME="${VERSION_CODENAME:-${UBUNTU_CODENAME:-}}"
+    fi
     if [ -z "$DISTRO_CODENAME" ] && command -v lsb_release >/dev/null 2>&1; then
         DISTRO_CODENAME="$(lsb_release -sc 2>/dev/null || true)"
     fi
