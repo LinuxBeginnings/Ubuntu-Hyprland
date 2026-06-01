@@ -3,6 +3,8 @@
 ## May 2026
 
 - Fixed:
+    - Linux Mint ID breaks `yazi.sh`
+        - Now checks for `UNBUNTU_CODENAME` as backup
     - Some scripts not executable
     - `libdisplay-info3` for 26.04
     - Link in `README.md`
