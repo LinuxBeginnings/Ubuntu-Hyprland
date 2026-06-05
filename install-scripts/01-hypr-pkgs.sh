@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # ==================================================
 #  KoolDots (2026)
 #  Project URL: https://github.com/LinuxBeginnings
@@ -19,6 +19,14 @@ Extra=(
 # packages needed
 hypr_package=(
     cliphist
+    ffmpeg
+    7zip
+    jq
+    poppler-utils
+    fd-find
+    ripgrep
+    fzf
+    zoxide
     fastfetch
     grim
     gvfs

@@ -3,6 +3,8 @@
 ## May 2026
 
 - Fixed:
+    - Linux Mint ID breaks `yazi.sh`
+        - Now checks for `UNBUNTU_CODENAME` as backup
     - Some scripts not executable
     - `libdisplay-info3` for 26.04
     - Link in `README.md`
@@ -15,6 +17,12 @@
         - Changed to remove `Distro-Hyprland` and do fresh git clone
 
 - Added:
+    - New GH repo for `yazi`
+        - `dariogriffo/yazi-debian`
+        - Up to date and has deb pkgs for all debian and ubuntu versions
+        - Kept the original debian only repo as backup
+        - Checks for old versions of `yazi` removes if found
+    - CLI File manager `yazi`
     - `update-deps.sh` Install new dependencies since last install
         - You don't have to re-install everything, verifies you have all new deps
         - If not it will install them
