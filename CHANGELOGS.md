@@ -1,5 +1,11 @@
 ## CHANGELOGS
 
+## Jul 2026
+
+- Updated:
+    - `swww.sh` to clone / install `awww`
+        - `swww` has been renamed to `awww`
+
 ## May 2026
 
 - Fixed:
