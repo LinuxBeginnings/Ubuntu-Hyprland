@@ -6,7 +6,7 @@
 #  SPDX-License-Identifier: GPL-3.0-or-later
 # ==================================================
 # 💫 https://github.com/LinuxBeginnings 💫 #
-# SWWW - Wallpaper Utility #
+# AWWW - Wallpaper Utility (swww successor) #
 set -euo pipefail
 
 # Resolve locations and load globals early (defines ${OK}, ${INFO}, etc.)
@@ -16,35 +16,10 @@ if ! source "$(dirname "$(readlink -f "$0")")/Global_functions.sh"; then
   exit 1
 fi
 
-# Pin to last supported release
-swww_tag="v0.11.2"
-swww_min="0.11.2"
-
-# Version compare helper (dpkg preferred; fallback to sort -V)
-version_ge() {
-  local a="$1" b="$2"
-  if command -v dpkg >/dev/null 2>&1; then
-    dpkg --compare-versions "$a" ge "$b"
-    return $?
-  fi
-  [ "$(printf '%s\n%s\n' "$b" "$a" | sort -V | tail -n1)" = "$a" ]
-}
-
-# Check if 'swww' is installed and sufficient
-if command -v swww &>/dev/null; then
-  SWWW_VERSION=$(swww --version 2>/dev/null | grep -oE '[0-9]+(\.[0-9]+){1,3}' | head -1)
-  if [ -n "$SWWW_VERSION" ] && version_ge "$SWWW_VERSION" "$swww_min"; then
-    echo -e "${OK} ${MAGENTA}swww ${SWWW_VERSION}${RESET} detected (>= ${swww_min}). Skipping installation."
-    exit 0
-  else
-    echo -e "${INFO} swww ${SWWW_VERSION:-unknown} found; upgrading to ${swww_tag}."
-  fi
-else
-  echo -e "${NOTE} ${MAGENTA}swww${RESET} is not installed. Proceeding with installation."
-fi
-
-swww=(
+awww_deps=(
   liblz4-dev
+  libwayland-dev
+  wayland-protocols
 )
 
 ## WARNING: DO NOT EDIT BEYOND THIS LINE IF YOU DON'T KNOW WHAT YOU ARE DOING! ##
@@ -52,29 +27,53 @@ swww=(
 # Work in build/src to keep repo root clean
 cd "$BUILD_SRC" || { echo "${ERROR} Failed to change directory to $BUILD_SRC"; exit 1; }
 
-# Set the name of the log file to include the current date and time (under repo root)
-LOG="$REPO_ROOT/Install-Logs/install-$(date +%d-%H%M%S)_swww.log"
-MLOG="$REPO_ROOT/Install-Logs/install-$(date +%d-%H%M%S)_swww2.log"
+# Source paths now that Global_functions defines SRC_ROOT/REPO_ROOT
+awww_repo="https://codeberg.org/LGFae/awww"
+awww_src_dir="$BUILD_SRC/awww"
 
-# Install build dependency
-printf "\n%s - Installing ${SKY_BLUE}swww $swww_tag and dependencies${RESET} .... \n" "${NOTE}"
-for PKG1 in "${swww[@]}"; do
+# Set the name of the log file to include the current date and time (under repo root)
+LOG="$REPO_ROOT/Install-Logs/install-$(date +%d-%H%M%S)_awww.log"
+MLOG="$REPO_ROOT/Install-Logs/install-$(date +%d-%H%M%S)_awww2.log"
+
+# Installation of awww compilation needed
+printf "\n%s - Installing ${SKY_BLUE}awww and dependencies${RESET} .... \n" "${NOTE}"
+for PKG1 in "${awww_deps[@]}"; do
   install_package "$PKG1" "$LOG"
 done
 
+# Ensure wayland.xml is available for build scripts
+if [ ! -f /usr/share/wayland-protocols/wayland.xml ] && [ ! -f /usr/local/share/wayland-protocols/wayland.xml ]; then
+  echo -e "${WARN} wayland.xml not found; attempting to install wayland-protocols."
+  install_package "wayland-protocols" "$LOG"
+fi
+if [ ! -f /usr/share/wayland-protocols/wayland.xml ] && [ ! -f /usr/local/share/wayland-protocols/wayland.xml ]; then
+  echo -e "${WARN} wayland.xml still missing; building wayland-protocols from source."
+  if [ -x "$REPO_ROOT/install-scripts/wayland-protocols-src.sh" ]; then
+    "$REPO_ROOT/install-scripts/wayland-protocols-src.sh"
+  fi
+fi
+
+# Export wayland-protocols path so waybackend-scanner can locate wayland.xml
+if [ -f /usr/local/share/wayland-protocols/wayland.xml ]; then
+  export WAYLAND_PROTOCOLS_DIR=/usr/local/share/wayland-protocols
+elif [ -f /usr/share/wayland-protocols/wayland.xml ]; then
+  export WAYLAND_PROTOCOLS_DIR=/usr/share/wayland-protocols
+fi
+if [ -n "${WAYLAND_PROTOCOLS_DIR:-}" ]; then
+  export WAYLAND_PROTOCOLS_PATH="${WAYLAND_PROTOCOLS_DIR}"
+fi
+
 printf "\n%.0s" {1..2}
 
-# Fetch sources at exact tag
-if [ -d "swww" ]; then
-  cd swww || exit 1
-  git fetch --tags --force 2>&1 | tee -a "$MLOG"
-  git checkout -f "$swww_tag" 2>&1 | tee -a "$MLOG"
-  git reset --hard "$swww_tag" 2>&1 | tee -a "$MLOG"
+# Check if awww directory exists (under build/src)
+if [ -d "$awww_src_dir" ]; then
+  cd "$awww_src_dir" || exit 1
+  git pull 2>&1 | tee -a "$MLOG"
 else
-  if git clone --recursive -b "$swww_tag" https://github.com/LGFae/swww.git; then
-    cd swww || exit 1
+  if git clone --recursive "$awww_repo" "$awww_src_dir"; then
+    cd "$awww_src_dir" || exit 1
   else
-    echo -e "${ERROR} Download failed for ${YELLOW}swww $swww_tag${RESET}" 2>&1 | tee -a "$LOG"
+    echo -e "${ERROR} Download failed for ${YELLOW}awww${RESET}" 2>&1 | tee -a "$LOG"
     exit 1
   fi
 fi
@@ -83,23 +82,26 @@ fi
 source "$HOME/.cargo/env" || true
 cargo build --release 2>&1 | tee -a "$MLOG"
 
-# Remove any old distro-installed copies to avoid path confusion
-for f in /usr/bin/swww /usr/bin/swww-daemon; do
-  if [ -f "$f" ]; then
-    sudo rm -f "$f"
+# Remove old swww/awww binaries before copying
+remove_bins=(
+  /usr/bin/swww
+  /usr/bin/swww-daemon
+  /usr/local/bin/swww
+  /usr/local/bin/swww-daemon
+  /usr/bin/awww
+  /usr/bin/awww-daemon
+  /usr/local/bin/awww
+  /usr/local/bin/awww-daemon
+)
+for bin in "${remove_bins[@]}"; do
+  if [ -e "$bin" ]; then
+    sudo rm -f "$bin"
   fi
 done
 
 # Install locally built binaries under /usr/local/bin
-sudo install -m 0755 target/release/swww /usr/local/bin/swww 2>&1 | tee -a "$MLOG"
-sudo install -m 0755 target/release/swww-daemon /usr/local/bin/swww-daemon 2>&1 | tee -a "$MLOG"
-
-# Shell completions
-sudo mkdir -p /usr/share/bash-completion/completions 2>&1 | tee -a "$MLOG"
-sudo cp -r completions/swww.bash /usr/share/bash-completion/completions/swww 2>&1 | tee -a "$MLOG"
-
-sudo mkdir -p /usr/share/zsh/site-functions 2>&1 | tee -a "$MLOG"
-sudo cp -r completions/_swww /usr/share/zsh/site-functions/_swww 2>&1 | tee -a "$MLOG"
+sudo install -m 0755 target/release/awww /usr/local/bin/awww 2>&1 | tee -a "$MLOG"
+sudo install -m 0755 target/release/awww-daemon /usr/local/bin/awww-daemon 2>&1 | tee -a "$MLOG"
 
 # Logs already saved into $REPO_ROOT/Install-Logs
 cd "$REPO_ROOT" || exit 1
