@@ -26,7 +26,7 @@ RESET="$(tput sgr0)"
 # Variables
 Distro="Ubuntu-Hyprland"
 Github_URL="https://github.com/LinuxBeginnings/$Distro.git"
-Github_URL_Branch="26.04-devlopment"
+Github_URL_Branch="26.04"
 Distro_DIR="$HOME/$Distro-$Github_URL_Branch"
 
 printf "\n%.0s" {1..1}
