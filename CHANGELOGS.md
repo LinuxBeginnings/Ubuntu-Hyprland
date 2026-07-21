@@ -1,5 +1,10 @@
 ## CHANGELOGS
 
+## Jul 2026
+
+- Disable `sddm` the current theme needs QT6
+    - Ubuntu 24.04 only has QT5
+
 ## May 2026
 
 - Fixed:

@@ -167,8 +167,6 @@ gtk_themes="OFF"
 bluetooth="OFF"
 thunar="OFF"
 ags="OFF"
-sddm="OFF"
-sddm_theme="OFF"
 zsh="OFF"
 pokemon="OFF"
 rog="OFF"
@@ -215,7 +213,7 @@ if check_services_running; then
 
     # Display the active login manager(s) in the whiptail message box
     whiptail --title "Active non-SDDM login manager(s) detected" \
-        --msgbox "The following login manager(s) are active:\n\n$active_list\n\nIf you want to install SDDM and SDDM theme, stop and disable first the active services above, and reboot before running this script\nRefer to README on switching to SDDM if you really want SDDM\n\nNOTE: Your option to install SDDM and SDDM theme has now been removed\n\n- Ja " 28 80
+        --msgbox "The following login manager(s) are active:\n\n$active_list\n\nIf you want to switch login managers, stop and disable the active services above, and reboot before running this script\nRefer to README on switching login managers if needed\n\n- Ja " 24 80
 fi
 
 # Check if NVIDIA GPU is detected
@@ -251,13 +249,6 @@ if [ "$input_group_detected" == "true" ]; then
     )
 fi
 
-# Conditionally add SDDM and SDDM theme options if no active login manager is found
-if ! check_services_running; then
-    options_command+=(
-        "sddm" "Install & configure SDDM login manager?" "OFF"
-        "sddm_theme" "Download & Install Additional SDDM theme?" "OFF"
-    )
-fi
 
 # Add the remaining static options
 options_command+=(
@@ -400,16 +391,6 @@ IFS=' ' read -r -a options <<<"$selected_options"
 # Loop through selected options
 for option in "${options[@]}"; do
     case "$option" in
-    sddm)
-        if check_services_running; then
-            active_list=$(printf "%s\n" "${active_services[@]}")
-            whiptail --title "Error" --msgbox "One of the following login services is running:\n$active_list\n\nPlease stop & disable it or DO not choose SDDM." 12 60
-            exec "$0"
-        else
-            echo "${INFO}Installing and configuring ${SKY_BLUE}SDDM...${RESET}" | tee -a "$LOG"
-            execute_script "sddm.sh"
-        fi
-        ;;
     nvidia)
         echo "${INFO}Configuring ${SKY_BLUE}nvidia stuff${RESET}" | tee -a "$LOG"
         execute_script "nvidia.sh"
@@ -434,10 +415,6 @@ for option in "${options[@]}"; do
         echo "${INFO}Installing ${SKY_BLUE}Thunar file manager...${RESET}" | tee -a "$LOG"
         execute_script "thunar.sh"
         execute_script "thunar_default.sh"
-        ;;
-    sddm_theme)
-        echo "${INFO}Downloading & Installing ${SKY_BLUE}Additional SDDM theme...${RESET}" | tee -a "$LOG"
-        execute_script "sddm_theme.sh"
         ;;
     zsh)
         echo "${INFO}Installing ${SKY_BLUE}zsh with Oh-My-Zsh...${RESET}" | tee -a "$LOG"
