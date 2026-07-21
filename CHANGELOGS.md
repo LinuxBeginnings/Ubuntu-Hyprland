@@ -2,8 +2,10 @@
 
 ## Jul 2026
 
-- Disable `sddm` the current theme needs QT6
-    - Ubuntu 24.04 only has QT5
+- Restored orignal sddm-simple theme 
+  - It's a QT5 theme 
+- Fixed `install-scripts/sddm_theme.sh`
+
 
 ## May 2026
 
