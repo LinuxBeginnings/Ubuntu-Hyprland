@@ -167,6 +167,8 @@ gtk_themes="OFF"
 bluetooth="OFF"
 thunar="OFF"
 ags="OFF"
+sddm="OFF"
+sddm_themes="OFF"
 zsh="OFF"
 pokemon="OFF"
 rog="OFF"
@@ -256,6 +258,8 @@ options_command+=(
     "bluetooth" "Do you want script to configure Bluetooth?" "OFF"
     "thunar" "Do you want Thunar file manager to be installed?" "OFF"
     "ags" "Install AGS v1 for Desktop-Like Overview" "OFF"
+    "sddm" "Install and configure SDDM login manager?" "OFF"
+    "sddm_themes" "Install and configure SDDM themes?" "OFF"
     "zsh" "Install zsh shell with Oh-My-Zsh?" "OFF"
     "nwg-look" "Install nwg-look for GTK theming? WARNING This Package Takes long time to build!" "OFF"
     "pokemon" "Add Pokemon color scripts to your terminal?" "OFF"
@@ -406,6 +410,14 @@ for option in "${options[@]}"; do
     ags)
         echo "${INFO}Installing ${SKY_BLUE}AGS v1 for Desktop Overview...${RESET}" | tee -a "$LOG"
         execute_script "ags.sh"
+        ;;
+    sddm)
+        echo "${INFO}Installing and configuring ${SKY_BLUE}SDDM...${RESET}" | tee -a "$LOG"
+        execute_script "sddm.sh"
+        ;;
+    sddm_themes)
+        echo "${INFO}Installing and configuring ${SKY_BLUE}SDDM themes...${RESET}" | tee -a "$LOG"
+        execute_script "sddm_theme.sh"
         ;;
     bluetooth)
         echo "${INFO}Configuring ${SKY_BLUE}Bluetooth...${RESET}" | tee -a "$LOG"
