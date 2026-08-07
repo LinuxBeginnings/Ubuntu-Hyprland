@@ -52,7 +52,6 @@ hypr_package=(
     swappy
     sway-notification-center
     unzip
-    waybar
     wget
     wl-clipboard
     wlogout

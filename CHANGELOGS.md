@@ -2,8 +2,12 @@
 
 ## Aug 2026
 
- - Added: 
-   - `install-scripts/waybar.sh` to build waybar from source 
+ - Added:
+   - `install-scripts/waybar.sh` to build waybar from source (matches Debian)
+ - Changed:
+   - `waybar` removed from APT package list (`01-hypr-pkgs.sh`); now purges any APT
+     package and builds from source only — prevents apt upgrades from silently
+     overriding the source-built binary
 
 ## Jul 2026
 

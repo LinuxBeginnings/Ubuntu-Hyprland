@@ -57,7 +57,6 @@ printf "\n%s - Final Check if Essential packages were installed \n" "${NOTE}"
 # Initialize an empty array to hold missing packages
 missing=()
 local_missing=()
-local_missing_2=()
 
 # Function to check if a package is installed using dpkg
 is_installed_dpkg() {
@@ -74,14 +73,15 @@ is_installed_dpkg() {
 }
 
 # Function to check if source-built waybar is installed
+# Source builds install to /usr/local/bin; APT installs to /usr/bin.
 is_source_waybar_installed() {
+    if [ -x "/usr/local/bin/waybar" ]; then
+        return 0
+    fi
     if command -v waybar >/dev/null 2>&1; then
         local ver_line
         ver_line="$(waybar --version 2>&1 | grep -i 'waybar v' || true)"
         if echo "$ver_line" | grep -q -E "branch|g[0-9a-f]{7}"; then
-            return 0
-        fi
-        if [ -x "/usr/local/bin/waybar" ]; then
             return 0
         fi
     fi

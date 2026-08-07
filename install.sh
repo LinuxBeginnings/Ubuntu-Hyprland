@@ -476,9 +476,9 @@ execute_script "yazi.sh" || {
 }
 
 sleep 1
-echo "${INFO} Building and installing ${SKY_BLUE}Waybar from source...${RESET}" | tee -a "$LOG"
+echo "${INFO} Building and installing ${SKY_BLUE}Waybar from source${RESET} (required for Hyprland Lua workflow)..." | tee -a "$LOG"
 execute_script "waybar.sh" || {
-    echo "${ERROR:-[ERROR]} Waybar installation failed" | tee -a "$LOG"
+    echo "${ERROR:-[ERROR]} Waybar build failed" | tee -a "$LOG"
     exit 1
 }
 

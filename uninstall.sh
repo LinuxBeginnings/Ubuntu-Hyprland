@@ -250,7 +250,7 @@ done
 
 printf "\n%.0s" {1..1}
 printf "\n%s${SKY_BLUE}Attempting to remove locally installed packages${RESET}\n" "${NOTE}"
-for file in ags hypridle hyprlock rofi wallust; do
+for file in ags hypridle hyprlock rofi wallust waybar; do
     if [ -f "/usr/local/bin/$file" ]; then
         sudo rm "/usr/local/bin/$file"
         echo "$file removed."
