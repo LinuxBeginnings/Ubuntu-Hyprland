@@ -1,5 +1,10 @@
 ## CHANGELOGS
 
+## Aug 2026
+
+ - Added: 
+   - `install-scripts/waybar.sh` to build waybar from source 
+
 ## Jul 2026
 
 - Updated:
