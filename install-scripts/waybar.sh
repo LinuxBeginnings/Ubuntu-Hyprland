@@ -7,16 +7,28 @@
 # ==================================================
 # 💫 https://github.com/LinuxBeginnings 💫 #
 # Waybar - Build from source #
-set -euo pipefail
 
 ## WARNING: DO NOT EDIT BEYOND THIS LINE IF YOU DON'T KNOW WHAT YOU ARE DOING! ##
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # Source the global functions script (provides REPO_ROOT/BUILD_SRC and color vars)
-if ! source "$(dirname "$(readlink -f "$0")")/Global_functions.sh"; then
+# Source BEFORE strict mode so tput/color setup in Global_functions.sh can't
+# trigger -u (unbound variable) errors before REPO_ROOT is exported.
+if ! source "$SCRIPT_DIR/Global_functions.sh"; then
   echo "Failed to source Global_functions.sh"
   exit 1
 fi
+
+# Fallback: derive REPO_ROOT from SCRIPT_DIR if Global_functions.sh didn't export it
+REPO_ROOT="${REPO_ROOT:-"$(readlink -f "$SCRIPT_DIR/..")"}"
+BUILD_ROOT="${BUILD_ROOT:-"$REPO_ROOT/build"}"
+BUILD_SRC="${BUILD_SRC:-"$BUILD_ROOT/src"}"
+BUILD_BIN="${BUILD_BIN:-"$BUILD_ROOT/bin"}"
+export REPO_ROOT BUILD_ROOT BUILD_SRC BUILD_BIN
+mkdir -p "$REPO_ROOT/Install-Logs" "$BUILD_SRC" "$BUILD_BIN"
+
+# Enable strict mode now that globals are safely loaded
+set -euo pipefail
 
 # Log files
 LOG="$REPO_ROOT/Install-Logs/install-$(date +%d-%H%M%S)_waybar.log"
