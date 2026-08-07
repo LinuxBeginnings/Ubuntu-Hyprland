@@ -6,6 +6,13 @@
   - It's a QT5 theme 
 - Fixed `install-scripts/sddm_theme.sh`
 
+## Aug 2026
+
+- Added: 
+
+  - `install-scripts/waybar.sh` to build waybar from source
+     - In LUA mode ubuntu waybar pkg is old 
+     - So clicking on the workspace buttons don't work 
 
 ## May 2026
 
