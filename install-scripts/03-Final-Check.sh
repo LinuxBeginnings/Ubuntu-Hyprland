@@ -7,7 +7,6 @@ packages=(
   imagemagick
   yazi
   sway-notification-center
-  waybar
   wl-clipboard
   cliphist
   wlogout
@@ -49,7 +48,22 @@ path_missing=()
 
 # Function to check if a package is installed using dpkg
 is_installed_dpkg() {
-    dpkg -l | grep -q "^ii  $1 "
+    dpkg-query -W -f='${Status}' "$1" 2>/dev/null | grep -q "ok installed"
+}
+
+# Function to check if source-built waybar is installed
+is_source_waybar_installed() {
+    if command -v waybar >/dev/null 2>&1; then
+        local ver_line
+        ver_line="$(waybar --version 2>&1 | grep -i 'waybar v' || true)"
+        if echo "$ver_line" | grep -q -E "branch|g[0-9a-f]{7}"; then
+            return 0
+        fi
+        if [ -x "/usr/local/bin/waybar" ]; then
+            return 0
+        fi
+    fi
+    return 1
 }
 
 # Loop through each package
@@ -59,6 +73,11 @@ for pkg in "${packages[@]}"; do
         missing+=("$pkg")
     fi
 done
+
+# Check source-built waybar
+if ! is_source_waybar_installed; then
+    path_missing+=("waybar (source build)")
+fi
 
 # Check that commands are available in PATH (covers both /usr/bin and /usr/local/bin)
 for cmd in "${path_cmds[@]}"; do

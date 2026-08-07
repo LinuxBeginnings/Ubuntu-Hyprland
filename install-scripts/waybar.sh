@@ -7,16 +7,28 @@
 # ==================================================
 # 💫 https://github.com/LinuxBeginnings 💫 #
 # Waybar - Build from source #
-set -euo pipefail
 
 ## WARNING: DO NOT EDIT BEYOND THIS LINE IF YOU DON'T KNOW WHAT YOU ARE DOING! ##
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # Source the global functions script (provides REPO_ROOT/BUILD_SRC and color vars)
-if ! source "$(dirname "$(readlink -f "$0")")/Global_functions.sh"; then
+# Source BEFORE strict mode so tput/color setup in Global_functions.sh can't
+# trigger -u (unbound variable) errors before REPO_ROOT is exported.
+if ! source "$SCRIPT_DIR/Global_functions.sh"; then
   echo "Failed to source Global_functions.sh"
   exit 1
 fi
+
+# Fallback: derive REPO_ROOT from SCRIPT_DIR if Global_functions.sh didn't export it
+REPO_ROOT="${REPO_ROOT:-"$(readlink -f "$SCRIPT_DIR/..")"}"
+BUILD_ROOT="${BUILD_ROOT:-"$REPO_ROOT/build"}"
+BUILD_SRC="${BUILD_SRC:-"$BUILD_ROOT/src"}"
+BUILD_BIN="${BUILD_BIN:-"$BUILD_ROOT/bin"}"
+export REPO_ROOT BUILD_ROOT BUILD_SRC BUILD_BIN
+mkdir -p "$REPO_ROOT/Install-Logs" "$BUILD_SRC" "$BUILD_BIN"
+
+# Enable strict mode now that globals are safely loaded
+set -euo pipefail
 
 # Log files
 LOG="$REPO_ROOT/Install-Logs/install-$(date +%d-%H%M%S)_waybar.log"
@@ -42,7 +54,7 @@ waybar_extra_deps=(
     libpipewire-0.3-dev
     libnl-3-dev
     libnl-genl-3-dev
-    libappindicator3-dev
+    libayatana-appindicator3-dev
     libdbusmenu-gtk3-dev
     libevdev-dev
     libmpdclient-dev
@@ -51,10 +63,29 @@ waybar_extra_deps=(
     libdisplay-info-dev
 )
 
-# ─── Check if waybar is already installed ─────────────────────────────────────
+# ─── Check installed waybar version ──────────────────────────────────────────
+# Source builds report: Waybar vX.Y.Z-N-gHASH (branch 'master')
+# Apt package reports:  Waybar vX.Y.Z
+# If the installed binary lacks git metadata it is the (old) apt package;
+# rename it to .disabled so the source build can take precedence.
 if command -v waybar &>/dev/null; then
-    echo -e "${INFO} ${MAGENTA}waybar${RESET} is already installed at $(command -v waybar). Skipping build."
-    exit 0
+    WAYBAR_BIN="$(command -v waybar)"
+    WAYBAR_VER_LINE="$(waybar --version 2>&1 | grep -i 'waybar v' || true)"
+    WAYBAR_VER="$(echo "$WAYBAR_VER_LINE" | grep -o 'v[0-9][^ ]*' || echo 'unknown')"
+
+    if echo "$WAYBAR_VER_LINE" | grep -q "branch"; then
+        # Already a source build — nothing to do
+        echo -e "${INFO} ${MAGENTA}waybar${RESET} ${WAYBAR_VER} is already source-built at ${WAYBAR_BIN}. Skipping build."
+        exit 0
+    else
+        # Apt/package version — rename to .disabled and fall through to source build
+        printf "\n%s - ${YELLOW}waybar${RESET} %s (apt package) found at %s\n" "${NOTE}" "${WAYBAR_VER}" "${WAYBAR_BIN}"
+        echo -e "${INFO} Old ${MAGENTA}waybar${RESET} ${WAYBAR_VER} detected — building from source for latest version..."
+        printf "%s - Renaming to %s.disabled to allow source build to take precedence...\n" "${NOTE}" "${WAYBAR_BIN}"
+        sudo mv "${WAYBAR_BIN}" "${WAYBAR_BIN}.disabled" 2>&1 | tee -a "$LOG"
+        echo -e "${OK} Renamed ${WAYBAR_BIN} → ${WAYBAR_BIN}.disabled"
+        printf "%s - Proceeding with source build...\n" "${INFO}"
+    fi
 fi
 
 # ─── Enable deb-src if not already enabled ────────────────────────────────────

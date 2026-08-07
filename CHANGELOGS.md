@@ -13,6 +13,7 @@
   - `install-scripts/waybar.sh` to build waybar from source
      - In LUA mode ubuntu waybar pkg is old 
      - So clicking on the workspace buttons don't work 
+     - Added `waybar.sh` to `install.sh`
 
 ## May 2026
 
