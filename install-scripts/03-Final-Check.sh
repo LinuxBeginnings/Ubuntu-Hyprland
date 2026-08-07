@@ -19,7 +19,6 @@ packages=(
   poppler-utils
   ripgrep
   sway-notification-center
-  waybar
   wl-clipboard
   cliphist
   wlogout
@@ -71,7 +70,22 @@ is_installed_dpkg() {
             return 0
         fi
     fi
-    dpkg -l | grep -q "^ii  $1 "
+    dpkg-query -W -f='${Status}' "$1" 2>/dev/null | grep -q "ok installed"
+}
+
+# Function to check if source-built waybar is installed
+is_source_waybar_installed() {
+    if command -v waybar >/dev/null 2>&1; then
+        local ver_line
+        ver_line="$(waybar --version 2>&1 | grep -i 'waybar v' || true)"
+        if echo "$ver_line" | grep -q -E "branch|g[0-9a-f]{7}"; then
+            return 0
+        fi
+        if [ -x "/usr/local/bin/waybar" ]; then
+            return 0
+        fi
+    fi
+    return 1
 }
 
 # Loop through each package
@@ -83,6 +97,10 @@ for pkg in "${packages[@]}"; do
 done
 
 # Check required binaries via PATH
+if ! is_source_waybar_installed; then
+    local_missing+=("waybar (source build)")
+fi
+
 for pkg1 in "${local_pkgs_installed[@]}"; do
     if ! command -v "$pkg1" >/dev/null 2>&1; then
         local_missing+=("$pkg1")

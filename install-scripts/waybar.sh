@@ -54,7 +54,7 @@ waybar_extra_deps=(
     libpipewire-0.3-dev
     libnl-3-dev
     libnl-genl-3-dev
-    libappindicator3-dev
+    libayatana-appindicator3-dev
     libdbusmenu-gtk3-dev
     libevdev-dev
     libmpdclient-dev
@@ -63,10 +63,29 @@ waybar_extra_deps=(
     libdisplay-info-dev
 )
 
-# ─── Check if waybar is already installed ─────────────────────────────────────
+# ─── Check installed waybar version ──────────────────────────────────────────
+# Source builds report: Waybar vX.Y.Z-N-gHASH (branch 'master')
+# Apt package reports:  Waybar vX.Y.Z
+# If the installed binary lacks git metadata it is the (old) apt package;
+# rename it to .disabled so the source build can take precedence.
 if command -v waybar &>/dev/null; then
-    echo -e "${INFO} ${MAGENTA}waybar${RESET} is already installed at $(command -v waybar). Skipping build."
-    exit 0
+    WAYBAR_BIN="$(command -v waybar)"
+    WAYBAR_VER_LINE="$(waybar --version 2>&1 | grep -i 'waybar v' || true)"
+    WAYBAR_VER="$(echo "$WAYBAR_VER_LINE" | grep -o 'v[0-9][^ ]*' || echo 'unknown')"
+
+    if echo "$WAYBAR_VER_LINE" | grep -q "branch"; then
+        # Already a source build — nothing to do
+        echo -e "${INFO} ${MAGENTA}waybar${RESET} ${WAYBAR_VER} is already source-built at ${WAYBAR_BIN}. Skipping build."
+        exit 0
+    else
+        # Apt/package version — rename to .disabled and fall through to source build
+        printf "\n%s - ${YELLOW}waybar${RESET} %s (apt package) found at %s\n" "${NOTE}" "${WAYBAR_VER}" "${WAYBAR_BIN}"
+        echo -e "${INFO} Old ${MAGENTA}waybar${RESET} ${WAYBAR_VER} detected — building from source for latest version..."
+        printf "%s - Renaming to %s.disabled to allow source build to take precedence...\n" "${NOTE}" "${WAYBAR_BIN}"
+        sudo mv "${WAYBAR_BIN}" "${WAYBAR_BIN}.disabled" 2>&1 | tee -a "$LOG"
+        echo -e "${OK} Renamed ${WAYBAR_BIN} → ${WAYBAR_BIN}.disabled"
+        printf "%s - Proceeding with source build...\n" "${INFO}"
+    fi
 fi
 
 # ─── Enable deb-src if not already enabled ────────────────────────────────────
