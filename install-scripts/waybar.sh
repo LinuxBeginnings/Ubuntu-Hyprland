@@ -6,7 +6,13 @@
 #  SPDX-License-Identifier: GPL-3.0-or-later
 # ==================================================
 # 💫 https://github.com/LinuxBeginnings 💫 #
-# Waybar - Build from source #
+# Waybar - Remove APT package and build from source
+#
+# The Ubuntu/APT waybar package does NOT support the Hyprland Lua workflow.
+# This script purges the apt-provided binary and builds the latest Waybar
+# from source so that /usr/local/bin/waybar takes precedence.
+# Unlike simply renaming the binary, purging prevents apt upgrades from
+# silently restoring /usr/bin/waybar.
 
 ## WARNING: DO NOT EDIT BEYOND THIS LINE IF YOU DON'T KNOW WHAT YOU ARE DOING! ##
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -23,9 +29,8 @@ fi
 REPO_ROOT="${REPO_ROOT:-"$(readlink -f "$SCRIPT_DIR/..")"}"
 BUILD_ROOT="${BUILD_ROOT:-"$REPO_ROOT/build"}"
 BUILD_SRC="${BUILD_SRC:-"$BUILD_ROOT/src"}"
-BUILD_BIN="${BUILD_BIN:-"$BUILD_ROOT/bin"}"
-export REPO_ROOT BUILD_ROOT BUILD_SRC BUILD_BIN
-mkdir -p "$REPO_ROOT/Install-Logs" "$BUILD_SRC" "$BUILD_BIN"
+export REPO_ROOT BUILD_ROOT BUILD_SRC
+mkdir -p "$REPO_ROOT/Install-Logs" "$BUILD_SRC"
 
 # Enable strict mode now that globals are safely loaded
 set -euo pipefail
@@ -34,8 +39,8 @@ set -euo pipefail
 LOG="$REPO_ROOT/Install-Logs/install-$(date +%d-%H%M%S)_waybar.log"
 MLOG="$REPO_ROOT/Install-Logs/install-$(date +%d-%H%M%S)_waybar-build.log"
 
-waybar_repo="https://github.com/Alexays/Waybar"
-waybar_src_dir="$BUILD_SRC/Waybar"
+WAYBAR_REPO="https://github.com/Alexays/Waybar"
+WAYBAR_SRC_DIR="$BUILD_SRC/Waybar"
 UBUNTU_SOURCES="/etc/apt/sources.list.d/ubuntu.sources"
 
 waybar_extra_deps=(
@@ -63,29 +68,38 @@ waybar_extra_deps=(
     libdisplay-info-dev
 )
 
-# ─── Check installed waybar version ──────────────────────────────────────────
-# Source builds report: Waybar vX.Y.Z-N-gHASH (branch 'master')
-# Apt package reports:  Waybar vX.Y.Z
-# If the installed binary lacks git metadata it is the (old) apt package;
-# rename it to .disabled so the source build can take precedence.
-if command -v waybar &>/dev/null; then
-    WAYBAR_BIN="$(command -v waybar)"
-    WAYBAR_VER_LINE="$(waybar --version 2>&1 | grep -i 'waybar v' || true)"
-    WAYBAR_VER="$(echo "$WAYBAR_VER_LINE" | grep -o 'v[0-9][^ ]*' || echo 'unknown')"
+# ─── Check if already source-built ───────────────────────────────────────────
+# Source builds land in /usr/local/bin; APT installs to /usr/bin.
+if [ -x "/usr/local/bin/waybar" ]; then
+    echo -e "${INFO} Waybar is already source-built at /usr/local/bin/waybar. Skipping build."
+    exit 0
+fi
 
-    if echo "$WAYBAR_VER_LINE" | grep -q "branch"; then
-        # Already a source build — nothing to do
-        echo -e "${INFO} ${MAGENTA}waybar${RESET} ${WAYBAR_VER} is already source-built at ${WAYBAR_BIN}. Skipping build."
+if command -v waybar &>/dev/null; then
+    WAYBAR_VER_LINE="$(waybar --version 2>&1 | grep -i 'waybar v' || true)"
+    if echo "$WAYBAR_VER_LINE" | grep -q -E "branch|g[0-9a-f]{7}"; then
+        echo -e "${INFO} Waybar is already source-built at $(command -v waybar). Skipping build."
         exit 0
-    else
-        # Apt/package version — rename to .disabled and fall through to source build
-        printf "\n%s - ${YELLOW}waybar${RESET} %s (apt package) found at %s\n" "${NOTE}" "${WAYBAR_VER}" "${WAYBAR_BIN}"
-        echo -e "${INFO} Old ${MAGENTA}waybar${RESET} ${WAYBAR_VER} detected — building from source for latest version..."
-        printf "%s - Renaming to %s.disabled to allow source build to take precedence...\n" "${NOTE}" "${WAYBAR_BIN}"
-        sudo mv "${WAYBAR_BIN}" "${WAYBAR_BIN}.disabled" 2>&1 | tee -a "$LOG"
-        echo -e "${OK} Renamed ${WAYBAR_BIN} → ${WAYBAR_BIN}.disabled"
-        printf "%s - Proceeding with source build...\n" "${INFO}"
     fi
+fi
+
+# ─── Purge APT-provided waybar package(s) ────────────────────────────────────
+# Purge rather than rename so that 'apt upgrade' cannot silently restore
+# /usr/bin/waybar and override the source-built binary.
+printf "\n%s - Checking for APT-provided ${YELLOW}waybar${RESET} package(s)...\n" "${NOTE}"
+_purged=0
+for _wpkg in waybar waybar-experimental; do
+    if dpkg-query -W -f='${Status}' "$_wpkg" 2>/dev/null | grep -q "ok installed"; then
+        printf "%s - Purging ${YELLOW}%s${RESET} (replaced by source build)...\n" "${NOTE}" "$_wpkg"
+        sudo apt-get purge -y "$_wpkg" 2>&1 | tee -a "$LOG" || true
+        _purged=1
+    fi
+done
+if [ "$_purged" -eq 1 ]; then
+    sudo apt-get autoremove -y 2>&1 | tee -a "$LOG" || true
+    echo -e "${OK} APT waybar package(s) removed."
+else
+    echo -e "${INFO} No APT waybar package found; proceeding with source build."
 fi
 
 # ─── Enable deb-src if not already enabled ────────────────────────────────────
@@ -119,17 +133,17 @@ build_dep waybar
 # ─── Clone or update Waybar source ───────────────────────────────────────────
 cd "$BUILD_SRC" || { echo -e "${ERROR} Failed to change directory to $BUILD_SRC"; exit 1; }
 
-printf "\n%s - Preparing ${YELLOW}Waybar${RESET} source in %s...\n" "${INFO}" "$waybar_src_dir"
-if [ -d "$waybar_src_dir" ]; then
+printf "\n%s - Preparing ${YELLOW}Waybar${RESET} source in %s...\n" "${INFO}" "$WAYBAR_SRC_DIR"
+if [ -d "$WAYBAR_SRC_DIR" ]; then
     printf "%s - Waybar source already exists, pulling latest...\n" "${INFO}"
-    cd "$waybar_src_dir" || exit 1
+    cd "$WAYBAR_SRC_DIR" || exit 1
     git pull 2>&1 | tee -a "$MLOG"
 else
-    printf "%s - Cloning ${YELLOW}Waybar${RESET} from %s...\n" "${INFO}" "$waybar_repo"
-    if git clone --recursive "$waybar_repo" "$waybar_src_dir" 2>&1 | tee -a "$MLOG"; then
-        cd "$waybar_src_dir" || exit 1
+    printf "%s - Cloning ${YELLOW}Waybar${RESET} from %s...\n" "${INFO}" "$WAYBAR_REPO"
+    if git clone --recursive "$WAYBAR_REPO" "$WAYBAR_SRC_DIR" 2>&1 | tee -a "$MLOG"; then
+        cd "$WAYBAR_SRC_DIR" || exit 1
     else
-        echo -e "${ERROR} Download failed for ${YELLOW}Waybar${RESET}" | tee -a "$LOG"
+        echo -e "${ERROR} Download failed for Waybar" | tee -a "$LOG"
         exit 1
     fi
 fi

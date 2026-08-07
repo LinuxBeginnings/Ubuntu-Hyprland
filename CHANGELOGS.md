@@ -8,12 +8,13 @@
 
 ## Aug 2026
 
-- Added: 
-
-  - `install-scripts/waybar.sh` to build waybar from source
-     - In LUA mode ubuntu waybar pkg is old 
-     - So clicking on the workspace buttons don't work 
-     - Added `waybar.sh` to `install.sh`
+- Added:
+  - `install-scripts/waybar.sh` to build waybar from source (matches Debian)
+    - Ubuntu APT waybar package is old and breaks Hyprland Lua workspace buttons
+- Changed:
+  - `waybar` removed from APT package list (`01-hypr-pkgs.sh`); now purges any APT
+    package and builds from source only — prevents apt upgrades from silently
+    overriding the source-built binary
 
 ## May 2026
 

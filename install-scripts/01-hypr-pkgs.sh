@@ -36,7 +36,6 @@ hypr_package=(
     slurp
     sway-notification-center
     unzip # required later
-    waybar
     wget
     wl-clipboard
     wlogout

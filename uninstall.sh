@@ -257,6 +257,7 @@ local=(
     hyprlock
     nwg-displays
     wallust
+    waybar
 )
 
 printf "\n%.0s" {1..1}

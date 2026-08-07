@@ -383,7 +383,11 @@ sleep 1
 execute_script "yazi.sh"
 
 sleep 1
-execute_script "waybar.sh"
+echo "${INFO} Building and installing ${SKY_BLUE}Waybar from source${RESET} (required for Hyprland Lua workflow)..." | tee -a "$LOG"
+execute_script "waybar.sh" || {
+    echo "${ERROR:-[ERROR]} Waybar build failed" | tee -a "$LOG"
+    exit 1
+}
 
 sleep 1
 # Clean up the selected options (remove quotes and trim spaces)
