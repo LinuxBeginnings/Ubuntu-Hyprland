@@ -5,6 +5,7 @@
 - Fixed:
     - waybar build fails, missing dependencies
     - Yazi install fails, swithced to GH repo directly
+    - Changed `swww` with `awww`
 
 ## Jul 2026
 

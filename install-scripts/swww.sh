@@ -1,101 +1,109 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# ==================================================
+#  KoolDots (2026)
+#  Project URL: https://github.com/LinuxBeginnings
+#  License: GNU GPLv3
+#  SPDX-License-Identifier: GPL-3.0-or-later
+# ==================================================
 # 💫 https://github.com/LinuxBeginnings 💫 #
-# SWWW - Wallpaper Utility #
+# AWWW - Wallpaper Utility (swww successor) #
+set -euo pipefail
 
-# specific branch or release
-swww_tag="v0.11.2"
-
-# Check if 'swww' is installed
-if command -v swww &>/dev/null; then
-    SWWW_VERSION=$(swww -V | awk '{print $NF}')
-    if [[ "$SWWW_VERSION" == "$swww_tag" ]]; then
-        echo -e "${OK} ${MAGENTA}swww ${swww_tag}${RESET} is already installed. Skipping installation."
-        exit 0
-    fi
-else
-    echo -e "${NOTE} ${MAGENTA}swww${RESET} is not installed. Proceeding with installation."
+# Resolve locations and load globals early (defines ${OK}, ${INFO}, etc.)
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+if ! source "$(dirname "$(readlink -f "$0")")/Global_functions.sh"; then
+  echo "Failed to source Global_functions.sh"
+  exit 1
 fi
 
-swww=(
-    liblz4-dev
+awww_deps=(
+  liblz4-dev
+  libwayland-dev
+  wayland-protocols
 )
 
 ## WARNING: DO NOT EDIT BEYOND THIS LINE IF YOU DON'T KNOW WHAT YOU ARE DOING! ##
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# Change the working directory to the parent directory of the script
-PARENT_DIR="$SCRIPT_DIR/.."
-cd "$PARENT_DIR" || {
-    echo "${ERROR} Failed to change directory to $PARENT_DIR"
-    exit 1
-}
+# Work in build/src to keep repo root clean
+cd "$BUILD_SRC" || { echo "${ERROR} Failed to change directory to $BUILD_SRC"; exit 1; }
 
-# Source the global functions script
-if ! source "$(dirname "$(readlink -f "$0")")/Global_functions.sh"; then
-    echo "Failed to source Global_functions.sh"
-    exit 1
-fi
+# Source paths now that Global_functions defines SRC_ROOT/REPO_ROOT
+awww_repo="https://codeberg.org/LGFae/awww"
+awww_src_dir="$BUILD_SRC/awww"
 
-# Set the name of the log file to include the current date and time
-LOG="Install-Logs/install-$(date +%d-%H%M%S)_swww.log"
-MLOG="install-$(date +%d-%H%M%S)_swww2.log"
+# Set the name of the log file to include the current date and time (under repo root)
+LOG="$REPO_ROOT/Install-Logs/install-$(date +%d-%H%M%S)_awww.log"
+MLOG="$REPO_ROOT/Install-Logs/install-$(date +%d-%H%M%S)_awww2.log"
 
-# Installation of swww compilation needed
-printf "\n%s - Installing ${SKY_BLUE}swww $swww_tag and dependencies${RESET} .... \n" "${NOTE}"
-
-for PKG1 in "${swww[@]}"; do
-    install_package "$PKG1" "$LOG"
+# Installation of awww compilation needed
+printf "\n%s - Installing ${SKY_BLUE}awww and dependencies${RESET} .... \n" "${NOTE}"
+for PKG1 in "${awww_deps[@]}"; do
+  install_package "$PKG1" "$LOG"
 done
 
-printf "\n%.0s" {1..2}
-
-# Check if swww directory exists
-if [ -d "swww" ]; then
-    cd swww || exit 1
-    git pull origin main 2>&1 | tee -a "$MLOG"
-else
-    if git clone --recursive -b $swww_tag https://github.com/LGFae/swww.git; then
-        cd swww || exit 1
-    else
-        echo -e "${ERROR} Download failed for ${YELLOW}swww $swww_tag${RESET}" 2>&1 | tee -a "$LOG"
-        exit 1
-    fi
+# Ensure wayland.xml is available for build scripts
+if [ ! -f /usr/share/wayland-protocols/wayland.xml ] && [ ! -f /usr/local/share/wayland-protocols/wayland.xml ]; then
+  echo -e "${WARN} wayland.xml not found; attempting to install wayland-protocols."
+  install_package "wayland-protocols" "$LOG"
+fi
+if [ ! -f /usr/share/wayland-protocols/wayland.xml ] && [ ! -f /usr/local/share/wayland-protocols/wayland.xml ]; then
+  echo -e "${WARN} wayland.xml still missing; building wayland-protocols from source."
+  if [ -x "$REPO_ROOT/install-scripts/wayland-protocols-src.sh" ]; then
+    "$REPO_ROOT/install-scripts/wayland-protocols-src.sh"
+  fi
 fi
 
-# Proceed with the rest of the installation steps
-source "$HOME/.cargo/env" || true
+# Export wayland-protocols path so waybackend-scanner can locate wayland.xml
+if [ -f /usr/local/share/wayland-protocols/wayland.xml ]; then
+  export WAYLAND_PROTOCOLS_DIR=/usr/local/share/wayland-protocols
+elif [ -f /usr/share/wayland-protocols/wayland.xml ]; then
+  export WAYLAND_PROTOCOLS_DIR=/usr/share/wayland-protocols
+fi
+if [ -n "${WAYLAND_PROTOCOLS_DIR:-}" ]; then
+  export WAYLAND_PROTOCOLS_PATH="${WAYLAND_PROTOCOLS_DIR}"
+fi
 
+printf "\n%.0s" {1..2}
+
+# Check if awww directory exists (under build/src)
+if [ -d "$awww_src_dir" ]; then
+  cd "$awww_src_dir" || exit 1
+  git pull 2>&1 | tee -a "$MLOG"
+else
+  if git clone --recursive "$awww_repo" "$awww_src_dir"; then
+    cd "$awww_src_dir" || exit 1
+  else
+    echo -e "${ERROR} Download failed for ${YELLOW}awww${RESET}" 2>&1 | tee -a "$LOG"
+    exit 1
+  fi
+fi
+
+# Build
+source "$HOME/.cargo/env" || true
 cargo build --release 2>&1 | tee -a "$MLOG"
 
-# Checking if swww is previously installed and delete before copying
-file1="/usr/bin/swww"
-file2="/usr/bin/swww-daemon"
+# Remove old swww/awww binaries before copying
+remove_bins=(
+  /usr/bin/swww
+  /usr/bin/swww-daemon
+  /usr/local/bin/swww
+  /usr/local/bin/swww-daemon
+  /usr/bin/awww
+  /usr/bin/awww-daemon
+  /usr/local/bin/awww
+  /usr/local/bin/awww-daemon
+)
+for bin in "${remove_bins[@]}"; do
+  if [ -e "$bin" ]; then
+    sudo rm -f "$bin"
+  fi
+done
 
-# Check if file1 exists and delete if so
-if [ -f "$file1" ]; then
-    sudo rm -r "$file1"
-fi
+# Install locally built binaries under /usr/local/bin
+sudo install -m 0755 target/release/awww /usr/local/bin/awww 2>&1 | tee -a "$MLOG"
+sudo install -m 0755 target/release/awww-daemon /usr/local/bin/awww-daemon 2>&1 | tee -a "$MLOG"
 
-# Check if file2 exists and delete if so
-if [ -f "$file2" ]; then
-    sudo rm -r "$file2"
-fi
-
-# Copy binaries to /usr/bin/
-sudo cp -r target/release/swww /usr/bin/ 2>&1 | tee -a "$MLOG"
-sudo cp -r target/release/swww-daemon /usr/bin/ 2>&1 | tee -a "$MLOG"
-
-# Copy bash completions
-sudo mkdir -p /usr/share/bash-completion/completions 2>&1 | tee -a "$MLOG"
-sudo cp -r completions/swww.bash /usr/share/bash-completion/completions/swww 2>&1 | tee -a "$MLOG"
-
-# Copy zsh completions
-sudo mkdir -p /usr/share/zsh/site-functions 2>&1 | tee -a "$MLOG"
-sudo cp -r completions/_swww /usr/share/zsh/site-functions/_swww 2>&1 | tee -a "$MLOG"
-
-# Moving logs into main Install-Logs
-mv "$MLOG" ../Install-Logs/ || true
-cd - || exit 1
+# Logs already saved into $REPO_ROOT/Install-Logs
+cd "$REPO_ROOT" || exit 1
 
 printf "\n%.0s" {1..2}
-

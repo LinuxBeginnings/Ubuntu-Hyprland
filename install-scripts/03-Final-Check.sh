@@ -18,7 +18,7 @@ path_cmds=(
   hyprland
   hypridle
   hyprlock
-  swww
+  awww
   rofi
   wallust
   nwg-displays
