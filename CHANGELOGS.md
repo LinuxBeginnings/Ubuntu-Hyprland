@@ -10,6 +10,7 @@
       overriding the source-built binaryZ
 - Fixed:
     - SDDM_THEME.sh overwritting background image
+    - Yazi installed from GH repository
 
 ## Jul 2026
 
