@@ -11,6 +11,7 @@
 - Fixed:
     - SDDM_THEME.sh overwritting background image
     - Yazi installed from GH repository
+    - waybar build error missing dependencies
 
 ## Jul 2026
 
