@@ -48,6 +48,11 @@ path_missing=()
 
 # Function to check if a package is installed using dpkg
 is_installed_dpkg() {
+    if [ "$1" = "yazi" ]; then
+        if command -v yazi >/dev/null 2>&1 || [ -x "/usr/local/bin/yazi" ]; then
+            return 0
+        fi
+    fi
     dpkg-query -W -f='${Status}' "$1" 2>/dev/null | grep -q "ok installed"
 }
 

@@ -1,20 +1,26 @@
 ## CHANGELOGS
 
+## Aug 2026
+
+- Fixed:
+    - waybar build fails, missing dependencies
+    - Yazi install fails, swithced to GH repo directly
+
 ## Jul 2026
 
-- Restored orignal sddm-simple theme 
-  - It's a QT5 theme 
+- Restored orignal sddm-simple theme
+    - It's a QT5 theme
 - Fixed `install-scripts/sddm_theme.sh`
 
 ## Aug 2026
 
 - Added:
-  - `install-scripts/waybar.sh` to build waybar from source (matches Debian)
-    - Ubuntu APT waybar package is old and breaks Hyprland Lua workspace buttons
+    - `install-scripts/waybar.sh` to build waybar from source (matches Debian)
+        - Ubuntu APT waybar package is old and breaks Hyprland Lua workspace buttons
 - Changed:
-  - `waybar` removed from APT package list (`01-hypr-pkgs.sh`); now purges any APT
-    package and builds from source only — prevents apt upgrades from silently
-    overriding the source-built binary
+    - `waybar` removed from APT package list (`01-hypr-pkgs.sh`); now purges any APT
+      package and builds from source only — prevents apt upgrades from silently
+      overriding the source-built binary
 
 ## May 2026
 
