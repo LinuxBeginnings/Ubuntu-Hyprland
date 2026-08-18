@@ -41,7 +41,6 @@ sudo apt install -y \
     hyprsunset \
     hyprpaper \
     hyprpicker \
-    waybar \
     hyprwayland-scanner \
     xdg-desktop-portal-hyprland | tee -a "$LOG"
 

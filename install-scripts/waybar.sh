@@ -66,6 +66,8 @@ waybar_extra_deps=(
     libsndio-dev
     libupower-glib-dev
     libdisplay-info-dev
+    libxkbcommon-dev
+    libxkbregistry-dev
 )
 
 # ─── Check if already source-built ───────────────────────────────────────────
