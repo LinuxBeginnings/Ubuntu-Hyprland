@@ -16,6 +16,12 @@ if ! source "$(dirname "$(readlink -f "$0")")/Global_functions.sh"; then
   exit 1
 fi
 
+REPO_ROOT="${REPO_ROOT:-"$(readlink -f "$SCRIPT_DIR/..")"}"
+BUILD_ROOT="${BUILD_ROOT:-"$REPO_ROOT/build"}"
+BUILD_SRC="${BUILD_SRC:-"$BUILD_ROOT/src"}"
+export REPO_ROOT BUILD_ROOT BUILD_SRC
+mkdir -p "$REPO_ROOT/Install-Logs" "$BUILD_SRC"
+
 awww_deps=(
   liblz4-dev
   libwayland-dev

@@ -6,6 +6,7 @@
     - waybar build fails, missing dependencies
     - Yazi install fails, swithced to GH repo directly
     - Changed `swww` with `awww`
+        - Fixed build issue with `awww` ;)
     - Build issue with Hyprland
 
 ## Jul 2026

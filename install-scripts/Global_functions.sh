@@ -20,10 +20,19 @@ BLUE="$(tput setaf 4)"
 SKY_BLUE="$(tput setaf 6)"
 RESET="$(tput sgr0)"
 
-# Create Directory for Install Logs
-if [ ! -d Install-Logs ]; then
-    mkdir Install-Logs
-fi
+# Resolve repo root and build directories based on this file location
+GF_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+REPO_ROOT="$(readlink -f "$GF_DIR/..")"
+export REPO_ROOT
+
+# Build directories (override with env to customize)
+BUILD_ROOT="${BUILD_ROOT:-$REPO_ROOT/build}"
+BUILD_SRC="${BUILD_SRC:-$BUILD_ROOT/src}"
+BUILD_BIN="${BUILD_BIN:-$BUILD_ROOT/bin}"
+export BUILD_ROOT BUILD_SRC BUILD_BIN
+
+# Ensure standard directories exist
+mkdir -p "$REPO_ROOT/Install-Logs" "$BUILD_SRC" "$BUILD_BIN"
 
 # Show progress function
 show_progress() {
@@ -102,6 +111,13 @@ re_install_package() {
         # Package not found, reinstallation failed
         echo -e "${ERROR} ${YELLOW}$1${RESET} failed to re-install. Please check the install.log. You may need to install it manually. Sorry, I have tried :("
     fi
+}
+
+# Function to check if a package has an available candidate in APT
+has_apt_candidate() {
+  local cand
+  cand="$(apt-cache policy "$1" 2>/dev/null | awk '/Candidate:/ {print $2}')"
+  [ -n "$cand" ] && [ "$cand" != "(none)" ]
 }
 
 # Function for removing packages
