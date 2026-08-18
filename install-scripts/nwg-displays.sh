@@ -18,6 +18,12 @@ if ! source "$(dirname "$(readlink -f "$0")")/Global_functions.sh"; then
   exit 1
 fi
 
+# Check if already installed
+if command -v nwg-displays &>/dev/null || dpkg-query -W -f='${Status}' nwg-displays 2>/dev/null | grep -q "ok installed"; then
+  echo -e "${INFO} ${MAGENTA}nwg-displays${RESET} is already installed. Skipping source build."
+  exit 0
+fi
+
 # Set the name of the log file to include the current date and time
 LOG="Install-Logs/install-$(date +'%d-%H%M%S')_nwg-display.log"
 MLOG="install-$(date +'%d-%H%M%S')_nwg-display2.log"
