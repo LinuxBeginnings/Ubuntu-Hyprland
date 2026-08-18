@@ -48,7 +48,7 @@ actcheckbox=black,cyan
 fi
 
 # CLI options
-INSTALL_MODE="${INSTALL_MODE:-ubuntu}"
+INSTALL_MODE="${INSTALL_MODE:-ppa}"
 DO_DRY_RUN=0
 SHOW_HELP=0
 for arg in "$@"; do
@@ -73,14 +73,14 @@ if [ "$SHOW_HELP" = "1" ]; then
 Usage: ./install.sh [options]
 
 Options:
-  --install-ubuntu    Install Hyprland from Ubuntu repositories (default)
-  --install-ppa       Install Hyprland from the community PPA (if available)
+  --install-ppa       Install Hyprland from the community PPA (default)
+  --install-ubuntu    Install Hyprland from Ubuntu repositories
   --dry-run           Print what would be done and exit (non-interactive)
   -h, --help          Show this help and exit
 
 Notes:
-- Ubuntu 26.04 (beta) currently has Hyprland 0.52.x in the official repos.
-- The PPA may not support 26.04 yet. Use --install-ppa only when support exists.
+- The community PPA provides the latest Hyprland packages.
+- Ubuntu repositories can be selected with --install-ubuntu.
 USAGE
     exit 0
 fi
@@ -89,11 +89,11 @@ fi
 if [ "$DO_DRY_RUN" = "1" ]; then
     echo "[DRY-RUN] Hyprland install mode: $INSTALL_MODE"
     case "$INSTALL_MODE" in
-    ubuntu)
-        echo "[DRY-RUN] Would run: install-scripts/hyprland-ppa.sh (Ubuntu repo path)"
-        ;;
     ppa)
-        echo "[DRY-RUN] Would run: install-scripts/hyprland-ppa-enable.sh (enable PPA and install)"
+        echo "[DRY-RUN] Would run: install-scripts/hyprland-ppa.sh (community PPA path)"
+        ;;
+    ubuntu)
+        echo "[DRY-RUN] Would run: install-scripts/hyprland-ubuntu.sh (Ubuntu repo path)"
         ;;
     esac
     exit 0
@@ -433,21 +433,21 @@ execute_script "01-hypr-pkgs.sh" || {
     exit 1
 }
 
-# Install Hyprland from Ubuntu repositories by default; optional PPA when requested
+# Install Hyprland from community PPA by default; optional Ubuntu repositories when requested
 case "$INSTALL_MODE" in
-ubuntu)
-    echo "${INFO} Installing Hyprland from ${SKY_BLUE}Ubuntu repositories${RESET}..." | tee -a "$LOG"
+ppa)
+    echo "${INFO} Installing Hyprland from ${SKY_BLUE}community PPA${RESET}..." | tee -a "$LOG"
     sleep 1
     execute_script "hyprland-ppa.sh" || {
-        echo "${ERROR:-[ERROR]} Hyprland repository setup failed" | tee -a "$LOG"
+        echo "${ERROR:-[ERROR]} Hyprland PPA setup failed" | tee -a "$LOG"
         exit 1
     }
     ;;
-ppa)
-    echo "${INFO} Installing Hyprland from ${SKY_BLUE}community PPA${RESET} (if available)..." | tee -a "$LOG"
+ubuntu)
+    echo "${INFO} Installing Hyprland from ${SKY_BLUE}Ubuntu repositories${RESET}..." | tee -a "$LOG"
     sleep 1
-    execute_script "hyprland-ppa-enable.sh" || {
-        echo "${ERROR:-[ERROR]} Hyprland PPA setup failed" | tee -a "$LOG"
+    execute_script "hyprland-ubuntu.sh" || {
+        echo "${ERROR:-[ERROR]} Hyprland repository setup failed" | tee -a "$LOG"
         exit 1
     }
     ;;

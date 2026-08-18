@@ -9,6 +9,7 @@
       package and builds from source only — prevents apt upgrades from silently
       overriding the source-built binaryZ
 - Fixed:
+    - Installer was installing ubuntu repo not PPA by default
     - Fixed final check for `swww` to `awww`
     - `sddm_theme.sh` overwritting background image
     - Yazi installed from GH repository
