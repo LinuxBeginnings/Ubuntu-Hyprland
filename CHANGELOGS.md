@@ -9,7 +9,8 @@
       package and builds from source only — prevents apt upgrades from silently
       overriding the source-built binaryZ
 - Fixed:
-    - SDDM_THEME.sh overwritting background image
+    - Fixed final check for `swww` to `awww`
+    - `sddm_theme.sh` overwritting background image
     - Yazi installed from GH repository
     - waybar build error missing dependencies
 

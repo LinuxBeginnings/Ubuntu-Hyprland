@@ -10,44 +10,47 @@
 # NOTE: These package checks are only the essentials
 
 packages=(
-  imagemagick
-  7zip
-  fd-find
-  ffmpeg
-  fzf
-  jq
-  poppler-utils
-  ripgrep
-  sway-notification-center
-  wl-clipboard
-  cliphist
-  wlogout
-  kitty
-  hyprland
-  yazi
-  zoxide
+    imagemagick
+    7zip
+    fd-find
+    ffmpeg
+    fzf
+    jq
+    poppler-utils
+    ripgrep
+    sway-notification-center
+    wl-clipboard
+    cliphist
+    wlogout
+    kitty
+    hyprland
+    yazi
+    zoxide
 )
 
 # Binaries expected to be available (installed via PPA into /usr/bin)
 local_pkgs_installed=(
-  hypridle
-  hyprlock
-  rofi
-  wallust
-  swww
+    hypridle
+    hyprlock
+    rofi
+    wallust
+    awww
 )
 
 ## WARNING: DO NOT EDIT BEYOND THIS LINE IF YOU DON'T KNOW WHAT YOU ARE DOING! ##
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Change the working directory to the parent directory of the script
 PARENT_DIR="$SCRIPT_DIR/.."
-cd "$PARENT_DIR" || { echo "${ERROR} Failed to change directory to $PARENT_DIR"; exit 1; }
+cd "$PARENT_DIR" || {
+    echo "${ERROR} Failed to change directory to $PARENT_DIR"
+    exit 1
+}
 
 # Source the global functions script
 if ! source "$(dirname "$(readlink -f "$0")")/Global_functions.sh"; then
-  echo "Failed to source Global_functions.sh"
-  exit 1
+    echo "Failed to source Global_functions.sh"
+    exit 1
 fi
 
 # Set the name of the log file to include the current date and time
@@ -62,10 +65,10 @@ local_missing=()
 is_installed_dpkg() {
     # Special-case Hyprland: consider it installed if present on PATH or in /usr/local/bin
     if [ "$1" = "hyprland" ]; then
-        if command -v Hyprland >/dev/null 2>&1 || \
-           command -v hyprland >/dev/null 2>&1 || \
-           [ -x "/usr/local/bin/Hyprland" ] || \
-           [ -x "/usr/local/bin/hyprland" ]; then
+        if command -v Hyprland >/dev/null 2>&1 ||
+            command -v hyprland >/dev/null 2>&1 ||
+            [ -x "/usr/local/bin/Hyprland" ] ||
+            [ -x "/usr/local/bin/hyprland" ]; then
             return 0
         fi
     fi
@@ -115,7 +118,7 @@ else
         echo "${WARN} The following packages are not installed and will be logged:"
         for pkg in "${missing[@]}"; do
             echo "$pkg"
-            echo "$pkg" >> "$LOG" # Log the missing package to the file
+            echo "$pkg" >>"$LOG" # Log the missing package to the file
         done
     fi
 
@@ -123,10 +126,10 @@ else
         echo "${WARN} The following binaries are missing from PATH and will be logged:"
         for pkg1 in "${local_missing[@]}"; do
             echo "$pkg1 (not found in PATH)"
-            echo "$pkg1" >> "$LOG" # Log the missing local package to the file
+            echo "$pkg1" >>"$LOG" # Log the missing local package to the file
         done
     fi
 
     # Add a timestamp when the missing packages were logged
-    echo "${NOTE} Missing packages logged at $(date)" >> "$LOG"
+    echo "${NOTE} Missing packages logged at $(date)" >>"$LOG"
 fi
