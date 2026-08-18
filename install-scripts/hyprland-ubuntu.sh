@@ -26,10 +26,10 @@ info() { echo -e "${INFO} $*" | tee -a "$LOG"; }
 install_package software-properties-common 2>&1 | tee -a "$LOG" || true
 
 # Remove the outdated Hyprland PPA if present to prevent Release file errors on 26.04
-if grep -R "^deb .*cppiber.*hyprland" /etc/apt/sources.list /etc/apt/sources.list.d 2>/dev/null | grep -q .; then
+if grep -R "cppiber.*hyprland" /etc/apt/sources.list /etc/apt/sources.list.d 2>/dev/null | grep -q .; then
     note "Removing PPA: ppa:cppiber/hyprland"
     sudo add-apt-repository -r -y ppa:cppiber/hyprland 2>&1 | tee -a "$LOG" || true
-    sudo rm -f /etc/apt/sources.list.d/*cppiber*hyprland*.list 2>/dev/null || true
+    sudo rm -f /etc/apt/sources.list.d/*cppiber*hyprland* 2>/dev/null || true
     sudo sed -i '/cppiber.*hyprland/d' /etc/apt/sources.list 2>/dev/null || true
 fi
 
@@ -47,7 +47,7 @@ sudo apt --fix-broken install -y 2>&1 | tee -a "$LOG" || true
 PPA_ONLY=(hyprutils hyprgraphics hyprcursor aquamarine hyprsunset)
 for p in "${PPA_ONLY[@]}"; do
     if dpkg -l | grep -q "^ii  ${p} "; then
-        if ! apt-cache policy "$p" | grep -q "Candidate: \\S"; then
+        if ! has_apt_candidate "$p"; then
             note "Purging stale PPA package with no Ubuntu candidate: $p"
             sudo apt -y purge "$p" 2>&1 | tee -a "$LOG" || true
         fi
@@ -55,7 +55,7 @@ for p in "${PPA_ONLY[@]}"; do
 done
 
 # Install hyprland first to satisfy dependencies cleanly (Ubuntu 26.04 provides 0.52.x)
-if apt-cache policy hyprland | grep -q "Candidate: \\S"; then
+if has_apt_candidate hyprland; then
     info "Installing/Upgrading hyprland from Ubuntu repositories"
     sudo apt install -y hyprland 2>&1 | tee -a "$LOG"
 else
@@ -74,7 +74,7 @@ PKGS=(
 )
 
 for p in "${PKGS[@]}"; do
-    if apt-cache policy "$p" | grep -q "Candidate: \\S"; then
+    if has_apt_candidate "$p"; then
         info "Installing/Upgrading $p from Ubuntu repositories"
         sudo apt install -y "$p" 2>&1 | tee -a "$LOG"
     else

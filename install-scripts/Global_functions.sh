@@ -119,6 +119,13 @@ re_install_package() {
     fi
 }
 
+# Function to check if a package has an available candidate in APT
+has_apt_candidate() {
+  local cand
+  cand="$(apt-cache policy "$1" 2>/dev/null | awk '/Candidate:/ {print $2}')"
+  [ -n "$cand" ] && [ "$cand" != "(none)" ]
+}
+
 # Function for removing packages
 uninstall_package() {
   local pkg="$1"

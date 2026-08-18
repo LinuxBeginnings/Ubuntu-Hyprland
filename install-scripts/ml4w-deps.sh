@@ -113,7 +113,7 @@ done
 # Try best-effort packages only if APT has a candidate
 info "Installing best-effort packages when available in APT"
 for pkg in "${BEST_EFFORT_APT[@]}"; do
-    if apt-cache policy "$pkg" | grep -q "Candidate: \\S"; then
+    if has_apt_candidate "$pkg"; then
         if is_installed "$pkg"; then
             note "$pkg is already installed. Skipping."
         else

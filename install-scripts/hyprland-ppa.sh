@@ -26,7 +26,7 @@ info() { echo -e "${INFO} $*" | tee -a "$LOG"; }
 install_package software-properties-common 2>&1 | tee -a "$LOG" || true
 
 # Add the PPA (idempotent)
-if ! grep -R "^deb .*cppiber.*hyprland" /etc/apt/sources.list /etc/apt/sources.list.d 2>/dev/null | grep -q .; then
+if ! grep -R "cppiber.*hyprland" /etc/apt/sources.list /etc/apt/sources.list.d 2>/dev/null | grep -q .; then
     note "Adding PPA: ppa:cppiber/hyprland"
     if ! sudo add-apt-repository -y ppa:cppiber/hyprland 2>&1 | tee -a "$LOG"; then
         echo -e "${ERROR} Failed to add the Hyprland PPA. It may not support this Ubuntu release yet." | tee -a "$LOG"
@@ -40,7 +40,7 @@ info "Running apt update"
 sudo apt update 2>&1 | tee -a "$LOG"
 
 # Verify that the PPA provides a candidate for hyprland on this series
-if ! apt-cache policy hyprland | awk '/Candidate:/ {print $2}' | grep -vq '(none)'; then
+if ! has_apt_candidate hyprland; then
     echo -e "${ERROR} PPA does not provide a hyprland candidate for this Ubuntu release. Use --install-ubuntu instead." | tee -a "$LOG"
     exit 1
 fi
@@ -55,7 +55,7 @@ PKGS=(
 )
 
 for p in "${PKGS[@]}"; do
-    if apt-cache policy "$p" | grep -q "Candidate: \\S"; then
+    if has_apt_candidate "$p"; then
         info "Installing/Upgrading $p from PPA"
         sudo apt install -y "$p" 2>&1 | tee -a "$LOG"
     else

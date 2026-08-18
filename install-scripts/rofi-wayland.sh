@@ -24,7 +24,7 @@ LOG="Install-Logs/install-$(date +%d-%H%M%S)_rofi.log"
 
 printf "\n%s Installing ${SKY_BLUE}rofi${RESET} from Ubuntu repositories...\n" "${INFO}"
 
-if apt-cache policy rofi | grep -q "Candidate: \\S"; then
+if has_apt_candidate rofi; then
   install_package rofi 2>&1 | tee -a "$LOG"
 else
   echo "${WARN} 'rofi' package not found in apt; skipping." | tee -a "$LOG"
