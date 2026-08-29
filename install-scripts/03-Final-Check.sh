@@ -23,6 +23,7 @@ path_cmds=(
   wallust
   nwg-displays
   yazi
+  nwg-dock-hyprland
 )
 
 ## WARNING: DO NOT EDIT BEYOND THIS LINE IF YOU DON'T KNOW WHAT YOU ARE DOING! ##

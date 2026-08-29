@@ -140,6 +140,24 @@ done
 
 printf "\n%.0s" {1..1}
 
+# Install nwg-dock-hyprland via dedicated repo script when missing (no native Ubuntu package)
+if ! command -v nwg-dock-hyprland >/dev/null 2>&1; then
+    NWG_DOCK_INSTALLER="$PARENT_DIR/install-scripts/nwg-dock-hyprland.sh"
+    echo "${INFO} ${YELLOW}nwg-dock-hyprland${RESET} not found. Running dedicated nwg-dock-hyprland installer..." | tee -a "$LOG"
+    if [ -x "$NWG_DOCK_INSTALLER" ]; then
+        "$NWG_DOCK_INSTALLER"
+    elif [ -f "$NWG_DOCK_INSTALLER" ]; then
+        bash "$NWG_DOCK_INSTALLER"
+    else
+        echo "${ERROR} Could not find ${YELLOW}nwg-dock-hyprland.sh${RESET} at $NWG_DOCK_INSTALLER" | tee -a "$LOG"
+        exit 1
+    fi
+else
+    echo "${INFO} ${YELLOW}nwg-dock-hyprland${RESET} is already installed. Skipping dedicated installer." | tee -a "$LOG"
+fi
+
+printf "\n%.0s" {1..1}
+
 # Install up-to-date Rust
 echo "${INFO} Installing most ${YELLOW}up to date Rust compiler${RESET} ..."
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y 2>&1 | tee -a "$LOG"

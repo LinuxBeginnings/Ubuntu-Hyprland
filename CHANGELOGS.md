@@ -2,6 +2,9 @@
 
 ## Aug 2026
 
+- Added: 
+   - `nwg-dock-hyprland.sh` 
+
 - Fixed:
     - waybar build fails, missing dependencies
     - Yazi install fails, swithced to GH repo directly
