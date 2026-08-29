@@ -4,6 +4,7 @@
 
 - Added:
     - `install-scripts/waybar.sh` to build waybar from source (matches Debian)
+    - `install-scripts/nwg-dock-hyprland.sh` Builds from source 
 - Changed:
     - `waybar` removed from APT package list (`01-hypr-pkgs.sh`); now purges any APT
       package and builds from source only — prevents apt upgrades from silently

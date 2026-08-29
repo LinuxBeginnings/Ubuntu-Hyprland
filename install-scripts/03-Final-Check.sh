@@ -35,6 +35,7 @@ local_pkgs_installed=(
     rofi
     wallust
     awww
+    nwg-dock-hyprland
 )
 
 ## WARNING: DO NOT EDIT BEYOND THIS LINE IF YOU DON'T KNOW WHAT YOU ARE DOING! ##
