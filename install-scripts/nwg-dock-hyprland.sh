@@ -110,22 +110,14 @@ if git clone --recursive ${git_ref:+-b "$git_ref"} https://github.com/nwg-piotr/
     export CGO_ENABLED=1
 
     echo "${INFO} Downloading Go module dependencies..." | tee -a "$LOG"
-    if [ -f Makefile ] && grep -q '^get:' Makefile; then
-        make get 2>&1 | tee -a "$MLOG" || "$GO_BIN" mod download 2>&1 | tee -a "$MLOG"
-    else
-        "$GO_BIN" mod download 2>&1 | tee -a "$MLOG"
-    fi
+    "$GO_BIN" mod download 2>&1 | tee -a "$MLOG"
 
     echo "${INFO} Building nwg-dock-hyprland..." | tee -a "$LOG"
     BUILD_SUCCESS=0
-    if [ -f Makefile ] && grep -q '^build:' Makefile; then
+    if "$GO_BIN" build -v -o nwg-dock-hyprland . 2>&1 | tee -a "$MLOG"; then
+        BUILD_SUCCESS=1
+    elif [ -f Makefile ] && grep -q '^build:' Makefile; then
         if make build 2>&1 | tee -a "$MLOG"; then
-            BUILD_SUCCESS=1
-        fi
-    fi
-
-    if [ $BUILD_SUCCESS -eq 0 ]; then
-        if "$GO_BIN" build -v -o nwg-dock-hyprland 2>&1 | tee -a "$MLOG"; then
             BUILD_SUCCESS=1
         fi
     fi
@@ -133,6 +125,9 @@ if git clone --recursive ${git_ref:+-b "$git_ref"} https://github.com/nwg-piotr/
     if [ $BUILD_SUCCESS -eq 1 ]; then
         if [ $DO_INSTALL -eq 1 ]; then
             echo "${INFO} Installing nwg-dock-hyprland binary and data files..." | tee -a "$LOG"
+
+            # Gracefully stop existing instance
+            pkill -x nwg-dock-hyprland 2>/dev/null || true
 
             # Use make install if available, with fallback to manual installation
             if [ -f Makefile ] && grep -q '^install:' Makefile; then
@@ -143,6 +138,9 @@ if git clone --recursive ${git_ref:+-b "$git_ref"} https://github.com/nwg-piotr/
             if [ -f nwg-dock-hyprland ]; then
                 sudo install -d -m 0755 /usr/local/bin
                 sudo install -m 0755 nwg-dock-hyprland /usr/local/bin/nwg-dock-hyprland
+            elif [ -f bin/nwg-dock-hyprland ]; then
+                sudo install -d -m 0755 /usr/local/bin
+                sudo install -m 0755 bin/nwg-dock-hyprland /usr/local/bin/nwg-dock-hyprland
             fi
 
             # Ensure data assets (CSS and images) are installed to standard share paths

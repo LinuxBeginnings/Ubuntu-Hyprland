@@ -2,10 +2,11 @@
 
 ## Aug 2026
 
-- Added: 
-   - `nwg-dock-hyprland.sh` 
+- Added:
+    - `nwg-dock-hyprland.sh`
 
 - Fixed:
+    - `nwg-dock-hyprland.sh` failed to build on 24.04
     - waybar build fails, missing dependencies
     - Yazi install fails, swithced to GH repo directly
     - Changed `swww` with `awww`
