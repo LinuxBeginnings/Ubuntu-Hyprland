@@ -114,34 +114,39 @@ if git clone --recursive ${git_ref:+-b "$git_ref"} https://github.com/nwg-piotr/
 
     echo "${INFO} Building nwg-dock-hyprland..." | tee -a "$LOG"
     BUILD_SUCCESS=0
+    rm -f nwg-dock-hyprland bin/nwg-dock-hyprland 2>/dev/null || true
+
     if "$GO_BIN" build -v -o nwg-dock-hyprland . 2>&1 | tee -a "$MLOG"; then
-        BUILD_SUCCESS=1
+        [ -f nwg-dock-hyprland ] && [ -x nwg-dock-hyprland ] && BUILD_SUCCESS=1
     elif [ -f Makefile ] && grep -q '^build:' Makefile; then
         if make build 2>&1 | tee -a "$MLOG"; then
-            BUILD_SUCCESS=1
+            if [ -f bin/nwg-dock-hyprland ] && [ -x bin/nwg-dock-hyprland ]; then
+                BUILD_SUCCESS=1
+            elif [ -f nwg-dock-hyprland ] && [ -x nwg-dock-hyprland ]; then
+                BUILD_SUCCESS=1
+            fi
         fi
     fi
 
-    if [ $BUILD_SUCCESS -eq 1 ]; then
+    BIN_SRC=""
+    if [ -f nwg-dock-hyprland ] && [ -x nwg-dock-hyprland ]; then
+        BIN_SRC="nwg-dock-hyprland"
+    elif [ -f bin/nwg-dock-hyprland ] && [ -x bin/nwg-dock-hyprland ]; then
+        BIN_SRC="bin/nwg-dock-hyprland"
+    fi
+
+    if [ "$BUILD_SUCCESS" -eq 1 ] && [ -n "$BIN_SRC" ]; then
         if [ $DO_INSTALL -eq 1 ]; then
             echo "${INFO} Installing nwg-dock-hyprland binary and data files..." | tee -a "$LOG"
 
-            # Gracefully stop existing instance
+            # Gracefully stop existing instance (exact binary match only to avoid terminating installer script)
             pkill -x nwg-dock-hyprland 2>/dev/null || true
 
-            # Use make install if available, with fallback to manual installation
-            if [ -f Makefile ] && grep -q '^install:' Makefile; then
-                sudo make install PREFIX=/usr/local 2>&1 | tee -a "$MLOG" || sudo make install 2>&1 | tee -a "$MLOG" || true
-            fi
-
-            # Ensure binary is placed in /usr/local/bin
-            if [ -f nwg-dock-hyprland ]; then
-                sudo install -d -m 0755 /usr/local/bin
-                sudo install -m 0755 nwg-dock-hyprland /usr/local/bin/nwg-dock-hyprland
-            elif [ -f bin/nwg-dock-hyprland ]; then
-                sudo install -d -m 0755 /usr/local/bin
-                sudo install -m 0755 bin/nwg-dock-hyprland /usr/local/bin/nwg-dock-hyprland
-            fi
+            # Install binary to /usr/local/bin and /usr/bin
+            sudo install -d -m 0755 /usr/local/bin
+            sudo install -m 0755 "$BIN_SRC" /usr/local/bin/nwg-dock-hyprland
+            sudo install -d -m 0755 /usr/bin
+            sudo install -m 0755 "$BIN_SRC" /usr/bin/nwg-dock-hyprland
 
             # Ensure data assets (CSS and images) are installed to standard share paths
             sudo install -d -m 0755 /usr/local/share/nwg-dock-hyprland
@@ -162,7 +167,7 @@ if git clone --recursive ${git_ref:+-b "$git_ref"} https://github.com/nwg-piotr/
                 sudo cp -r images/* /usr/share/nwg-dock-hyprland/images/ 2>/dev/null || true
             fi
 
-            if command -v nwg-dock-hyprland >/dev/null 2>&1 || [ -x /usr/local/bin/nwg-dock-hyprland ]; then
+            if command -v nwg-dock-hyprland >/dev/null 2>&1 || [ -x /usr/local/bin/nwg-dock-hyprland ] || [ -x /usr/bin/nwg-dock-hyprland ]; then
                 printf "${OK} ${YELLOW}nwg-dock-hyprland${RESET} installed successfully.\n" 2>&1 | tee -a "$MLOG"
             else
                 echo -e "${ERROR} Installation failed for ${YELLOW}nwg-dock-hyprland${RESET}" 2>&1 | tee -a "$MLOG"
