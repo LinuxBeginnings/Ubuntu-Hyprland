@@ -40,6 +40,14 @@ cd "$BUILD_SRC" || { echo "${ERROR} Failed to change directory to $BUILD_SRC"; e
 LOG="$REPO_ROOT/Install-Logs/install-$(date +%d-%H%M%S)_hyprlock.log"
 MLOG="$REPO_ROOT/Install-Logs/install-$(date +%d-%H%M%S)_hyprlock2.log"
 
+# Skip source build if hyprlock is already installed (e.g. from PPA or apt repo)
+if [ "${1:-}" != "--force" ] && [ "${1:-}" != "--reinstall" ]; then
+  if command -v hyprlock >/dev/null 2>&1 || [ -x /usr/local/bin/hyprlock ] || is_pkg_installed hyprlock; then
+    echo -e "${INFO} ${MAGENTA}hyprlock${RESET} is already installed ($(command -v hyprlock 2>/dev/null || echo 'dpkg/local')). Skipping source build." | tee -a "$LOG"
+    exit 0
+  fi
+fi
+
 # Installation of dependencies
 printf "\n%s - Installing ${YELLOW}hyprlock dependencies${RESET} .... \n" "${INFO}"
 
@@ -60,9 +68,10 @@ fi
 printf "${INFO} Installing ${YELLOW}hyprlock $lock_tag${RESET} ...\n"
 if git clone --recursive -b $lock_tag https://github.com/hyprwm/hyprlock.git; then
     cd hyprlock || exit 1
-	cmake --no-warn-unused-cli -DCMAKE_BUILD_TYPE:STRING=Release -S . -B ./build
+	cmake --no-warn-unused-cli -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_INSTALL_PREFIX=/usr/local -DCMAKE_PREFIX_PATH=/usr/local -S . -B ./build
 	cmake --build ./build --config Release --target hyprlock -j`nproc 2>/dev/null || getconf _NPROCESSORS_CONF`
     if sudo cmake --install build 2>&1 | tee -a "$MLOG" ; then
+        sudo ldconfig 2>/dev/null || true
         printf "${OK} ${YELLOW}hyprlock $lock_tag${RESET} installed successfully.\n" 2>&1 | tee -a "$MLOG"
     else
         echo -e "${ERROR} Installation failed for ${YELLOW}hyprlock $lock_tag${RESET}" 2>&1 | tee -a "$MLOG"

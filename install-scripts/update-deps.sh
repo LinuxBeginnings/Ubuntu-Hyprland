@@ -117,10 +117,10 @@ if [ "$DRY_RUN" -eq 1 ]; then
   [ -n "$DEPENDENCIES_SCRIPT" ] && echo "  dependencies: $DEPENDENCIES_SCRIPT"
   [ -n "$PACKAGES_SCRIPT" ] && echo "  packages: $PACKAGES_SCRIPT"
   [ -n "$YAZI_SCRIPT" ] && echo "  yazi: $YAZI_SCRIPT"
-  if ! command -v awww >/dev/null 2>&1; then
-    [ -n "$SWWW_SCRIPT" ] && echo "  swww/awww: $SWWW_SCRIPT (awww not installed)"
+  if ! command -v awww >/dev/null 2>&1 && ! command -v swww >/dev/null 2>&1 && ! command -v hyprpaper >/dev/null 2>&1; then
+    [ -n "$SWWW_SCRIPT" ] && echo "  swww/awww: $SWWW_SCRIPT (no wallpaper utility installed)"
   else
-    echo "  swww/awww: skipped (awww already installed at $(command -v awww))"
+    echo "  swww/awww: skipped (wallpaper utility already installed)"
   fi
   if ! command -v nwg-dock-hyprland >/dev/null 2>&1; then
     [ -n "$NWG_DOCK_SCRIPT" ] && echo "  nwg-dock-hyprland: $NWG_DOCK_SCRIPT (nwg-dock-hyprland not installed)"
@@ -173,16 +173,16 @@ if [ -n "$YAZI_SCRIPT" ]; then
   yazi_status=${PIPESTATUS[0]}
 fi
 
-if ! command -v awww >/dev/null 2>&1; then
+if ! command -v awww >/dev/null 2>&1 && ! command -v swww >/dev/null 2>&1 && ! command -v hyprpaper >/dev/null 2>&1; then
   if [ -n "$SWWW_SCRIPT" ]; then
     echo
-    echo "awww not found. Running swww/awww script: $(basename "$SWWW_SCRIPT")"
+    echo "No wallpaper utility found. Running swww/awww script: $(basename "$SWWW_SCRIPT")"
     bash "$SWWW_SCRIPT" 2>&1 | tee "$SWWW_LOG"
     swww_status=${PIPESTATUS[0]}
   fi
 else
   echo
-  echo "awww already installed ($(command -v awww)). Skipping swww/awww script."
+  echo "Wallpaper utility already installed. Skipping swww/awww script."
 fi
 
 if ! command -v nwg-dock-hyprland >/dev/null 2>&1; then
@@ -253,10 +253,10 @@ echo "-------"
 echo "Dependencies script: ${DEPENDENCIES_SCRIPT:-none}"
 echo "Packages script: ${PACKAGES_SCRIPT:-none}"
 echo "Yazi script: ${YAZI_SCRIPT:-none}"
-if ! command -v awww >/dev/null 2>&1; then
+if ! command -v awww >/dev/null 2>&1 && ! command -v swww >/dev/null 2>&1 && ! command -v hyprpaper >/dev/null 2>&1; then
   echo "SWWW/AWWW script: ${SWWW_SCRIPT:-none}"
 else
-  echo "SWWW/AWWW script: ${SWWW_SCRIPT:-none} (awww present)"
+  echo "SWWW/AWWW script: ${SWWW_SCRIPT:-none} (wallpaper utility present)"
 fi
 if ! command -v nwg-dock-hyprland >/dev/null 2>&1; then
   echo "nwg-dock-hyprland script: ${NWG_DOCK_SCRIPT:-none}"

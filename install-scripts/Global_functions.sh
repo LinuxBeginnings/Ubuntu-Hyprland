@@ -40,6 +40,11 @@ export BUILD_ROOT BUILD_SRC BUILD_BIN
 # Ensure standard directories exist
 mkdir -p "$REPO_ROOT/Install-Logs" "$BUILD_SRC" "$BUILD_BIN"
 
+# Helper to check if package is installed in dpkg
+is_pkg_installed() {
+  dpkg-query -W -f='${Status}' "$1" 2>/dev/null | grep -q "ok installed"
+}
+
 # Show progress function
 show_progress() {
     local pid=$1
@@ -48,36 +53,39 @@ show_progress() {
                       "○○○○○●○○○○" "○○○○○○●○○○" "○○○○○○○●○○" "○○○○○○○○●○" "○○○○○○○○○●") 
     local i=0
 
-    tput civis 
+    tput civis 2>/dev/null || true
     printf "\r${INFO} Installing ${YELLOW}%s${RESET} ..." "$package_name"
 
-    while ps -p $pid &> /dev/null; do
+    while kill -0 "$pid" 2>/dev/null; do
         printf "\r${INFO} Installing ${YELLOW}%s${RESET} %s" "$package_name" "${spin_chars[i]}"
         i=$(( (i + 1) % 10 ))  
         sleep 0.3  
     done
+    wait "$pid" 2>/dev/null || true
 
     printf "\r${INFO} Installing ${YELLOW}%s${RESET} ... Done!%-20s \n\n" "$package_name" ""
-    tput cnorm  
+    tput cnorm 2>/dev/null || true
 }
 
 
 # Function for installing packages with a progress bar
 install_package() { 
-  if dpkg-query -W -f='${Status}' "$1" 2>/dev/null | grep -q "ok installed" ; then
-    echo -e "${INFO} ${MAGENTA}$1${RESET} is already installed. Skipping..."
+  local pkg="$1"
+  local log_file="${2:-$LOG}"
+  if is_pkg_installed "$pkg" ; then
+    echo -e "${INFO} ${MAGENTA}$pkg${RESET} is already installed. Skipping..."
   else 
     (
-      stdbuf -oL sudo apt install -y "$1" 2>&1
-    ) >> "$LOG" 2>&1 &
+      stdbuf -oL sudo apt install -y "$pkg" 2>&1
+    ) >> "$log_file" 2>&1 &
     PID=$!
-    show_progress $PID "$1" 
+    show_progress $PID "$pkg" 
     
     # Double check if the package successfully installed
-    if dpkg-query -W -f='${Status}' "$1" 2>/dev/null | grep -q "ok installed"; then
-        echo -e "\e[1A\e[K${OK} Package ${YELLOW}$1${RESET} has been successfully installed!"
+    if is_pkg_installed "$pkg"; then
+        echo -e "\e[1A\e[K${OK} Package ${YELLOW}$pkg${RESET} has been successfully installed!"
     else
-        echo -e "\e[1A\e[K${ERROR} ${YELLOW}$1${RESET} failed to install. Please check the install.log. You may need to install it manually. Sorry, I have tried :("
+        echo -e "\e[1A\e[K${ERROR} ${YELLOW}$pkg${RESET} failed to install. Please check the install.log. You may need to install it manually. Sorry, I have tried :("
     fi
   fi
 }
@@ -104,18 +112,20 @@ cargo_install() {
 
 # Function for re-installing packages with a progress bar
 re_install_package() {
+    local pkg="$1"
+    local log_file="${2:-$LOG}"
     (
-        stdbuf -oL sudo apt install --reinstall -y "$1" 2>&1
-    ) >> "$LOG" 2>&1 &
+        stdbuf -oL sudo apt install --reinstall -y "$pkg" 2>&1
+    ) >> "$log_file" 2>&1 &
     
     PID=$!
-    show_progress $PID "$1" 
+    show_progress $PID "$pkg" 
     
-    if dpkg-query -W -f='${Status}' "$1" 2>/dev/null | grep -q "ok installed"; then
-        echo -e "\e[1A\e[K${OK} Package ${YELLOW}$1${RESET} has been successfully re-installed!"
+    if is_pkg_installed "$pkg"; then
+        echo -e "\e[1A\e[K${OK} Package ${YELLOW}$pkg${RESET} has been successfully re-installed!"
     else
         # Package not found, reinstallation failed
-        echo -e "${ERROR} ${YELLOW}$1${RESET} failed to re-install. Please check the install.log. You may need to install it manually. Sorry, I have tried :("
+        echo -e "${ERROR} ${YELLOW}$pkg${RESET} failed to re-install. Please check the install.log. You may need to install it manually. Sorry, I have tried :("
     fi
 }
 

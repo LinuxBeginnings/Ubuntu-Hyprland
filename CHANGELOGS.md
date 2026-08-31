@@ -15,6 +15,12 @@
     - `sddm_theme.sh` overwritting background image
     - Yazi installed from GH repository
     - waybar build error missing dependencies
+    - False package failure reports due to subshell wait timing in `Global_functions.sh`
+    - Pre-check for installed `hyprlock` and `hypridle` to prevent failed source compilation when installed via PPA/repo
+    - Added missing development dependencies (`libjpeg-dev`, `libwebp-dev`, `librsvg2-dev`, `liblz4-dev`, `libmagic-dev`, `clang`, etc.)
+    - Updated `swww.sh` to properly locate `wayland.xml` and `wayland-protocols`
+    - Updated wallpaper utility detection in `03-Final-Check.sh` and `update-deps.sh`
+    - Allowed branch parameter and fallback in `auto-install.sh`
 
 ## Jul 2026
 

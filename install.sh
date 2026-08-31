@@ -111,8 +111,7 @@ print_color $WARNING "
                 KooL's UBUNTU 26.04 - Hyprland               
     █▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄█
 
-    This script will install Hyprland 0.52.2 from ubuntu 
-    This is only supported on ubuntu 26.04 or greater! 
+    This script will install Hyprland on Ubuntu 26.04 or greater!
     If you are not at that level do NOT continue!
          
 "

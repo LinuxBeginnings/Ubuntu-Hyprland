@@ -44,10 +44,14 @@ hypr_package=(
     qt5ct
     libqt5quick5
     libqt5qml5
+    qt5-style-kvantum
+    qt6-style-kvantum
     qt-style-kvantum
     qt-style-kvantum-themes
     qt6-declarative-dev
     qt6ct
+    qml-module-qtquick-controls
+    qml-module-qtquick-controls2
     slurp
     swappy
     sway-notification-center

@@ -31,6 +31,14 @@ cd "$BUILD_SRC" || { echo "${ERROR} Failed to change directory to $BUILD_SRC"; e
 LOG="$REPO_ROOT/Install-Logs/install-$(date +%d-%H%M%S)_hypridle.log"
 MLOG="$REPO_ROOT/Install-Logs/install-$(date +%d-%H%M%S)_hypridle2.log"
 
+# Skip source build if hypridle is already installed (e.g. from PPA or apt repo)
+if [ "${1:-}" != "--force" ] && [ "${1:-}" != "--reinstall" ]; then
+  if command -v hypridle >/dev/null 2>&1 || [ -x /usr/local/bin/hypridle ] || is_pkg_installed hypridle; then
+    echo -e "${INFO} ${MAGENTA}hypridle${RESET} is already installed ($(command -v hypridle 2>/dev/null || echo 'dpkg/local')). Skipping source build." | tee -a "$LOG"
+    exit 0
+  fi
+fi
+
 # Installation of dependencies
 printf "\n%s - Installing ${YELLOW}hypridle dependencies${RESET} .... \n" "${INFO}"
 
@@ -51,9 +59,10 @@ fi
 printf "${INFO} Installing ${YELLOW}hypridle $idle_tag${RESET} ...\n"
 if git clone --recursive -b $idle_tag https://github.com/hyprwm/hypridle.git; then
     cd hypridle || exit 1
-	cmake --no-warn-unused-cli -DCMAKE_BUILD_TYPE:STRING=Release -S . -B ./build
+	cmake --no-warn-unused-cli -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_INSTALL_PREFIX=/usr/local -DCMAKE_PREFIX_PATH=/usr/local -S . -B ./build
 	cmake --build ./build --config Release --target hypridle -j`nproc 2>/dev/null || getconf NPROCESSORS_CONF`
     if sudo cmake --install ./build 2>&1 | tee -a "$MLOG" ; then
+        sudo ldconfig 2>/dev/null || true
         printf "${OK} ${MAGENTA}hypridle $idle_tag${RESET} installed successfully.\n" 2>&1 | tee -a "$MLOG"
     else
         echo -e "${ERROR} Installation failed for ${YELLOW}hypridle $idle_tag${RESET}" 2>&1 | tee -a "$MLOG"

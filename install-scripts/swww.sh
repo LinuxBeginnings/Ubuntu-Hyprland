@@ -41,22 +41,30 @@ for PKG1 in "${awww_deps[@]}"; do
   install_package "$PKG1" "$LOG"
 done
 
-# Ensure wayland.xml is available for build scripts
-if [ ! -f /usr/share/wayland-protocols/wayland.xml ] && [ ! -f /usr/local/share/wayland-protocols/wayland.xml ]; then
-  echo -e "${WARN} wayland.xml not found; attempting to install wayland-protocols."
+# Locate wayland.xml
+WAYLAND_XML=""
+for _p in \
+  "$(pkg-config --variable=pkgdatadir wayland-scanner 2>/dev/null)/wayland.xml" \
+  /usr/share/wayland/wayland.xml \
+  /usr/local/share/wayland/wayland.xml \
+  /usr/share/wayland-protocols/wayland.xml \
+  /usr/local/share/wayland-protocols/wayland.xml; do
+  if [ -n "$_p" ] && [ -f "$_p" ]; then
+    WAYLAND_XML="$_p"
+    break
+  fi
+done
+
+if [ -z "$WAYLAND_XML" ]; then
+  echo -e "${WARN} wayland.xml not found; ensuring libwayland-dev and wayland-protocols are installed."
+  install_package "libwayland-dev" "$LOG"
   install_package "wayland-protocols" "$LOG"
 fi
-if [ ! -f /usr/share/wayland-protocols/wayland.xml ] && [ ! -f /usr/local/share/wayland-protocols/wayland.xml ]; then
-  echo -e "${WARN} wayland.xml still missing; building wayland-protocols from source."
-  if [ -x "$REPO_ROOT/install-scripts/wayland-protocols-src.sh" ]; then
-    "$REPO_ROOT/install-scripts/wayland-protocols-src.sh"
-  fi
-fi
 
-# Export wayland-protocols path so waybackend-scanner can locate wayland.xml
-if [ -f /usr/local/share/wayland-protocols/wayland.xml ]; then
+# Export wayland-protocols path so scanners/builders can locate protocols
+if [ -d /usr/local/share/wayland-protocols ]; then
   export WAYLAND_PROTOCOLS_DIR=/usr/local/share/wayland-protocols
-elif [ -f /usr/share/wayland-protocols/wayland.xml ]; then
+elif [ -d /usr/share/wayland-protocols ]; then
   export WAYLAND_PROTOCOLS_DIR=/usr/share/wayland-protocols
 fi
 if [ -n "${WAYLAND_PROTOCOLS_DIR:-}" ]; then

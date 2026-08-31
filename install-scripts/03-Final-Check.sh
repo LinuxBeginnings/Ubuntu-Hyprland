@@ -28,13 +28,12 @@ packages=(
     zoxide
 )
 
-# Binaries expected to be available (installed via PPA into /usr/bin)
+# Binaries expected to be available (installed via PPA into /usr/bin or /usr/local/bin)
 local_pkgs_installed=(
     hypridle
     hyprlock
     rofi
     wallust
-    awww
     nwg-dock-hyprland
 )
 
@@ -103,6 +102,11 @@ done
 # Check required binaries via PATH
 if ! is_source_waybar_installed; then
     local_missing+=("waybar (source build)")
+fi
+
+# Check wallpaper manager (awww, swww, or hyprpaper)
+if ! command -v awww >/dev/null 2>&1 && ! command -v swww >/dev/null 2>&1 && ! command -v hyprpaper >/dev/null 2>&1; then
+    local_missing+=("wallpaper utility (awww/swww/hyprpaper)")
 fi
 
 for pkg1 in "${local_pkgs_installed[@]}"; do
