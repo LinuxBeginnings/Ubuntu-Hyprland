@@ -1,7 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # https://github.com/LinuxBeginnings
-
-clear
 
 # Set some colors for output messages
 OK="$(tput setaf 2)[OK]$(tput sgr0)"
@@ -250,7 +248,6 @@ if [ "$input_group_detected" == "true" ]; then
         "input_group" "Add your USER to input group for some waybar functionality?" "OFF"
     )
 fi
-
 
 # Add the remaining static options
 options_command+=(
