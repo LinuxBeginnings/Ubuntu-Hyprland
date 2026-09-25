@@ -131,6 +131,13 @@ if ! dpkg -l | grep -w pciutils >/dev/null; then
     printf "\n%.0s" {1..1}
 fi
 
+# Ensure flock (util-linux) is available; required by Hyprland-Dots RofiEmoji.sh
+if ! command -v flock >/dev/null 2>&1; then
+    echo "${NOTE} - flock (util-linux) is not installed. Installing..." | tee -a "$LOG"
+    sudo apt install -y util-linux
+    printf "\n%.0s" {1..1}
+fi
+
 # Path to the install-scripts directory
 script_directory=install-scripts
 

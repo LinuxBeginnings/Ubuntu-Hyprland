@@ -98,6 +98,7 @@ dependencies=(
     socat # Needed for Tak0 scripts
     spirv-tools
     unzip
+    util-linux # provides flock, needed by Hyprland-Dots RofiEmoji.sh
     vulkan-validationlayers
     wayland-protocols
     xdg-desktop-portal
