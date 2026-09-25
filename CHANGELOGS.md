@@ -1,10 +1,18 @@
 ## CHANGELOGS
 
+## Sep 2026
+
+- Removed:
+    - quickshell from menu
+        - Installed by default
+- Added:
+    - Dep check for `util-linux`
+
 ## Aug 2026
 
 - Added:
     - `install-scripts/waybar.sh` to build waybar from source (matches Debian)
-    - `install-scripts/nwg-dock-hyprland.sh` Builds from source 
+    - `install-scripts/nwg-dock-hyprland.sh` Builds from source
 - Changed:
     - `waybar` removed from APT package list (`01-hypr-pkgs.sh`); now purges any APT
       package and builds from source only — prevents apt upgrades from silently

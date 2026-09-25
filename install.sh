@@ -202,6 +202,13 @@ if ! dpkg -l | grep -w pciutils >/dev/null; then
     printf "\n%.0s" {1..1}
 fi
 
+# Ensure flock (util-linux) is available; required by Hyprland-Dots RofiEmoji.sh
+if ! command -v flock >/dev/null 2>&1; then
+    echo "${NOTE} - flock (util-linux) is not installed. Installing..." | tee -a "$LOG"
+    sudo apt install -y util-linux
+    printf "\n%.0s" {1..1}
+fi
+
 # Path to the install-scripts directory
 script_directory=install-scripts
 
@@ -230,7 +237,6 @@ gtk_themes="OFF"
 bluetooth="OFF"
 thunar="OFF"
 ags="OFF"
-quickshell="OFF"
 sddm="OFF"
 sddm_theme="OFF"
 zsh="OFF"
@@ -329,7 +335,6 @@ options_command+=(
     "bluetooth" "Do you want script to configure Bluetooth?" "OFF"
     "thunar" "Do you want Thunar file manager to be installed?" "OFF"
     "ags" "Install AGS v1 for Desktop-Like Overview" "OFF"
-    "quickshell" "Install Quickshell (QtQuick-based shell toolkit)?" "OFF"
     "zsh" "Install zsh shell with Oh-My-Zsh?" "OFF"
     "pokemon" "Add Pokemon color scripts to your terminal?" "OFF"
     "rog" "Are you installing on Asus ROG laptops?" "OFF"
@@ -467,6 +472,10 @@ execute_script "hyprlock.sh"
 sleep 1
 execute_script "hypridle.sh"
 sleep 1
+# Quickshell is installed by default (removed from the options menu)
+echo "${INFO} Installing ${SKY_BLUE}Quickshell (desktop overview)...${RESET}" | tee -a "$LOG"
+execute_script "quickshell.sh" || echo "${WARN} Quickshell installation failed - desktop overview will fall back to AGS. Check Install-Logs/." | tee -a "$LOG"
+sleep 1
 echo "${INFO} Installing ${SKY_BLUE}Yazi file manager...${RESET}" | tee -a "$LOG"
 execute_script "yazi.sh" || {
     echo "${ERROR:-[ERROR]} Yazi installation failed" | tee -a "$LOG"
@@ -515,10 +524,6 @@ for option in "${options[@]}"; do
     ags)
         echo "${INFO} Installing ${SKY_BLUE}AGS v1 for Desktop Overview...${RESET}" | tee -a "$LOG"
         execute_script "ags.sh"
-        ;;
-    quickshell)
-        echo "${INFO} Installing ${SKY_BLUE}Quickshell${RESET} (QtQuick-based shell toolkit)..." | tee -a "$LOG"
-        execute_script "quickshell.sh"
         ;;
     bluetooth)
         echo "${INFO} Configuring ${SKY_BLUE}Bluetooth...${RESET}" | tee -a "$LOG"
