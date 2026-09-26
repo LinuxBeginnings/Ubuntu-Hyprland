@@ -7,6 +7,11 @@
         - Installed by default
 - Added:
     - Dep check for `util-linux`
+- Fixed:
+    - `update-deps.sh` now builds `waybar` from source (was missing the `waybar.sh`
+      step, so the APT package was left in place and hyprland LUA workflows broke)
+    - `update-deps.sh` summary now reports multi-word missing entries such as
+      `waybar (source build)` instead of dropping them
 
 ## Aug 2026
 

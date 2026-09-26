@@ -23,6 +23,7 @@ Env overrides:
   YAZI_SCRIPT             Path to yazi script
   SWWW_SCRIPT             Path to swww/awww script
   NWG_DOCK_SCRIPT         Path to nwg-dock-hyprland script
+  WAYBAR_SCRIPT           Path to waybar source-build script
   CHECK_SCRIPT            Path to final check script
 EOF
 }
@@ -80,6 +81,7 @@ PACKAGES_SCRIPT="${PACKAGES_SCRIPT:-$(pick_script "hypr-pkgs" || pick_script "pk
 YAZI_SCRIPT="${YAZI_SCRIPT:-$SCRIPT_DIR/yazi.sh}"
 SWWW_SCRIPT="${SWWW_SCRIPT:-$SCRIPT_DIR/swww.sh}"
 NWG_DOCK_SCRIPT="${NWG_DOCK_SCRIPT:-$SCRIPT_DIR/nwg-dock-hyprland.sh}"
+WAYBAR_SCRIPT="${WAYBAR_SCRIPT:-$SCRIPT_DIR/waybar.sh}"
 CHECK_SCRIPT="${CHECK_SCRIPT:-$(pick_script "Final-Check" || pick_script "Final")}"
 PRE_CLEANUP_SCRIPT="$(pick_script "pre-cleanup" || true)"
 
@@ -103,6 +105,10 @@ if [ -n "$NWG_DOCK_SCRIPT" ] && [ ! -f "$NWG_DOCK_SCRIPT" ]; then
   echo "Script not found: $NWG_DOCK_SCRIPT"
   exit 1
 fi
+if [ -n "$WAYBAR_SCRIPT" ] && [ ! -f "$WAYBAR_SCRIPT" ]; then
+  echo "Script not found: $WAYBAR_SCRIPT"
+  exit 1
+fi
 if [ -n "$CHECK_SCRIPT" ] && [ ! -f "$CHECK_SCRIPT" ]; then
   echo "Script not found: $CHECK_SCRIPT"
   exit 1
@@ -111,6 +117,21 @@ if [ "$INCLUDE_PRE_CLEANUP" -eq 1 ] && [ -n "$PRE_CLEANUP_SCRIPT" ] && [ ! -f "$
   echo "Script not found: $PRE_CLEANUP_SCRIPT"
   exit 1
 fi
+
+# A source-built waybar lands in /usr/local/bin; the APT package lands in /usr/bin.
+waybar_source_built() {
+  if [ -x "/usr/local/bin/waybar" ]; then
+    return 0
+  fi
+  if command -v waybar >/dev/null 2>&1; then
+    local ver_line
+    ver_line="$(waybar --version 2>&1 | grep -i 'waybar v' || true)"
+    if echo "$ver_line" | grep -q -E "branch|g[0-9a-f]{7}"; then
+      return 0
+    fi
+  fi
+  return 1
+}
 
 if [ "$DRY_RUN" -eq 1 ]; then
   echo "Dry run. Scripts that would execute:"
@@ -127,6 +148,11 @@ if [ "$DRY_RUN" -eq 1 ]; then
   else
     echo "  nwg-dock-hyprland: skipped (nwg-dock-hyprland already installed at $(command -v nwg-dock-hyprland))"
   fi
+  if ! waybar_source_built; then
+    [ -n "$WAYBAR_SCRIPT" ] && echo "  waybar: $WAYBAR_SCRIPT (no source build detected)"
+  else
+    echo "  waybar: skipped (source build present at $(command -v waybar))"
+  fi
   [ "$INCLUDE_PRE_CLEANUP" -eq 1 ] && [ -n "$PRE_CLEANUP_SCRIPT" ] && echo "  pre-cleanup: $PRE_CLEANUP_SCRIPT"
   [ -n "$CHECK_SCRIPT" ] && echo "  final check: $CHECK_SCRIPT"
   exit 0
@@ -138,6 +164,7 @@ PACKAGES_LOG="$LOG_DIR/update-deps-${RUN_STAMP}_packages.log"
 YAZI_LOG="$LOG_DIR/update-deps-${RUN_STAMP}_yazi.log"
 SWWW_LOG="$LOG_DIR/update-deps-${RUN_STAMP}_swww.log"
 NWG_DOCK_LOG="$LOG_DIR/update-deps-${RUN_STAMP}_nwg_dock.log"
+WAYBAR_LOG="$LOG_DIR/update-deps-${RUN_STAMP}_waybar.log"
 PRE_CLEANUP_LOG="$LOG_DIR/update-deps-${RUN_STAMP}_pre-cleanup.log"
 CHECK_LOG="$LOG_DIR/update-deps-${RUN_STAMP}_check.log"
 
@@ -150,6 +177,7 @@ packages_status=0
 yazi_status=0
 swww_status=0
 nwg_dock_status=0
+waybar_status=0
 pre_cleanup_status=0
 check_status=0
 
@@ -197,6 +225,18 @@ else
   echo "nwg-dock-hyprland already installed ($(command -v nwg-dock-hyprland)). Skipping nwg-dock-hyprland script."
 fi
 
+if waybar_source_built; then
+  echo
+  echo "waybar already source-built ($(command -v waybar)). Skipping waybar script."
+else
+  if [ -n "$WAYBAR_SCRIPT" ]; then
+    echo
+    echo "Source-built waybar not found. Running waybar script: $(basename "$WAYBAR_SCRIPT")"
+    bash "$WAYBAR_SCRIPT" 2>&1 | tee "$WAYBAR_LOG"
+    waybar_status=${PIPESTATUS[0]}
+  fi
+fi
+
 if [ "$INCLUDE_PRE_CLEANUP" -eq 1 ] && [ -n "$PRE_CLEANUP_SCRIPT" ]; then
   echo
   echo "Running pre-cleanup script: $(basename "$PRE_CLEANUP_SCRIPT")"
@@ -216,6 +256,7 @@ clean_packages_log="$(mktemp)"
 clean_yazi_log="$(mktemp)"
 clean_swww_log="$(mktemp)"
 clean_nwg_dock_log="$(mktemp)"
+clean_waybar_log="$(mktemp)"
 clean_check_log="$(mktemp)"
 if [ -f "$DEPENDENCIES_LOG" ]; then
   strip_ansi < "$DEPENDENCIES_LOG" > "$clean_dependencies_log"
@@ -232,6 +273,9 @@ fi
 if [ -f "$NWG_DOCK_LOG" ]; then
   strip_ansi < "$NWG_DOCK_LOG" > "$clean_nwg_dock_log"
 fi
+if [ -f "$WAYBAR_LOG" ]; then
+  strip_ansi < "$WAYBAR_LOG" > "$clean_waybar_log"
+fi
 if [ -f "$CHECK_LOG" ]; then
   strip_ansi < "$CHECK_LOG" > "$clean_check_log"
 fi
@@ -242,10 +286,13 @@ mapfile -t failed_pkgs < <(cat "$clean_packages_log" "$clean_yazi_log" "$clean_s
 latest_final_log="$(ls -t "$LOG_DIR"/00_CHECK-*_installed.log 2>/dev/null | head -n 1)"
 missing_pkgs=()
 if [ -n "$latest_final_log" ] && [ -f "$latest_final_log" ]; then
-  mapfile -t missing_pkgs < <(strip_ansi < "$latest_final_log" | awk 'NF==1')
+  # The log holds one missing package per line followed by a '[NOTE] Missing
+  # packages logged at ...' trailer. Keep whole lines so multi-word entries such
+  # as "waybar (source build)" are reported instead of being silently dropped.
+  mapfile -t missing_pkgs < <(strip_ansi < "$latest_final_log" | grep -v '^\[NOTE\]' | grep -v '^[[:space:]]*$')
 fi
 
-rm -f "$clean_dependencies_log" "$clean_packages_log" "$clean_yazi_log" "$clean_swww_log" "$clean_nwg_dock_log" "$clean_check_log"
+rm -f "$clean_dependencies_log" "$clean_packages_log" "$clean_yazi_log" "$clean_swww_log" "$clean_nwg_dock_log" "$clean_waybar_log" "$clean_check_log"
 
 echo
 echo "Summary"
@@ -263,6 +310,11 @@ if ! command -v nwg-dock-hyprland >/dev/null 2>&1; then
 else
   echo "nwg-dock-hyprland script: ${NWG_DOCK_SCRIPT:-none} (nwg-dock-hyprland present)"
 fi
+if waybar_source_built; then
+  echo "Waybar script: ${WAYBAR_SCRIPT:-none} (source build present)"
+else
+  echo "Waybar script: ${WAYBAR_SCRIPT:-none}"
+fi
 if [ "$INCLUDE_PRE_CLEANUP" -eq 1 ]; then
   echo "Pre-cleanup script: ${PRE_CLEANUP_SCRIPT:-none}"
 fi
@@ -272,6 +324,7 @@ echo "Packages exit status: $packages_status"
 echo "Yazi exit status: $yazi_status"
 echo "SWWW/AWWW exit status: $swww_status"
 echo "nwg-dock-hyprland exit status: $nwg_dock_status"
+echo "Waybar exit status: $waybar_status"
 if [ "$INCLUDE_PRE_CLEANUP" -eq 1 ]; then
   echo "Pre-cleanup exit status: $pre_cleanup_status"
 fi
