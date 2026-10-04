@@ -34,6 +34,7 @@ hypr_package=(
     inxi
     imagemagick
     kitty
+    lua5.4
     nano
     pavucontrol
     pulseaudio-utils

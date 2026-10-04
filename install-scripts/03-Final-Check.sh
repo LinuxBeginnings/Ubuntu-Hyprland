@@ -24,6 +24,8 @@ packages=(
     wlogout
     kitty
     hyprland
+    hyprland-guiutils
+    lua5.4
     yazi
     zoxide
 )
@@ -36,6 +38,8 @@ local_pkgs_installed=(
     wallust
     awww
     nwg-dock-hyprland
+    hyprland-dialog
+    luac
 )
 
 ## WARNING: DO NOT EDIT BEYOND THIS LINE IF YOU DON'T KNOW WHAT YOU ARE DOING! ##
