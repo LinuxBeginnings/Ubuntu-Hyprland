@@ -76,6 +76,7 @@ hypr_package_2=(
     pamixer
     qalculate-gtk
     xfce-polkit
+    hyprland-guiutils
 )
 
 # packages to force reinstall
