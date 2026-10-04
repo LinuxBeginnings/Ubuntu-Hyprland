@@ -11,6 +11,8 @@ packages=(
   cliphist
   wlogout
   kitty
+  hyprland-guiutils
+  lua5.4
 )
 
 # Commands that should be available in PATH (regardless of /usr/bin or /usr/local/bin)
@@ -24,6 +26,8 @@ path_cmds=(
   nwg-displays
   yazi
   nwg-dock-hyprland
+  hyprland-dialog
+  luac
 )
 
 ## WARNING: DO NOT EDIT BEYOND THIS LINE IF YOU DON'T KNOW WHAT YOU ARE DOING! ##

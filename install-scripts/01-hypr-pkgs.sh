@@ -19,6 +19,7 @@ hypr_package=(
     inxi
     imagemagick
     kitty
+    lua5.4
     nano
     pavucontrol
     pulseaudio-utils
@@ -59,6 +60,7 @@ hypr_package_2=(
     nvtop
     pamixer
     qalculate-gtk
+    hyprland-guiutils
 )
 
 # packages to force reinstall
