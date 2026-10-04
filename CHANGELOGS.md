@@ -1,5 +1,11 @@
 ## CHANGELOGS
 
+## Oct 2026
+
+- Added:
+    - `lua5.4` (provides `luac`) to default package dependencies
+    - `lua5.4` and `hyprland-guiutils` package checks, and `luac` / `hyprland-dialog` binary checks to `03-Final-Check.sh`
+
 ## Sep 2026
 
 - Removed:
