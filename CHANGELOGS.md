@@ -15,6 +15,9 @@
       already present, and rebuilds when it is older or unrunnable
     - `update-deps.sh` installs or rebuilds Quickshell when it is missing or below
       `0.3.0`
+- Fixed:
+    - `waybar.sh` configures Waybar with `-Dtests=disabled`, so a broken or
+      missing Catch2 install can no longer fail the build
 - Docs:
     - `building-quickshell.md` no longer describes Quickshell as an optional menu
       item

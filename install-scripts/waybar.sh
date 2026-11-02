@@ -167,8 +167,11 @@ else
 fi
 
 # ─── Meson configure ──────────────────────────────────────────────────────────
+# Tests are disabled on purpose. Waybar's meson.build enables them whenever
+# pkg-config finds Catch2, and any broken or stale Catch2 install then fails the
+# whole build for a bar that never runs its test suite.
 printf "\n%s - Configuring ${YELLOW}Waybar${RESET} with meson...\n" "${INFO}"
-if meson setup build --wipe 2>&1 | tee -a "$MLOG"; then
+if meson setup build --wipe -Dtests=disabled 2>&1 | tee -a "$MLOG"; then
     echo -e "${OK} Meson configuration successful."
 else
     echo -e "${ERROR} Meson configuration failed for ${YELLOW}Waybar${RESET}. Check $MLOG" | tee -a "$MLOG"
