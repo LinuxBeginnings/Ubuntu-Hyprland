@@ -31,6 +31,9 @@
     - `hyprlock`/`hypridle` source builds no longer fail with missing `hyprlang`
       and `hyprutils` pkg-config modules: those headers are only installed for the
       fallback source build (`00-dependencies.sh` purges them on purpose)
+    - `02-pre-cleanup.sh` no longer deletes `/usr/local/bin/waybar`, which forced
+      a full Waybar source build on every install run and defeated the
+      `WAYBAR_MIN_VERSION` skip check
 - Docs:
     - `building-quickshell.md` no longer describes Quickshell as an optional menu
       item

@@ -13,6 +13,9 @@
 TARGET_DIR="/usr/local/bin"
 
 # Define packages to manually remove (was manually installed previously)
+# NOTE: waybar is deliberately not listed. It is managed by waybar.sh, which
+# rebuilds only when the installed build is below WAYBAR_MIN_VERSION; removing
+# the binary here would force a full source build on every install run.
 PACKAGES=(
   hyprctl
   hyprpm
@@ -21,7 +24,6 @@ PACKAGES=(
   cliphist
   pypr
   swappy
-  waybar
   magick
 )
 
