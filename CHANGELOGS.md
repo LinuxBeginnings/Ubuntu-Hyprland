@@ -1,5 +1,24 @@
 ## CHANGELOGS
 
+## Nov 2026
+
+- Added:
+    - Quickshell minimum version check (`0.3.0`) to `quickshell.sh`,
+      `03-Final-Check.sh`, and `update-deps.sh`
+    - `install-scripts/Global_versions.sh` as the single place for that minimum
+      and the shared version helpers
+- Changed:
+    - Quickshell is required on Ubuntu 26.04+ (the dotfiles now ship several
+      Quickshell apps); `install.sh` aborts when it fails instead of warning and
+      continuing. AGS remains available as an alternative overview.
+    - `quickshell.sh` skips the source build when an install at `0.3.0` or newer is
+      already present, and rebuilds when it is older or unrunnable
+    - `update-deps.sh` installs or rebuilds Quickshell when it is missing or below
+      `0.3.0`
+- Docs:
+    - `building-quickshell.md` no longer describes Quickshell as an optional menu
+      item
+
 ## Oct 2026
 
 - Added:

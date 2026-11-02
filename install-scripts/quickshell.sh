@@ -16,6 +16,11 @@ if ! source "$(dirname "$(readlink -f "$0")")/Global_functions.sh"; then
     echo "Failed to source Global_functions.sh"
     exit 1
 fi
+# Shared version contract (QS_MIN_VERSION, quickshell_* helpers)
+if ! source "$SCRIPT_DIR/Global_versions.sh"; then
+    echo "Failed to source Global_versions.sh"
+    exit 1
+fi
 # Operate from repo root for apt/logging; sources will clone under $BUILD_SRC
 cd "$REPO_ROOT" || {
     echo "${ERROR} Failed to change directory to $REPO_ROOT"
@@ -32,13 +37,30 @@ mkdir -p "$REPO_ROOT/Install-Logs"
 LOG="$REPO_ROOT/Install-Logs/install-$(date +%d-%H%M%S)_quickshell.log"
 MLOG="$REPO_ROOT/Install-Logs/install-$(date +%d-%H%M%S)_quickshell_build.log"
 
+note() { echo -e "${NOTE} $*" | tee -a "$LOG"; }
+info() { echo -e "${INFO} $*" | tee -a "$LOG"; }
+
+# Skip the (long) build when a working install already satisfies the minimum.
+# A binary that fails to report its version is rebuilt, since a Qt upgrade can
+# break a source build even when its version string looks fine.
+QS_BIN="$(quickshell_bin || true)"
+QS_INSTALLED_VERSION="$(quickshell_version)"
+
+if [ -n "$QS_INSTALLED_VERSION" ] && version_ge "$QS_INSTALLED_VERSION" "$QS_MIN_VERSION"; then
+    echo "${OK} Quickshell ${QS_INSTALLED_VERSION} already installed at $QS_BIN (>= ${QS_MIN_VERSION}). Skipping build." | tee -a "$LOG"
+    exit 0
+fi
+
+if [ -n "$QS_INSTALLED_VERSION" ]; then
+    note "Quickshell ${QS_INSTALLED_VERSION} found at $QS_BIN; rebuilding to meet >= ${QS_MIN_VERSION}."
+elif [ -n "$QS_BIN" ]; then
+    note "Quickshell at $QS_BIN did not report a version (broken install?); rebuilding."
+fi
+
 # Refresh sudo credentials once (install_package uses sudo internally)
 if command -v sudo >/dev/null 2>&1; then
     sudo -v 2>/dev/null || sudo -v
 fi
-
-note() { echo -e "${NOTE} $*" | tee -a "$LOG"; }
-info() { echo -e "${INFO} $*" | tee -a "$LOG"; }
 
 # Build-time and runtime deps per upstream BUILD.md (Qt 6.6+)
 # Some may already be present from 00-dependencies.sh
@@ -226,7 +248,18 @@ if ! sudo cmake --install build 2>&1 | tee -a "$MLOG"; then
     exit 1
 fi
 
-echo "${OK} Quickshell installed successfully." | tee -a "$MLOG"
+# Confirm the installed build satisfies the required minimum version
+QS_BIN="$(quickshell_bin || true)"
+QS_INSTALLED_VERSION="$(quickshell_version)"
+if [ -z "$QS_INSTALLED_VERSION" ]; then
+    echo "${ERROR} Quickshell installed but 'quickshell -V' reported no version (${QS_BIN:-not found})." | tee -a "$LOG"
+    exit 1
+fi
+if ! version_ge "$QS_INSTALLED_VERSION" "$QS_MIN_VERSION"; then
+    echo "${ERROR} Quickshell ${QS_INSTALLED_VERSION} is older than the required ${QS_MIN_VERSION}." | tee -a "$LOG"
+    exit 1
+fi
+echo "${OK} Quickshell ${QS_INSTALLED_VERSION} installed successfully (>= ${QS_MIN_VERSION})." | tee -a "$MLOG"
 
 # Build logs already written to $PARENT_DIR/Install-Logs
 # Keep source directory for reference in case user wants to rebuild later

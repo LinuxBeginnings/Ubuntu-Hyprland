@@ -57,6 +57,11 @@ if ! source "$(dirname "$(readlink -f "$0")")/Global_functions.sh"; then
     echo "Failed to source Global_functions.sh"
     exit 1
 fi
+# Shared version contract (QS_MIN_VERSION, quickshell_* helpers)
+if ! source "$SCRIPT_DIR/Global_versions.sh"; then
+    echo "Failed to source Global_versions.sh"
+    exit 1
+fi
 
 # Set the name of the log file to include the current date and time
 LOG="Install-Logs/00_CHECK-$(date +%d-%H%M%S)_installed.log"
@@ -115,6 +120,18 @@ for pkg1 in "${local_pkgs_installed[@]}"; do
     fi
 done
 
+# Quickshell is required on Ubuntu 26.04+ (the dotfiles ship several Quickshell
+# apps), and must be new enough when present.
+QS_VERSION="$(quickshell_version)"
+if ! quickshell_present; then
+    local_missing+=("quickshell (required)")
+elif quickshell_ok; then
+    # Not logged: update-deps.sh treats every line here as a missing package.
+    echo "${OK} Quickshell ${QS_VERSION} meets the minimum ${QS_MIN_VERSION}."
+else
+    local_missing+=("quickshell (< $QS_MIN_VERSION required, found ${QS_VERSION:-unknown})")
+fi
+
 # Log missing packages
 if [ ${#missing[@]} -eq 0 ] && [ ${#local_missing[@]} -eq 0 ]; then
     echo "${OK} GREAT! All ${YELLOW}essential packages${RESET} have been successfully installed." | tee -a "$LOG"
@@ -130,7 +147,12 @@ else
     if [ ${#local_missing[@]} -ne 0 ]; then
         echo "${WARN} The following binaries are missing from PATH and will be logged:"
         for pkg1 in "${local_missing[@]}"; do
-            echo "$pkg1 (not found in PATH)"
+            # Entries carrying their own detail (e.g. a version mismatch) are
+            # printed as-is; plain names get the PATH hint.
+            case "$pkg1" in
+            *"("*) echo "$pkg1" ;;
+            *) echo "$pkg1 (not found in PATH)" ;;
+            esac
             echo "$pkg1" >>"$LOG" # Log the missing local package to the file
         done
     fi

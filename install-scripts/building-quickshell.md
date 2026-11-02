@@ -9,7 +9,7 @@
 This document records the exact requirements and steps we used to build Quickshell from source on Ubuntu 26.04, and how it integrates with this repository’s installer. It’s intended to be reusable for other Ubuntu/Debian versions that follow the same install layout and script logic.
 
 ## What this adds
-- Optional “quickshell” install path in `install.sh` that builds Quickshell from source and installs it into `/usr/local`.
+- Quickshell is installed by default on Ubuntu 26.04+; it is no longer a menu option in `install.sh` because the dotfiles ship several Quickshell apps.
 - A standalone builder at `install-scripts/quickshell.sh` that you can run directly.
 
 ## Upstream references
@@ -94,8 +94,8 @@ Breakpad is required by Quickshell for crash handling. If `pkg-config --exists b
 - Fails fast with clear log lines on configure/build/install errors.
 
 ## Integration with `install.sh`
-- The installer’s checklist includes a new option: `quickshell` — “Install Quickshell (QtQuick-based shell toolkit)”.
-- When selected, `install.sh` executes `./install-scripts/quickshell.sh` from the repo root like other modules.
+- Quickshell is required on Ubuntu 26.04+, so the installer no longer offers it as a checklist option: `quickshell.sh` always runs.
+- `install.sh` executes `./install-scripts/quickshell.sh` from the repo root like other modules.
 - Logging follows the repository convention under `Install-Logs/` and does not depend on the current working directory of child processes.
 
 ## Cross-distro notes (Ubuntu/Debian)
@@ -125,5 +125,6 @@ Breakpad is required by Quickshell for crash handling. If `pkg-config --exists b
 - Ensure `/usr/local` appears in `PKG_CONFIG_PATH` and `CMAKE_PREFIX_PATH` in the build environment.
 
 ## Maintenance
+- The minimum supported release lives in `install-scripts/Global_versions.sh` (`QS_MIN_VERSION`); bump it there and the builder, final check, and `update-deps.sh` all follow.
 - If Quickshell bumps required dependencies or adds new optional modules, update the DEPS list in `install-scripts/quickshell.sh` and this document in tandem.
 - If Breakpad publishes a proper Debian/Ubuntu package in your target release, prefer that over source-building and remove the Breakpad build block.

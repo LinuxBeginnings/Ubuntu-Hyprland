@@ -24,6 +24,7 @@ Env overrides:
   SWWW_SCRIPT             Path to swww/awww script
   NWG_DOCK_SCRIPT         Path to nwg-dock-hyprland script
   WAYBAR_SCRIPT           Path to waybar source-build script
+  QUICKSHELL_SCRIPT       Path to quickshell source-build script
   CHECK_SCRIPT            Path to final check script
 EOF
 }
@@ -63,6 +64,12 @@ cd "$PARENT_DIR" || {
   exit 1
 }
 
+# Shared version contract (QS_MIN_VERSION, quickshell_* helpers)
+if ! source "$SCRIPT_DIR/Global_versions.sh"; then
+  echo "Failed to source Global_versions.sh"
+  exit 1
+fi
+
 mapfile -t scripts < <(ls "$SCRIPT_DIR"/0*-*.sh 2>/dev/null | sort)
 
 pick_script() {
@@ -82,6 +89,7 @@ YAZI_SCRIPT="${YAZI_SCRIPT:-$SCRIPT_DIR/yazi.sh}"
 SWWW_SCRIPT="${SWWW_SCRIPT:-$SCRIPT_DIR/swww.sh}"
 NWG_DOCK_SCRIPT="${NWG_DOCK_SCRIPT:-$SCRIPT_DIR/nwg-dock-hyprland.sh}"
 WAYBAR_SCRIPT="${WAYBAR_SCRIPT:-$SCRIPT_DIR/waybar.sh}"
+QUICKSHELL_SCRIPT="${QUICKSHELL_SCRIPT:-$SCRIPT_DIR/quickshell.sh}"
 CHECK_SCRIPT="${CHECK_SCRIPT:-$(pick_script "Final-Check" || pick_script "Final")}"
 PRE_CLEANUP_SCRIPT="$(pick_script "pre-cleanup" || true)"
 
@@ -107,6 +115,10 @@ if [ -n "$NWG_DOCK_SCRIPT" ] && [ ! -f "$NWG_DOCK_SCRIPT" ]; then
 fi
 if [ -n "$WAYBAR_SCRIPT" ] && [ ! -f "$WAYBAR_SCRIPT" ]; then
   echo "Script not found: $WAYBAR_SCRIPT"
+  exit 1
+fi
+if [ -n "$QUICKSHELL_SCRIPT" ] && [ ! -f "$QUICKSHELL_SCRIPT" ]; then
+  echo "Script not found: $QUICKSHELL_SCRIPT"
   exit 1
 fi
 if [ -n "$CHECK_SCRIPT" ] && [ ! -f "$CHECK_SCRIPT" ]; then
@@ -153,6 +165,14 @@ if [ "$DRY_RUN" -eq 1 ]; then
   else
     echo "  waybar: skipped (source build present at $(command -v waybar))"
   fi
+  qs_ver="$(quickshell_version)"
+  if ! quickshell_present; then
+    [ -n "$QUICKSHELL_SCRIPT" ] && echo "  quickshell: $QUICKSHELL_SCRIPT (not installed; required)"
+  elif quickshell_ok; then
+    echo "  quickshell: skipped ($qs_ver >= $QS_MIN_VERSION)"
+  else
+    [ -n "$QUICKSHELL_SCRIPT" ] && echo "  quickshell: $QUICKSHELL_SCRIPT (installed version ${qs_ver:-unknown} is below $QS_MIN_VERSION)"
+  fi
   [ "$INCLUDE_PRE_CLEANUP" -eq 1 ] && [ -n "$PRE_CLEANUP_SCRIPT" ] && echo "  pre-cleanup: $PRE_CLEANUP_SCRIPT"
   [ -n "$CHECK_SCRIPT" ] && echo "  final check: $CHECK_SCRIPT"
   exit 0
@@ -165,6 +185,7 @@ YAZI_LOG="$LOG_DIR/update-deps-${RUN_STAMP}_yazi.log"
 SWWW_LOG="$LOG_DIR/update-deps-${RUN_STAMP}_swww.log"
 NWG_DOCK_LOG="$LOG_DIR/update-deps-${RUN_STAMP}_nwg_dock.log"
 WAYBAR_LOG="$LOG_DIR/update-deps-${RUN_STAMP}_waybar.log"
+QUICKSHELL_LOG="$LOG_DIR/update-deps-${RUN_STAMP}_quickshell.log"
 PRE_CLEANUP_LOG="$LOG_DIR/update-deps-${RUN_STAMP}_pre-cleanup.log"
 CHECK_LOG="$LOG_DIR/update-deps-${RUN_STAMP}_check.log"
 
@@ -178,6 +199,7 @@ yazi_status=0
 swww_status=0
 nwg_dock_status=0
 waybar_status=0
+quickshell_status=0
 pre_cleanup_status=0
 check_status=0
 
@@ -237,6 +259,20 @@ else
   fi
 fi
 
+if quickshell_ok; then
+  echo
+  echo "quickshell $(quickshell_version) already installed (>= ${QS_MIN_VERSION}). Skipping quickshell script."
+elif [ -n "$QUICKSHELL_SCRIPT" ]; then
+  echo
+  if quickshell_present; then
+    echo "quickshell $(quickshell_version) is below ${QS_MIN_VERSION}. Running quickshell script: $(basename "$QUICKSHELL_SCRIPT")"
+  else
+    echo "quickshell not installed (required on Ubuntu 26.04+). Running quickshell script: $(basename "$QUICKSHELL_SCRIPT")"
+  fi
+  bash "$QUICKSHELL_SCRIPT" 2>&1 | tee "$QUICKSHELL_LOG"
+  quickshell_status=${PIPESTATUS[0]}
+fi
+
 if [ "$INCLUDE_PRE_CLEANUP" -eq 1 ] && [ -n "$PRE_CLEANUP_SCRIPT" ]; then
   echo
   echo "Running pre-cleanup script: $(basename "$PRE_CLEANUP_SCRIPT")"
@@ -257,6 +293,7 @@ clean_yazi_log="$(mktemp)"
 clean_swww_log="$(mktemp)"
 clean_nwg_dock_log="$(mktemp)"
 clean_waybar_log="$(mktemp)"
+clean_quickshell_log="$(mktemp)"
 clean_check_log="$(mktemp)"
 if [ -f "$DEPENDENCIES_LOG" ]; then
   strip_ansi < "$DEPENDENCIES_LOG" > "$clean_dependencies_log"
@@ -276,6 +313,9 @@ fi
 if [ -f "$WAYBAR_LOG" ]; then
   strip_ansi < "$WAYBAR_LOG" > "$clean_waybar_log"
 fi
+if [ -f "$QUICKSHELL_LOG" ]; then
+  strip_ansi < "$QUICKSHELL_LOG" > "$clean_quickshell_log"
+fi
 if [ -f "$CHECK_LOG" ]; then
   strip_ansi < "$CHECK_LOG" > "$clean_check_log"
 fi
@@ -292,7 +332,7 @@ if [ -n "$latest_final_log" ] && [ -f "$latest_final_log" ]; then
   mapfile -t missing_pkgs < <(strip_ansi < "$latest_final_log" | grep -v '^\[NOTE\]' | grep -v '^[[:space:]]*$')
 fi
 
-rm -f "$clean_dependencies_log" "$clean_packages_log" "$clean_yazi_log" "$clean_swww_log" "$clean_nwg_dock_log" "$clean_waybar_log" "$clean_check_log"
+rm -f "$clean_dependencies_log" "$clean_packages_log" "$clean_yazi_log" "$clean_swww_log" "$clean_nwg_dock_log" "$clean_waybar_log" "$clean_quickshell_log" "$clean_check_log"
 
 echo
 echo "Summary"
@@ -315,6 +355,11 @@ if waybar_source_built; then
 else
   echo "Waybar script: ${WAYBAR_SCRIPT:-none}"
 fi
+if quickshell_ok; then
+  echo "Quickshell script: ${QUICKSHELL_SCRIPT:-none} (installed version $(quickshell_version) >= $QS_MIN_VERSION)"
+else
+  echo "Quickshell script: ${QUICKSHELL_SCRIPT:-none}"
+fi
 if [ "$INCLUDE_PRE_CLEANUP" -eq 1 ]; then
   echo "Pre-cleanup script: ${PRE_CLEANUP_SCRIPT:-none}"
 fi
@@ -325,6 +370,7 @@ echo "Yazi exit status: $yazi_status"
 echo "SWWW/AWWW exit status: $swww_status"
 echo "nwg-dock-hyprland exit status: $nwg_dock_status"
 echo "Waybar exit status: $waybar_status"
+echo "Quickshell exit status: $quickshell_status"
 if [ "$INCLUDE_PRE_CLEANUP" -eq 1 ]; then
   echo "Pre-cleanup exit status: $pre_cleanup_status"
 fi

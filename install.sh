@@ -472,9 +472,12 @@ execute_script "hyprlock.sh"
 sleep 1
 execute_script "hypridle.sh"
 sleep 1
-# Quickshell is installed by default (removed from the options menu)
-echo "${INFO} Installing ${SKY_BLUE}Quickshell (desktop overview)...${RESET}" | tee -a "$LOG"
-execute_script "quickshell.sh" || echo "${WARN} Quickshell installation failed - desktop overview will fall back to AGS. Check Install-Logs/." | tee -a "$LOG"
+# Quickshell is required on Ubuntu 26.04+ (removed from the options menu)
+echo "${INFO} Installing ${SKY_BLUE}Quickshell (required on 26.04+)...${RESET}" | tee -a "$LOG"
+execute_script "quickshell.sh" || {
+    echo "${ERROR:-[ERROR]} Quickshell installation failed" | tee -a "$LOG"
+    exit 1
+}
 sleep 1
 echo "${INFO} Installing ${SKY_BLUE}Yazi file manager...${RESET}" | tee -a "$LOG"
 execute_script "yazi.sh" || {
