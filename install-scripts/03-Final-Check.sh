@@ -85,22 +85,6 @@ is_installed_dpkg() {
     dpkg-query -W -f='${Status}' "$1" 2>/dev/null | grep -q "ok installed"
 }
 
-# Function to check if source-built waybar is installed
-# Source builds install to /usr/local/bin; APT installs to /usr/bin.
-is_source_waybar_installed() {
-    if [ -x "/usr/local/bin/waybar" ]; then
-        return 0
-    fi
-    if command -v waybar >/dev/null 2>&1; then
-        local ver_line
-        ver_line="$(waybar --version 2>&1 | grep -i 'waybar v' || true)"
-        if echo "$ver_line" | grep -q -E "branch|g[0-9a-f]{7}"; then
-            return 0
-        fi
-    fi
-    return 1
-}
-
 # Loop through each package
 for pkg in "${packages[@]}"; do
     # Check if the package is installed via dpkg
@@ -109,9 +93,11 @@ for pkg in "${packages[@]}"; do
     fi
 done
 
-# Check required binaries via PATH
-if ! is_source_waybar_installed; then
-    local_missing+=("waybar (source build)")
+# Waybar must be a source build at or above WAYBAR_MIN_VERSION: the Hyprland Lua
+# workflow needs a master build and the APT package (in /usr/bin) is too old.
+WAYBAR_VERSION="$(waybar_version)"
+if ! waybar_ok; then
+    local_missing+=("waybar (< $WAYBAR_MIN_VERSION required, found ${WAYBAR_VERSION:-unknown})")
 fi
 
 for pkg1 in "${local_pkgs_installed[@]}"; do

@@ -7,6 +7,9 @@
       `03-Final-Check.sh`, and `update-deps.sh`
     - `install-scripts/Global_versions.sh` as the single place for that minimum
       and the shared version helpers
+    - `WAYBAR_MIN_VERSION` (`0.15.0-1100-gf6f73c81`) and the `hypridle`/`hyprlock`
+      minimums (`0.1.6` / `0.9.1`) to `Global_versions.sh`, with shared binary
+      version helpers
 - Changed:
     - Quickshell is required on Ubuntu 26.04+ (the dotfiles now ship several
       Quickshell apps); `install.sh` aborts when it fails instead of warning and
@@ -15,9 +18,19 @@
       already present, and rebuilds when it is older or unrunnable
     - `update-deps.sh` installs or rebuilds Quickshell when it is missing or below
       `0.3.0`
+    - `waybar.sh` skips the build only when the installed build is at or above
+      `WAYBAR_MIN_VERSION`; an existing but outdated build is rebuilt instead of
+      being treated as done. `03-Final-Check.sh` and `update-deps.sh` enforce the
+      same minimum
+    - `hyprlock.sh` and `hypridle.sh` skip the source build when a packaged build
+      at or above the pinned tag is installed (the PPA ships newer binaries, and a
+      source build would shadow them in `/usr/local/bin`)
 - Fixed:
     - `waybar.sh` configures Waybar with `-Dtests=disabled`, so a broken or
       missing Catch2 install can no longer fail the build
+    - `hyprlock`/`hypridle` source builds no longer fail with missing `hyprlang`
+      and `hyprutils` pkg-config modules: those headers are only installed for the
+      fallback source build (`00-dependencies.sh` purges them on purpose)
 - Docs:
     - `building-quickshell.md` no longer describes Quickshell as an optional menu
       item

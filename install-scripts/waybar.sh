@@ -35,6 +35,12 @@ mkdir -p "$REPO_ROOT/Install-Logs" "$BUILD_SRC"
 # Enable strict mode now that globals are safely loaded
 set -euo pipefail
 
+# Shared minimum-version contract (WAYBAR_MIN_VERSION, waybar_* helpers)
+if ! source "$SCRIPT_DIR/Global_versions.sh"; then
+    echo "Failed to source Global_versions.sh"
+    exit 1
+fi
+
 # Log files
 LOG="$REPO_ROOT/Install-Logs/install-$(date +%d-%H%M%S)_waybar.log"
 MLOG="$REPO_ROOT/Install-Logs/install-$(date +%d-%H%M%S)_waybar-build.log"
@@ -72,33 +78,31 @@ waybar_extra_deps=(
 
 # ─── Check if already source-built ───────────────────────────────────────────
 # Source builds land in /usr/local/bin; APT installs to /usr/bin.
-# Existence alone is not enough to skip. A source-built Waybar goes stale when
-# a library ABI it links against moves: a libfmt major bump changes the spdlog
-# ABI and the old binary then dies on every launch with
-# "symbol lookup error: undefined symbol: ...spdlog...fmt...". WaybarStartup.sh
-# discards that stderr, so the bar just never appears. Confirm the binary runs.
+# Existence alone is not enough to skip:
+#   * a source-built Waybar goes stale when a library ABI it links against moves:
+#     a libfmt major bump changes the spdlog ABI and the old binary then dies on
+#     every launch with "symbol lookup error: undefined symbol:
+#     ...spdlog...fmt...". WaybarStartup.sh discards that stderr, so the bar just
+#     never appears.
+#   * an outdated build has to be replaced: WAYBAR_MIN_VERSION in
+#     Global_versions.sh is the oldest build the dotfiles support, so anything
+#     below it is rebuilt instead of being kept.
 waybar_binary_runs() {
     local bin="$1"
     [ -x "$bin" ] || return 1
     "$bin" --version >/dev/null 2>&1
 }
 
-if [ -x "/usr/local/bin/waybar" ] && waybar_binary_runs "/usr/local/bin/waybar"; then
-    echo -e "${INFO} Waybar is already source-built at /usr/local/bin/waybar. Skipping build."
-    exit 0
-fi
-
-if command -v waybar &>/dev/null; then
-    _wb_bin="$(command -v waybar)"
-    if waybar_binary_runs "$_wb_bin"; then
-        WAYBAR_VER_LINE="$(waybar --version 2>&1 | grep -i 'waybar v' || true)"
-        if echo "$WAYBAR_VER_LINE" | grep -q -E "branch|g[0-9a-f]{7}"; then
-            echo -e "${INFO} Waybar is already source-built at $_wb_bin. Skipping build."
-            exit 0
-        fi
-    else
-        echo -e "${WARN} Existing waybar at $_wb_bin is not runnable (e.g. stale libfmt/spdlog ABI); it will be rebuilt."
+_wb_bin="$(bin_path waybar || true)"
+if [ -n "$_wb_bin" ] && waybar_binary_runs "$_wb_bin"; then
+    _wb_ver="$(waybar_version)"
+    if [ -n "$_wb_ver" ] && version_ge "$_wb_ver" "$WAYBAR_MIN_VERSION"; then
+        echo -e "${INFO} Waybar ${YELLOW}${_wb_ver}${RESET} at ${_wb_bin} meets the minimum ${YELLOW}${WAYBAR_MIN_VERSION}${RESET}. Skipping build."
+        exit 0
     fi
+    echo -e "${NOTE} Waybar ${YELLOW}${_wb_ver:-unknown}${RESET} at ${_wb_bin} is older than ${YELLOW}${WAYBAR_MIN_VERSION}${RESET}; it will be rebuilt."
+elif [ -n "$_wb_bin" ]; then
+    echo -e "${WARN} Existing waybar at ${_wb_bin} is not runnable (e.g. stale libfmt/spdlog ABI); it will be rebuilt."
 fi
 
 # ─── Purge APT-provided waybar package(s) ────────────────────────────────────

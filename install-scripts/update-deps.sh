@@ -64,7 +64,7 @@ cd "$PARENT_DIR" || {
   exit 1
 }
 
-# Shared version contract (QS_MIN_VERSION, quickshell_* helpers)
+# Shared version contract (QS_MIN_VERSION, WAYBAR_MIN_VERSION, *helpers)
 if ! source "$SCRIPT_DIR/Global_versions.sh"; then
   echo "Failed to source Global_versions.sh"
   exit 1
@@ -130,21 +130,6 @@ if [ "$INCLUDE_PRE_CLEANUP" -eq 1 ] && [ -n "$PRE_CLEANUP_SCRIPT" ] && [ ! -f "$
   exit 1
 fi
 
-# A source-built waybar lands in /usr/local/bin; the APT package lands in /usr/bin.
-waybar_source_built() {
-  if [ -x "/usr/local/bin/waybar" ]; then
-    return 0
-  fi
-  if command -v waybar >/dev/null 2>&1; then
-    local ver_line
-    ver_line="$(waybar --version 2>&1 | grep -i 'waybar v' || true)"
-    if echo "$ver_line" | grep -q -E "branch|g[0-9a-f]{7}"; then
-      return 0
-    fi
-  fi
-  return 1
-}
-
 if [ "$DRY_RUN" -eq 1 ]; then
   echo "Dry run. Scripts that would execute:"
   [ -n "$DEPENDENCIES_SCRIPT" ] && echo "  dependencies: $DEPENDENCIES_SCRIPT"
@@ -160,10 +145,11 @@ if [ "$DRY_RUN" -eq 1 ]; then
   else
     echo "  nwg-dock-hyprland: skipped (nwg-dock-hyprland already installed at $(command -v nwg-dock-hyprland))"
   fi
-  if ! waybar_source_built; then
-    [ -n "$WAYBAR_SCRIPT" ] && echo "  waybar: $WAYBAR_SCRIPT (no source build detected)"
+  wb_ver="$(waybar_version)"
+  if waybar_ok; then
+    echo "  waybar: skipped ($wb_ver >= $WAYBAR_MIN_VERSION)"
   else
-    echo "  waybar: skipped (source build present at $(command -v waybar))"
+    [ -n "$WAYBAR_SCRIPT" ] && echo "  waybar: $WAYBAR_SCRIPT (installed version ${wb_ver:-unknown} is below $WAYBAR_MIN_VERSION)"
   fi
   qs_ver="$(quickshell_version)"
   if ! quickshell_present; then
@@ -247,13 +233,14 @@ else
   echo "nwg-dock-hyprland already installed ($(command -v nwg-dock-hyprland)). Skipping nwg-dock-hyprland script."
 fi
 
-if waybar_source_built; then
+wb_ver="$(waybar_version)"
+if waybar_ok; then
   echo
-  echo "waybar already source-built ($(command -v waybar)). Skipping waybar script."
+  echo "waybar ${wb_ver} at $(bin_path waybar) meets the minimum ${WAYBAR_MIN_VERSION}. Skipping waybar script."
 else
   if [ -n "$WAYBAR_SCRIPT" ]; then
     echo
-    echo "Source-built waybar not found. Running waybar script: $(basename "$WAYBAR_SCRIPT")"
+    echo "waybar ${wb_ver:-unknown} is below ${WAYBAR_MIN_VERSION}. Running waybar script: $(basename "$WAYBAR_SCRIPT")"
     bash "$WAYBAR_SCRIPT" 2>&1 | tee "$WAYBAR_LOG"
     waybar_status=${PIPESTATUS[0]}
   fi
@@ -350,8 +337,8 @@ if ! command -v nwg-dock-hyprland >/dev/null 2>&1; then
 else
   echo "nwg-dock-hyprland script: ${NWG_DOCK_SCRIPT:-none} (nwg-dock-hyprland present)"
 fi
-if waybar_source_built; then
-  echo "Waybar script: ${WAYBAR_SCRIPT:-none} (source build present)"
+if waybar_ok; then
+  echo "Waybar script: ${WAYBAR_SCRIPT:-none} (installed version $(waybar_version) >= $WAYBAR_MIN_VERSION)"
 else
   echo "Waybar script: ${WAYBAR_SCRIPT:-none}"
 fi
