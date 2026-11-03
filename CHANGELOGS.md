@@ -33,6 +33,14 @@
     - `uninstall.sh` restores the backups the installer leaves behind
       (`~/.zshrc-backup`, `~/.zprofile-backup`, `/etc/sddm.conf.bak`) instead of
       leaving the pre-install config stranded next to the new one
+    - `uninstall.sh` also offers to restore `~/.config` backups left by the
+      dotfiles installer (`.bak`, `.bak.<tag>`, `.old`, `-backup`, `_backup`),
+      keeping the current entry as `<name>.replaced-<timestamp>`
+    - `uninstall.sh` can run unattended: `--yes`, `--all`, `--packages LIST`,
+      `--dirs LIST` and `--dry-run` skip every whiptail prompt (unknown names are
+      rejected). With `--yes` all detected backups are restored
+    - `uninstall.sh` uses the same terminal-safe colours as the install scripts and
+      only clears a real terminal, so its output survives being piped
     - Quickshell is required on Ubuntu 26.04+ (the dotfiles now ship several
       Quickshell apps); `install.sh` aborts when it fails instead of warning and
       continuing. AGS remains available as an alternative overview.

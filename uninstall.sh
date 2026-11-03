@@ -6,31 +6,119 @@
 #  SPDX-License-Identifier: GPL-3.0-or-later
 # ==================================================
 # 💫 https://github.com/LinuxBeginnings 💫 #
-# KooL Ubuntu-25.04-Hyprland uninstall script #
+# KooL Ubuntu 26.04 - Hyprland uninstall script #
+# Run with --help for the non-interactive options.
 
-clear
+# Only clear a real terminal, so piped/unattended runs stay readable
+[ -t 1 ] && clear
 
-# Set some colors for output messages
-OK="$(tput setaf 2)[OK]$(tput sgr0)"
-ERROR="$(tput setaf 1)[ERROR]$(tput sgr0)"
-NOTE="$(tput setaf 3)[NOTE]$(tput sgr0)"
-INFO="$(tput setaf 4)[INFO]$(tput sgr0)"
-WARN="$(tput setaf 1)[WARN]$(tput sgr0)"
-CAT="$(tput setaf 6)[ACTION]$(tput sgr0)"
-MAGENTA="$(tput setaf 5)"
-ORANGE="$(tput setaf 214)"
-WARNING="$(tput setaf 1)"
-YELLOW="$(tput setaf 3)"
-GREEN="$(tput setaf 2)"
-BLUE="$(tput setaf 4)"
-SKY_BLUE="$(tput setaf 6)"
-RESET="$(tput sgr0)"
+# Set some colors for output messages. Skipped when there is no terminal (or
+# TERM is unset), as in the install scripts.
+if [ -n "${TERM:-}" ] && command -v tput >/dev/null 2>&1 && tput sgr0 >/dev/null 2>&1; then
+    _setaf() { tput setaf "$1"; }
+    RESET="$(tput sgr0)"
+else
+    _setaf() { :; }
+    RESET=""
+fi
+OK="$(_setaf 2)[OK]$RESET"
+ERROR="$(_setaf 1)[ERROR]$RESET"
+NOTE="$(_setaf 3)[NOTE]$RESET"
+INFO="$(_setaf 4)[INFO]$RESET"
+WARN="$(_setaf 1)[WARN]$RESET"
+CAT="$(_setaf 6)[ACTION]$RESET"
+MAGENTA="$(_setaf 5)"
+ORANGE="$(_setaf 214)"
+WARNING="$(_setaf 1)"
+YELLOW="$(_setaf 3)"
+GREEN="$(_setaf 2)"
+BLUE="$(_setaf 4)"
+SKY_BLUE="$(_setaf 6)"
+
+# ─── CLI ────────────────────────────────────────────────────────────────────
+ASSUME_YES=0
+DRY_RUN=0
+SELECT_ALL=0
+NONINTERACTIVE=0
+PACKAGES_ARG=""
+DIRS_ARG=""
+
+usage() {
+    cat <<EOF
+Usage: ./uninstall.sh [options]
+
+With no options the script asks interactively which packages and directories to
+remove, and offers to restore backups.
+
+Options:
+  -y, --yes            Do not ask for confirmation (needs --all/--packages/--dirs)
+      --all            Select every listed package and directory
+      --packages LIST  Comma- or space-separated packages to remove
+      --dirs LIST      Comma- or space-separated ~/.config entries to remove
+  -n, --dry-run        Print what would be removed, then exit
+  -h, --help           Show this help and exit
+
+Examples:
+  ./uninstall.sh --dry-run --all
+  ./uninstall.sh --yes --packages hyprland,waybar --dirs hypr,waybar
+
+NOTE: with --yes every detected backup is restored, without asking.
+EOF
+}
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+    -y | --yes)
+        ASSUME_YES=1
+        ;;
+    --all)
+        SELECT_ALL=1
+        NONINTERACTIVE=1
+        ;;
+    --packages)
+        shift
+        PACKAGES_ARG="${1:-}"
+        NONINTERACTIVE=1
+        ;;
+    --packages=*)
+        PACKAGES_ARG="${1#--packages=}"
+        NONINTERACTIVE=1
+        ;;
+    --dirs)
+        shift
+        DIRS_ARG="${1:-}"
+        NONINTERACTIVE=1
+        ;;
+    --dirs=*)
+        DIRS_ARG="${1#--dirs=}"
+        NONINTERACTIVE=1
+        ;;
+    -n | --dry-run)
+        DRY_RUN=1
+        ;;
+    -h | --help)
+        usage
+        exit 0
+        ;;
+    *)
+        echo "Unknown option: $1" >&2
+        usage
+        exit 1
+        ;;
+    esac
+    shift
+done
+
+if [ "$ASSUME_YES" -eq 1 ] && [ "$NONINTERACTIVE" -eq 0 ]; then
+    echo "ERROR: --yes also needs --all, --packages and/or --dirs" >&2
+    exit 1
+fi
 
 printf "\n%.0s" {1..2}
 echo -e "\e[35m
 	╦╔═┌─┐┌─┐╦    ╦ ╦┬ ┬┌─┐┬─┐┬  ┌─┐┌┐┌┌┬┐
 	╠╩╗│ ││ │║    ╠═╣└┬┘├─┘├┬┘│  ├─┤│││ ││ UNINSTALL
-	╩ ╩└─┘└─┘╩═╝  ╩ ╩ ┴ ┴  ┴└─┴─┘┴ ┴┘└┘─┴┘ Ubuntu-25.04
+	╩ ╩└─┘└─┘╩═╝  ╩ ╩ ┴ ┴  ┴└─┴─┘┴ ┴┘└┘─┴┘ Ubuntu 26.04
 \e[0m"
 printf "\n%.0s" {1..1}
 
@@ -44,8 +132,9 @@ trap 'rm -rf "$TMP_DIR"' EXIT
 SELECTED_PACKAGES_FILE="$TMP_DIR/selected_packages.txt"
 SELECTED_DIRS_FILE="$TMP_DIR/selected_directories.txt"
 
-# Show welcome message using whiptail with Yes/No options
-whiptail --title "Ubuntu-25.04-Hyprland KooL Dots Uninstall Script" --yesno \
+# Show welcome message using whiptail with Yes/No options (skipped with --yes)
+if [ "$ASSUME_YES" -eq 0 ]; then
+    if ! whiptail --title "Ubuntu 26.04 - KooL Dots Uninstall Script" --yesno \
 "Hello! This script will uninstall KooL Hyprland packages and configs.
 
 You can choose packages and directories you want to remove.
@@ -53,11 +142,10 @@ NOTE: This will remove configs from ~/.config
 
 WARNING: After uninstallation, your system may become unstable.
 
-Shall we Proceed?" 20 80
-
-if [ $? -eq 1 ]; then
-    echo "$INFO uninstall process canceled."
-    exit 0
+Shall we Proceed?" 20 80; then
+        echo "$INFO uninstall process canceled."
+        exit 0
+    fi
 fi
 
 # Function to remove selected packages on Debian/Ubuntu
@@ -115,6 +203,92 @@ restore_backups() {
     else
         echo "$INFO Restored $restored backup(s)."
     fi
+}
+
+# Lists the backups the installer itself leaves behind (used by --dry-run)
+installer_backup_list() {
+    local name
+    for name in zshrc zprofile; do
+        [ -f "$HOME/.${name}-backup" ] && printf '%s\n' "$HOME/.${name}-backup"
+    done
+    [ -f /etc/sddm.conf.bak ] && printf '%s\n' /etc/sddm.conf.bak
+    return 0
+}
+
+# Function to offer restoring ~/.config backups left by the dotfiles installer.
+# The dots' copy.sh lives in another repo, so its suffix is not assumed: every
+# common naming style is detected instead.
+dotfiles_backup_candidates() {
+    local pattern path
+    for pattern in "$HOME/.config"/*.bak "$HOME/.config"/*.bak.* \
+        "$HOME/.config"/*.old "$HOME/.config"/*-backup "$HOME/.config"/*_backup; do
+        for path in $pattern; do
+            [ -e "$path" ] && printf '%s\n' "$path"
+        done
+    done
+    return 0
+}
+
+# Strip the backup suffix to find the live config a backup belongs to
+backup_target() {
+    local name
+    name="$(basename "$1")"
+    name="${name%.bak.*}"
+    name="${name%.bak}"
+    name="${name%.old}"
+    name="${name%-backup}"
+    name="${name%_backup}"
+    printf '%s/.config/%s\n' "$HOME" "$name"
+}
+
+restore_dotfiles_backups() {
+    local candidates=() selected=() args=() item target stamp raw
+
+    mapfile -t candidates < <(dotfiles_backup_candidates)
+    if [ ${#candidates[@]} -eq 0 ]; then
+        echo "$INFO No ~/.config backups found."
+        return 0
+    fi
+
+    if [ "$ASSUME_YES" -eq 1 ]; then
+        selected=("${candidates[@]}")
+    else
+        for item in "${candidates[@]}"; do
+            args+=("$item" "restore over $(basename "$(backup_target "$item")")" "ON")
+        done
+        if ! raw=$(whiptail --title "Restore ~/.config backups" --checklist \
+            "Select the backups to restore over the current config\n\nNOTE: the current entry is kept as <name>.replaced-<timestamp>" \
+            25 100 15 "${args[@]}" 3>&1 1>&2 2>&3); then
+            echo "$INFO Backup restore skipped."
+            return 0
+        fi
+        mapfile -t selected < <(printf '%s\n' ${raw//\"/})
+    fi
+
+    if [ ${#selected[@]} -eq 0 ]; then
+        echo "$INFO No backups selected."
+        return 0
+    fi
+
+    stamp="$(date +%Y%m%d-%H%M%S)"
+    for item in "${selected[@]}"; do
+        target="$(backup_target "$item")"
+        # Never "restore" a path onto itself (happens when no suffix matched)
+        [ "$item" = "$target" ] && continue
+        if [ -e "$target" ]; then
+            if mv "$target" "${target}.replaced-${stamp}"; then
+                echo "$INFO Kept current $target as ${target}.replaced-${stamp}"
+            else
+                echo "$ERROR Could not move $target aside; skipping $item"
+                continue
+            fi
+        fi
+        if mv "$item" "$target"; then
+            echo "$OK Restored $target from $(basename "$item")"
+        else
+            echo "$ERROR Failed to restore $target from $item"
+        fi
+    done
 }
 
 # Function to remove selected directories
@@ -208,8 +382,51 @@ directories=(
     "wlogout" "wlogout (logout menu) configuration" "off"    
 )
 
+# ─── Selection ──────────────────────────────────────────────────────────────
+# Names only, from the whiptail triples (name, description, state)
+package_names() { printf '%s\n' "${packages[@]}" | awk 'NR % 3 == 1'; }
+directory_names() { printf '%s\n' "${directories[@]}" | awk 'NR % 3 == 1'; }
+
+contains_name() {
+    local needle="$1" item
+    shift
+    for item in "$@"; do
+        [ "$item" = "$needle" ] && return 0
+    done
+    return 1
+}
+
+validate_names() {
+    # $1 = raw list, $2 = label for the error message, rest = known names
+    local raw="$1" label="$2" name
+    shift 2
+    for name in ${raw//,/ }; do
+        [ -n "$name" ] || continue
+        if ! contains_name "$name" "$@"; then
+            echo "Unknown $label: $name" >&2
+            exit 1
+        fi
+    done
+}
+
+if [ "$SELECT_ALL" -eq 1 ]; then
+    package_names > "$SELECTED_PACKAGES_FILE"
+    directory_names > "$SELECTED_DIRS_FILE"
+elif [ "$NONINTERACTIVE" -eq 1 ]; then
+    : > "$SELECTED_PACKAGES_FILE"
+    : > "$SELECTED_DIRS_FILE"
+    if [ -n "$PACKAGES_ARG" ]; then
+        validate_names "$PACKAGES_ARG" package $(package_names)
+        printf '%s\n' ${PACKAGES_ARG//,/ } > "$SELECTED_PACKAGES_FILE"
+    fi
+    if [ -n "$DIRS_ARG" ]; then
+        validate_names "$DIRS_ARG" "~/.config entry" $(directory_names)
+        printf '%s\n' ${DIRS_ARG//,/ } > "$SELECTED_DIRS_FILE"
+    fi
+fi
+
 # Loop for package selection until user selects something or cancels
-while true; do
+while [ "$NONINTERACTIVE" -eq 0 ]; do
     package_choices=$(whiptail --title "Select Packages to Uninstall" --checklist \
     "Select the packages you want to remove\nNOTE: 'SPACEBAR' to select & 'TAB' key to change selection" 35 90 25 \
     "${packages[@]}" 3>&1 1>&2 2>&3)
@@ -231,7 +448,7 @@ while true; do
 done
 
 # Loop for directory selection until user selects something or cancels
-while true; do
+while [ "$NONINTERACTIVE" -eq 0 ]; do
     dir_choices=$(whiptail --title "Select Directories to Remove" --checklist \
     "Select the directories you want to remove\nNOTE: This will remove configs from ~/.config\n\nNOTE: 'SPACEBAR' to select & 'TAB' key to change selection" 28 90 18 \
     "${directories[@]}" 3>&1 1>&2 2>&3)
@@ -253,19 +470,28 @@ while true; do
     fi
 done
 
-# First confirmation - Warning about potential instability
-if ! whiptail --title "Warning" --yesno \
+# First confirmation - Warning about potential instability (skipped with --yes)
+if [ "$ASSUME_YES" -eq 0 ] && ! whiptail --title "Warning" --yesno \
 "Warning: Removing these packages and directories may cause your system to become unstable and you may not be able to recover it.\n\nAre you sure you want to proceed?" \
 10 80; then
     echo "$INFO uninstall process canceled."
     exit 0
 fi
 
-# Second confirmation - Final confirmation to proceed
-if ! whiptail --title "Final Confirmation" --yesno \
+# Second confirmation - Final confirmation to proceed (skipped with --yes)
+if [ "$ASSUME_YES" -eq 0 ] && ! whiptail --title "Final Confirmation" --yesno \
 "Are you absolutely sure you want to remove the selected packages and directories?\n\nWARNING! This action is irreversible." \
 10 80; then
     echo "$INFO uninstall process canceled."
+    exit 0
+fi
+
+if [ "$DRY_RUN" -eq 1 ]; then
+    echo "$NOTE Dry run: nothing will be removed."
+    echo "  Packages: $(tr '\n' ' ' < "$SELECTED_PACKAGES_FILE")"
+    echo "  Directories: $(tr '\n' ' ' < "$SELECTED_DIRS_FILE")"
+    echo "  Installer backups: $(installer_backup_list | tr '\n' ' ')"
+    echo "  ~/.config backups: $(dotfiles_backup_candidates | tr '\n' ' ')"
     exit 0
 fi
 
@@ -311,6 +537,10 @@ remove_directories "$SELECTED_DIRS_FILE"
 printf "\n%.0s" {1..1}
 printf "\n%s${SKY_BLUE}Attempting to restore installer backups${RESET}\n" "${NOTE}"
 restore_backups
+
+printf "\n%.0s" {1..1}
+printf "\n%s${SKY_BLUE}Offering to restore ~/.config backups${RESET}\n" "${NOTE}"
+restore_dotfiles_backups
 
 printf "\n%.0s" {1..1}
 echo -e "$MAGENTA Hyprland and related components have been uninstalled.$RESET"
