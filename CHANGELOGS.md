@@ -61,6 +61,11 @@
       at or above the pinned tag is installed (the PPA ships newer binaries, and a
       source build would shadow them in `/usr/local/bin`)
 - Fixed:
+    - `packages.sh` listed `hyprland-guiutils`, which Ubuntu 26.04 (resolute)
+      does not package, so `01-hypr-pkgs.sh` aborted every clean install with
+      "Unable to locate package hyprland-guiutils". It now uses
+      `hyprland-qtutils`, which ships `hyprland-dialog` on 26.04 and is the
+      transitional dummy for `hyprland-guiutils` on 26.10+
     - `03-Final-Check.sh` exits non-zero when something is missing, so
       `update-deps.sh` and CI can gate on it (`install.sh` still ignores the
       status and shows the summary)

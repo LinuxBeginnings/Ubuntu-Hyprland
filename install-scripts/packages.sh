@@ -78,7 +78,10 @@ hypr_optional=(
     pamixer
     qalculate-gtk
     xfce-polkit
-    hyprland-guiutils
+    # Ubuntu 26.04 ships the Qt utilities as hyprland-qtutils (provides
+    # hyprland-dialog); hyprland-guiutils only appears in 26.10+, where this
+    # name is the transitional dummy package that pulls it in.
+    hyprland-qtutils
 )
 
 # packages to force reinstall
@@ -98,6 +101,6 @@ hypr_uninstall=(
 # script (hyprland-*.sh, yazi.sh) rather than by 01-hypr-pkgs.sh.
 final_check_extra=(
     hyprland
-    hyprland-guiutils
+    hyprland-qtutils
     yazi
 )
