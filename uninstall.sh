@@ -132,8 +132,10 @@ trap 'rm -rf "$TMP_DIR"' EXIT
 SELECTED_PACKAGES_FILE="$TMP_DIR/selected_packages.txt"
 SELECTED_DIRS_FILE="$TMP_DIR/selected_directories.txt"
 
-# Show welcome message using whiptail with Yes/No options (skipped with --yes)
-if [ "$ASSUME_YES" -eq 0 ]; then
+# Show welcome message using whiptail with Yes/No options. Skipped whenever the
+# run is already scripted (--yes or explicit selections), since whiptail cannot
+# even open a terminal in an unattended shell.
+if [ "$ASSUME_YES" -eq 0 ] && [ "$NONINTERACTIVE" -eq 0 ]; then
     if ! whiptail --title "Ubuntu 26.04 - KooL Dots Uninstall Script" --yesno \
 "Hello! This script will uninstall KooL Hyprland packages and configs.
 
@@ -470,16 +472,18 @@ while [ "$NONINTERACTIVE" -eq 0 ]; do
     fi
 done
 
-# First confirmation - Warning about potential instability (skipped with --yes)
-if [ "$ASSUME_YES" -eq 0 ] && ! whiptail --title "Warning" --yesno \
+# First confirmation - Warning about potential instability (skipped with --yes
+# and with --dry-run, which must never prompt)
+if [ "$ASSUME_YES" -eq 0 ] && [ "$DRY_RUN" -eq 0 ] && ! whiptail --title "Warning" --yesno \
 "Warning: Removing these packages and directories may cause your system to become unstable and you may not be able to recover it.\n\nAre you sure you want to proceed?" \
 10 80; then
     echo "$INFO uninstall process canceled."
     exit 0
 fi
 
-# Second confirmation - Final confirmation to proceed (skipped with --yes)
-if [ "$ASSUME_YES" -eq 0 ] && ! whiptail --title "Final Confirmation" --yesno \
+# Second confirmation - Final confirmation to proceed (skipped with --yes
+# and with --dry-run)
+if [ "$ASSUME_YES" -eq 0 ] && [ "$DRY_RUN" -eq 0 ] && ! whiptail --title "Final Confirmation" --yesno \
 "Are you absolutely sure you want to remove the selected packages and directories?\n\nWARNING! This action is irreversible." \
 10 80; then
     echo "$INFO uninstall process canceled."
