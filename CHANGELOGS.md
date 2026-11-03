@@ -3,6 +3,10 @@
 ## Nov 2026
 
 - Added:
+    - `network-manager` to default package dependencies (`01-hypr-pkgs.sh`) and to
+      the `03-Final-Check.sh` verification list. Only the `nm-tray` applet was
+      installed before, so a minimal install had no NetworkManager daemon or
+      `nmcli`
     - Quickshell minimum version check (`0.3.0`) to `quickshell.sh`,
       `03-Final-Check.sh`, and `update-deps.sh`
     - `install-scripts/Global_versions.sh` as the single place for that minimum

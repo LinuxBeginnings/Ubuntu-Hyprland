@@ -16,6 +16,7 @@ packages=(
     ffmpeg
     fzf
     jq
+    network-manager
     poppler-utils
     ripgrep
     sway-notification-center

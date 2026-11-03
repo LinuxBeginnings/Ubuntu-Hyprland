@@ -36,6 +36,7 @@ hypr_package=(
     kitty
     lua5.4
     nano
+    network-manager
     pavucontrol
     pulseaudio-utils
     playerctl
