@@ -7,91 +7,13 @@
 # ==================================================
 # 💫 https://github.com/LinuxBeginnings 💫 #
 # Hyprland-Dots Packages #
-# edit your packages desired here.
-# WARNING! If you remove packages here, dotfiles may not work properly.
-# and also, ensure that packages are present in Debian Official Repo
+# The package lists live in install-scripts/packages.sh so that the installer and
+# 03-Final-Check.sh verify the same set. Add packages to Extra here, or to that
+# manifest when they must also be verified.
 
 # add packages wanted here
 Extra=(
 
-)
-
-# packages needed
-hypr_package=(
-    cliphist
-    ffmpeg
-    7zip
-    jq
-    poppler-utils
-    fd-find
-    ripgrep
-    fzf
-    zoxide
-    fastfetch
-    grim
-    gvfs
-    gvfs-backends
-    inxi
-    imagemagick
-    kitty
-    lua5.4
-    nano
-    network-manager
-    pavucontrol
-    pulseaudio-utils
-    playerctl
-    polkit-kde-agent-1
-    python3-requests
-    python3-pip
-    qt5ct
-    libqt5quick5
-    libqt5qml5
-    qt-style-kvantum
-    qt-style-kvantum-themes
-    qt6-declarative-dev
-    qt6ct
-    slurp
-    swappy
-    sway-notification-center
-    unzip
-    wget
-    wl-clipboard
-    wlogout
-    xdg-user-dirs
-    xdg-utils
-    yad
-)
-
-# the following packages can be deleted. however, dotfiles may not work properly
-hypr_package_2=(
-    brightnessctl
-    btop
-    cava
-    loupe
-    gnome-system-monitor
-    mousepad
-    mpv
-    mpv-mpris
-    nwg-look
-    nwg-displays
-    nvtop
-    pamixer
-    qalculate-gtk
-    xfce-polkit
-    hyprland-guiutils
-)
-
-# packages to force reinstall
-force=(
-    imagemagick
-    wayland-protocols
-)
-
-# List of packages to uninstall as it conflicts with swaync or causing swaync to not function properly
-uninstall=(
-    mako
-    rofi
-    cargo
 )
 
 ## WARNING: DO NOT EDIT BEYOND THIS LINE IF YOU DON'T KNOW WHAT YOU ARE DOING! ##
@@ -99,19 +21,23 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Change the working directory to the parent directory of the script
 PARENT_DIR="$SCRIPT_DIR/.."
-cd "$PARENT_DIR" || {
-    echo "${ERROR} Failed to change directory to $PARENT_DIR"
-    exit 1
-}
-
 # Source the global functions script
 if ! source "$(dirname "$(readlink -f "$0")")/Global_functions.sh"; then
     echo "Failed to source Global_functions.sh"
     exit 1
 fi
 
-# Set the name of the log file to include the current date and time
-LOG="Install-Logs/install-$(date +%d-%H%M%S)_hypr-pkgs.log"
+# Shared package manifest (hypr_required, hypr_optional, hypr_force, hypr_uninstall)
+if ! source "$SCRIPT_DIR/packages.sh"; then
+    echo "Failed to source packages.sh"
+    exit 1
+fi
+
+# Surface failures from `cmd | tee` instead of tee's exit status
+set -o pipefail
+
+# Repo root as cwd + absolute, collision-free log path
+init_script "hypr-pkgs"
 # Detect installed rofi version (from PATH, including /usr/local builds)
 get_rofi_version() {
     if command -v rofi >/dev/null 2>&1; then
@@ -131,13 +57,12 @@ fi
 # conflicting packages removal
 overall_failed=0
 printf "\n%s - ${SKY_BLUE}Removing some packages${RESET} as it conflicts with KooL's Hyprland Dots \n" "${NOTE}"
-for PKG in "${uninstall[@]}"; do
+for PKG in "${hypr_uninstall[@]}"; do
     if [ "$rofi_ok" -eq 1 ] && [ "$PKG" = "rofi" ]; then
         echo "${INFO} Skipping uninstall of ${YELLOW}$PKG${RESET} (rofi >= 2.0.0 detected)." | tee -a "$LOG"
         continue
     fi
-    uninstall_package "$PKG" 2>&1 | tee -a "$LOG"
-    if [ $? -ne 0 ]; then
+    if ! uninstall_package "$PKG" 2>&1 | tee -a "$LOG"; then
         overall_failed=1
     fi
 done
@@ -151,21 +76,23 @@ printf "\n%.0s" {1..1}
 # Installation of main components
 printf "\n%s - Installing ${SKY_BLUE}KooL's hyprland necessary packages${RESET} .... \n" "${NOTE}"
 
-for PKG1 in "${hypr_package[@]}" "${hypr_package_2[@]}" "${Extra[@]}"; do
-    install_package "$PKG1" "$LOG"
+# Keep going after a single failure so the rest of the set still gets installed;
+# install_package records the failure and the step fails at the end.
+for PKG1 in "${hypr_required[@]}" "${hypr_optional[@]}" "${Extra[@]}"; do
+    install_package "$PKG1" "$LOG" || true
 done
 
 printf "\n%.0s" {1..1}
 
-for PKG2 in "${force[@]}"; do
-    re_install_package "$PKG2" "$LOG"
+for PKG2 in "${hypr_force[@]}"; do
+    re_install_package "$PKG2" "$LOG" || true
 done
 
 printf "\n%.0s" {1..1}
 
 # Install nwg-dock-hyprland via dedicated repo script when missing (no native Ubuntu package)
 if ! command -v nwg-dock-hyprland >/dev/null 2>&1; then
-    NWG_DOCK_INSTALLER="$PARENT_DIR/install-scripts/nwg-dock-hyprland.sh"
+    NWG_DOCK_INSTALLER="$REPO_ROOT/install-scripts/nwg-dock-hyprland.sh"
     echo "${INFO} ${YELLOW}nwg-dock-hyprland${RESET} not found. Running dedicated nwg-dock-hyprland installer..." | tee -a "$LOG"
     if [ -x "$NWG_DOCK_INSTALLER" ]; then
         "$NWG_DOCK_INSTALLER"
@@ -181,12 +108,22 @@ fi
 
 printf "\n%.0s" {1..1}
 
-# Install up-to-date Rust
+# Install up-to-date Rust. A failed download is not fatal: wallust.sh and
+# swww.sh install the toolchain themselves when cargo is missing.
 echo "${INFO} Installing most ${YELLOW}up to date Rust compiler${RESET} ..."
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y 2>&1 | tee -a "$LOG"
-source "$HOME/.cargo/env"
+if ! curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y 2>&1 | tee -a "$LOG"; then
+    echo "${WARN} Rust toolchain download failed. wallust.sh/swww.sh will retry it." | tee -a "$LOG"
+fi
+# shellcheck disable=SC1091
+source "$HOME/.cargo/env" 2>/dev/null || true
 
 ## making brightnessctl work
-sudo chmod +s $(which brightnessctl) 2>&1 | tee -a "$LOG" || true
+sudo chmod +s "$(command -v brightnessctl)" 2>&1 | tee -a "$LOG" || true
 
 printf "\n%.0s" {1..2}
+
+# Fail the step (and stop install.sh) when anything could not be installed
+if ! report_install_failures; then
+    echo -e "${ERROR} Check ${YELLOW}$LOG${RESET} and Install-Logs/failed-packages.txt" | tee -a "$LOG"
+    exit 1
+fi

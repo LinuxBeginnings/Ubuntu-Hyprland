@@ -9,28 +9,6 @@
 # Final checking if packages are installed
 # NOTE: These package checks are only the essentials
 
-packages=(
-    imagemagick
-    7zip
-    fd-find
-    ffmpeg
-    fzf
-    jq
-    network-manager
-    poppler-utils
-    ripgrep
-    sway-notification-center
-    wl-clipboard
-    cliphist
-    wlogout
-    kitty
-    hyprland
-    hyprland-guiutils
-    lua5.4
-    yazi
-    zoxide
-)
-
 # Binaries expected to be available (installed via PPA into /usr/bin)
 local_pkgs_installed=(
     hypridle
@@ -63,6 +41,16 @@ if ! source "$SCRIPT_DIR/Global_versions.sh"; then
     echo "Failed to source Global_versions.sh"
     exit 1
 fi
+# Shared package manifest: every hypr_required entry is installed by
+# 01-hypr-pkgs.sh, plus the packages installed by dedicated scripts.
+if ! source "$SCRIPT_DIR/packages.sh"; then
+    echo "Failed to source packages.sh"
+    exit 1
+fi
+packages=("${hypr_required[@]}" "${final_check_extra[@]}")
+
+# Surface failures from `cmd | tee` instead of tee's exit status
+set -o pipefail
 
 # Set the name of the log file to include the current date and time
 LOG="Install-Logs/00_CHECK-$(date +%d-%H%M%S)_installed.log"

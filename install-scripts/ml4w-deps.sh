@@ -36,8 +36,8 @@ trap 'kill ${SUDO_KEEPALIVE_PID} 2>/dev/null || true' EXIT
 # shellcheck source=install-scripts/Global_functions.sh
 source "$SCRIPT_DIR/Global_functions.sh"
 
-LOG="Install-Logs/install-$(date +%d-%H%M%S)_ml4w-deps.log"
-mkdir -p "$(dirname "$LOG")"
+# Repo root as cwd + absolute, collision-free log path
+init_script "ml4w-deps"
 export LOG
 
 note() { echo -e "${NOTE} $*" | tee -a "$LOG"; }

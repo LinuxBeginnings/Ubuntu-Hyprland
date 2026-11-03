@@ -3,6 +3,9 @@
 ## Nov 2026
 
 - Added:
+    - `install-scripts/packages.sh` as the single package manifest: `01-hypr-pkgs.sh`
+      installs from it and `03-Final-Check.sh` verifies every required entry, so the
+      two lists can no longer drift apart
     - `network-manager` to default package dependencies (`01-hypr-pkgs.sh`) and to
       the `03-Final-Check.sh` verification list. Only the `nm-tray` applet was
       installed before, so a minimal install had no NetworkManager daemon or
@@ -15,6 +18,18 @@
       minimums (`0.1.6` / `0.9.1`) to `Global_versions.sh`, with shared binary
       version helpers
 - Changed:
+    - `install.sh` accepts `--preset FILE` anywhere on the command line, and preset
+      values now actually drive the option checklist; they were loaded and then
+      ignored. `Y`/`N` and `ON`/`OFF` are both accepted
+    - `install.sh` refuses to run on releases older than Ubuntu 26.04, and the
+      banner/titles no longer claim Ubuntu 25.10+ or a fixed Hyprland 0.52.2
+    - Choosing SDDM while another login manager is active now skips SDDM and keeps
+      going; it previously re-executed the whole installer from the start
+    - `update-deps.sh` exits non-zero when any step failed (it always exited 0)
+    - A missing `TERM` no longer aborts the install scripts: colours are skipped
+      instead of letting `tput` fail under `set -e`
+    - Install scripts share `init_script` for the repo-root/log-path preamble,
+      replacing the copy-pasted block and the ad-hoc log-name counter in `zsh.sh`
     - Quickshell is required on Ubuntu 26.04+ (the dotfiles now ship several
       Quickshell apps); `install.sh` aborts when it fails instead of warning and
       continuing. AGS remains available as an alternative overview.
@@ -30,6 +45,22 @@
       at or above the pinned tag is installed (the PPA ships newer binaries, and a
       source build would shadow them in `/usr/local/bin`)
 - Fixed:
+    - `install_package` / `re_install_package` now return non-zero and record the
+      package in `Install-Logs/failed-packages.txt`; the previous always-success
+      return made every `execute_script … || exit 1` guard in `install.sh`
+      unreachable. Failed dependency/package installs now stop the installer
+      instead of being only reported by the final check
+    - `install.sh` ran the dependency step through `| tee`, so its failure guard
+      tested tee's status and could never fire
+    - `fonts.sh` retried the JetBrains Mono download on a condition that tested
+      `tee`, so the retry loop always stopped after the first attempt; extraction
+      is now guarded and the previous font copy is only replaced on a successful
+      download
+    - `nvidia.sh` appended its modprobe/initramfs lines on every run (a multi-line
+      `grep` test can never match); each line is now added once
+    - `hypridle.sh` used `getconf NPROCESSORS_CONF` (missing underscore) as the
+      `-j` fallback, and checked the exit status of `tee` instead of the package
+      install
     - `waybar.sh` configures Waybar with `-Dtests=disabled`, so a broken or
       missing Catch2 install can no longer fail the build
     - `hyprlock`/`hypridle` source builds no longer fail with missing `hyprlang`
@@ -38,6 +69,9 @@
     - `02-pre-cleanup.sh` no longer deletes `/usr/local/bin/waybar`, which forced
       a full Waybar source build on every install run and defeated the
       `WAYBAR_MIN_VERSION` skip check
+- Removed:
+    - `install-scripts/force-hl-update.sh` (unreferenced; it installed every .deb
+      in `/var/cache/apt/archives` with `--force-overwrite`)
 - Docs:
     - `building-quickshell.md` no longer describes Quickshell as an optional menu
       item

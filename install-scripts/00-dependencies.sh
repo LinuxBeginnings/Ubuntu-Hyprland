@@ -123,19 +123,17 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Change the working directory to the parent directory of the script
 PARENT_DIR="$SCRIPT_DIR/.."
-cd "$PARENT_DIR" || {
-    echo "${ERROR} Failed to change directory to $PARENT_DIR"
-    exit 1
-}
-
 # Source the global functions script
 if ! source "$(dirname "$(readlink -f "$0")")/Global_functions.sh"; then
     echo "Failed to source Global_functions.sh"
     exit 1
 fi
 
-# Set the name of the log file to include the current date and time
-LOG="Install-Logs/install-$(date +%d-%H%M%S)_dependencies.log"
+# Surface failures from `cmd | tee` instead of tee's exit status
+set -o pipefail
+
+# Repo root as cwd + absolute, collision-free log path
+init_script "dependencies"
 
 # Proactively remove conflicting distro dev packages when using source-built libs
 # (avoid overshadowing /usr/local hyprutils/hyprlang)
@@ -158,7 +156,7 @@ fi
 printf "\n%s - Installing ${SKY_BLUE}main dependencies....${RESET} \n" "${NOTE}"
 
 for PKG1 in "${dependencies[@]}" "${hyprland_dep[@]}"; do
-    install_package "$PKG1" "$LOG"
+    install_package "$PKG1" "$LOG" || true
 done
 
 printf "\n%.0s" {1..1}
@@ -168,3 +166,8 @@ for PKG1 in "${build_dep[@]}"; do
 done
 
 printf "\n%.0s" {1..2}
+
+# Fail the step (and stop install.sh) when a dependency could not be installed
+if ! report_install_failures; then
+    exit 1
+fi

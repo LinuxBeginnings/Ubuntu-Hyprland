@@ -17,21 +17,22 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # Change the working directory to the parent directory of the script
 PARENT_DIR="$SCRIPT_DIR/.."
-cd "$PARENT_DIR" || { echo "${ERROR} Failed to change directory to $PARENT_DIR"; exit 1; }
-
 # Source the global functions script
 if ! source "$(dirname "$(readlink -f "$0")")/Global_functions.sh"; then
   echo "Failed to source Global_functions.sh"
   exit 1
 fi
 
-# Set the name of the log file to include the current date and time
-LOG="install-$(date +%d-%H%M%S)_rog.log"
+# Surface failures from `cmd | tee` instead of tee's exit status
+set -o pipefail
+
+# Repo root as cwd + absolute, collision-free log path (kept absolute so the
+# builds below can cd without losing the log)
+init_script "rog"
 
 # Installing enhancemet
 for PKG1 in "${asus[@]}"; do
-  install_package "$PKG1" 2>&1 | tee -a "$LOG"
-  if [ $? -ne 0 ]; then
+  if ! install_package "$PKG1" 2>&1 | tee -a "$LOG"; then
     echo -e "\033[1A\033[K${ERROR} - $PKG1 Package installation failed, Please check the installation logs"
     exit 1
   fi
@@ -49,7 +50,9 @@ install_and_log() {
 
   if git clone "$git_url" "$project_name"; then
     cd "$project_name" || exit 1
-    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh 2>&1 | tee -a "$LOG"
+    if ! curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y 2>&1 | tee -a "$LOG"; then
+      echo "${WARN} Rust toolchain install failed for $project_name." | tee -a "$LOG"
+    fi
     source "$HOME/.cargo/env"
     make
 
@@ -63,8 +66,6 @@ install_and_log() {
       echo -e "${ERROR} Installation failed for $project_name."
     fi
 
-	#moving logs into main install-logs
-    mv $LOG ../Install-Logs/ || true 
     cd - || exit 1
   else
     echo -e "${ERROR} Cloning $project_name from $git_url failed."

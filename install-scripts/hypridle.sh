@@ -30,6 +30,9 @@ if ! source "$SCRIPT_DIR/Global_versions.sh"; then
   exit 1
 fi
 
+# Surface failures from `cmd | tee` instead of tee's exit status
+set -o pipefail
+
 # Work in build/src to keep repo root clean
 cd "$BUILD_SRC" || { echo "${ERROR} Failed to change directory to $BUILD_SRC"; exit 1; }
 
@@ -52,8 +55,7 @@ fi
 printf "\n%s - Installing ${YELLOW}hypridle dependencies${RESET} .... \n" "${INFO}"
 
 for PKG1 in "${idle[@]}"; do
-  re_install_package "$PKG1" 2>&1 | tee -a "$LOG"
-  if [ $? -ne 0 ]; then
+  if ! re_install_package "$PKG1" 2>&1 | tee -a "$LOG"; then
     echo -e "\e[1A\e[K${ERROR} - ${YELLOW}$PKG1${RESET} Package installation failed, Please check the installation logs"
     exit 1
   fi
@@ -79,7 +81,7 @@ if git clone --recursive -b $idle_tag https://github.com/hyprwm/hypridle.git; th
         done
     fi
 	cmake --no-warn-unused-cli -DCMAKE_BUILD_TYPE:STRING=Release -S . -B ./build
-	cmake --build ./build --config Release --target hypridle -j`nproc 2>/dev/null || getconf NPROCESSORS_CONF`
+	cmake --build ./build --config Release --target hypridle -j"$(nproc 2>/dev/null || getconf _NPROCESSORS_ONLN)"
     if sudo cmake --install ./build 2>&1 | tee -a "$MLOG" ; then
         printf "${OK} ${MAGENTA}hypridle $idle_tag${RESET} installed successfully.\n" 2>&1 | tee -a "$MLOG"
     else

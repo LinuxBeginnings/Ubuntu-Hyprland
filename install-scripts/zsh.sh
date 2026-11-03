@@ -20,23 +20,14 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # Change the working directory to the parent directory of the script
 PARENT_DIR="$SCRIPT_DIR/.."
-cd "$PARENT_DIR" || { echo "${ERROR} Failed to change directory to $PARENT_DIR"; exit 1; }
-
 # Source the global functions script
 if ! source "$(dirname "$(readlink -f "$0")")/Global_functions.sh"; then
   echo "Failed to source Global_functions.sh"
   exit 1
 fi
 
-# Set the name of the log file to include the current date and time
-LOG="Install-Logs/install-$(date +%d-%H%M%S)_zsh.log"
-
-# Check if the log file already exists, if yes, append a counter to make it unique
-COUNTER=1
-while [ -f "$LOG" ]; do
-  LOG="Install-Logs/install-$(date +%d-%H%M%S)_${COUNTER}_zsh.log"
-  ((COUNTER++))
-done
+# Repo root as cwd + absolute, collision-free log path
+init_script "zsh"
 
 # Installing zsh packages
 printf "${NOTE} Installing core zsh packages...${RESET}\n"

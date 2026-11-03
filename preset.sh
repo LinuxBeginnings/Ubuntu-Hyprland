@@ -7,7 +7,7 @@
 # 💫 https://github.com/LinuxBeginnings 💫 #
 
 ## -- Make sure you use the right answer or install script will fail ###
-# Use only Y for Yes and N for No . If you put other letter, the script will fail
+# Y, N, ON and OFF are accepted; anything else is treated as "no".
 
 ###-Would you like script to Configure NVIDIA for you?
 nvidia="N"

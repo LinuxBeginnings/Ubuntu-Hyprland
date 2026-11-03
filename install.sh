@@ -7,21 +7,32 @@
 # ==================================================
 # https://github.com/LinuxBeginnings
 
-# Set some colors for output messages
-OK="$(tput setaf 2)[OK]$(tput sgr0)"
-ERROR="$(tput setaf 1)[ERROR]$(tput sgr0)"
-NOTE="$(tput setaf 3)[NOTE]$(tput sgr0)"
-INFO="$(tput setaf 4)[INFO]$(tput sgr0)"
-WARN="$(tput setaf 1)[WARN]$(tput sgr0)"
-CAT="$(tput setaf 6)[ACTION]$(tput sgr0)"
-MAGENTA="$(tput setaf 5)"
-ORANGE="$(tput setaf 214)"
-WARNING="$(tput setaf 1)"
-YELLOW="$(tput setaf 3)"
-GREEN="$(tput setaf 2)"
-BLUE="$(tput setaf 4)"
-SKY_BLUE="$(tput setaf 6)"
-RESET="$(tput sgr0)"
+# A failing command inside a pipe must fail the pipeline, so that the guards in
+# this file act on the child script's status instead of tee's.
+set -o pipefail
+
+# Set some colors for output messages. Skipped when there is no terminal (or
+# TERM is unset), so the installer also runs from cron/CI/dumb shells.
+if [ -n "${TERM:-}" ] && command -v tput >/dev/null 2>&1 && tput sgr0 >/dev/null 2>&1; then
+    _setaf() { tput setaf "$1"; }
+    RESET="$(tput sgr0)"
+else
+    _setaf() { :; }
+    RESET=""
+fi
+OK="$(_setaf 2)[OK]$RESET"
+ERROR="$(_setaf 1)[ERROR]$RESET"
+NOTE="$(_setaf 3)[NOTE]$RESET"
+INFO="$(_setaf 4)[INFO]$RESET"
+WARN="$(_setaf 1)[WARN]$RESET"
+CAT="$(_setaf 6)[ACTION]$RESET"
+MAGENTA="$(_setaf 5)"
+ORANGE="$(_setaf 214)"
+WARNING="$(_setaf 1)"
+YELLOW="$(_setaf 3)"
+GREEN="$(_setaf 2)"
+BLUE="$(_setaf 4)"
+SKY_BLUE="$(_setaf 6)"
 
 # Set a high-contrast whiptail theme unless the user already provided one
 if [ -z "${NEWT_COLORS:-}" ]; then
@@ -49,8 +60,9 @@ fi
 INSTALL_MODE="${INSTALL_MODE:-ppa}"
 DO_DRY_RUN=0
 SHOW_HELP=0
-for arg in "$@"; do
-    case "$arg" in
+PRESET_FILE=""
+while [ $# -gt 0 ]; do
+    case "$1" in
     --install-ppa)
         INSTALL_MODE=ppa
         ;;
@@ -60,10 +72,26 @@ for arg in "$@"; do
     --dry-run)
         DO_DRY_RUN=1
         ;;
+    --preset)
+        shift
+        PRESET_FILE="${1:-}"
+        if [ -z "$PRESET_FILE" ]; then
+            echo "Missing argument for --preset" >&2
+            exit 1
+        fi
+        ;;
+    --preset=*)
+        PRESET_FILE="${1#--preset=}"
+        ;;
     -h | --help)
         SHOW_HELP=1
         ;;
+    *)
+        echo "Unknown option: $1" >&2
+        exit 1
+        ;;
     esac
+    shift
 done
 
 if [ "$SHOW_HELP" = "1" ]; then
@@ -73,12 +101,14 @@ Usage: ./install.sh [options]
 Options:
   --install-ppa       Install Hyprland from the community PPA (default)
   --install-ubuntu    Install Hyprland from Ubuntu repositories
+  --preset FILE       Load option defaults from FILE (see preset.sh)
   --dry-run           Print what would be done and exit (non-interactive)
   -h, --help          Show this help and exit
 
 Notes:
 - The community PPA provides the latest Hyprland packages.
 - Ubuntu repositories can be selected with --install-ubuntu.
+- Only Ubuntu 26.04 or newer is supported.
 USAGE
     exit 0
 fi
@@ -109,8 +139,8 @@ print_color $WARNING "
                 KooL's UBUNTU 26.04 - Hyprland               
     █▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄█
 
-    This script will install Hyprland 0.52.2 from ubuntu 
-    This is only supported on ubuntu 26.04 or greater! 
+    This script will install Hyprland from the community PPA 
+    This is only supported on Ubuntu 26.04 or newer! 
     If you are not at that level do NOT continue!
          
 "
@@ -147,12 +177,31 @@ export REPO_ROOT="$SCRIPT_DIR"
 : "${BUILD_BIN:=$BUILD_ROOT/bin}"
 export BUILD_ROOT BUILD_SRC BUILD_BIN
 mkdir -p "$BUILD_SRC" "$BUILD_BIN" "$REPO_ROOT/Install-Logs"
+# Start every run with a clean failure list (recorded by Global_functions.sh)
+: >"$REPO_ROOT/Install-Logs/failed-packages.txt"
 
 # Check if running as root. If root, script will exit
 if [[ $EUID -eq 0 ]]; then
     echo "${ERROR}  This script should ${WARNING}NOT${RESET} be executed as root!! Exiting......." | tee -a "$LOG"
     printf "\n%.0s" {1..2}
     exit 1
+fi
+
+# Refuse to run on releases the dotfiles do not support (26.04+). Skipped when
+# /etc/os-release is unavailable or the version cannot be compared.
+if [ -r /etc/os-release ] && command -v dpkg >/dev/null 2>&1; then
+    release_id="$(. /etc/os-release && printf '%s' "${ID:-}")"
+    release_ver="$(. /etc/os-release && printf '%s' "${VERSION_ID:-}")"
+    release_name="$(. /etc/os-release && printf '%s' "${PRETTY_NAME:-}")"
+    case "$release_id" in
+    ubuntu | linuxmint | pop)
+        if [ -n "$release_ver" ] && ! dpkg --compare-versions "$release_ver" ge "26.04"; then
+            echo "${ERROR} ${release_name:-$release_id $release_ver} is not supported. Ubuntu 26.04 or newer is required." | tee -a "$LOG"
+            echo "${NOTE} See the README for the supported releases." | tee -a "$LOG"
+            exit 1
+        fi
+        ;;
+    esac
 fi
 
 # Ensure locally installed libraries are discoverable by pkg-config and CMake across all child scripts
@@ -170,13 +219,13 @@ printf "\n%.0s" {1..2}
 echo -e "\e[35m
 	╦╔═┌─┐┌─┐╦    ╦ ╦┬ ┬┌─┐┬─┐┬  ┌─┐┌┐┌┌┬┐
 	╠╩╗│ ││ │║    ╠═╣└┬┘├─┘├┬┘│  ├─┤│││ ││ 2025
-	╩ ╩└─┘└─┘╩═╝  ╩ ╩ ┴ ┴  ┴└─┴─┘┴ ┴┘└┘─┴┘ Ubuntu 25.10+
+	╩ ╩└─┘└─┘╩═╝  ╩ ╩ ┴ ┴  ┴└─┴─┘┴ ┴┘└┘─┴┘ Ubuntu 26.04+
 \e[0m"
 printf "\n%.0s" {1..1}
 
 # Welcome message using whiptail (for displaying information)
-whiptail --title "KooL Ubuntu 26.04+ - Hyprland (2025) Install Script" \
-    --msgbox "Welcome to KooL Ubuntu 26.04+ - Hyprland (2025) Install Script!!!\n\n\
+whiptail --title "KooL Ubuntu 26.04+ - Hyprland (2026) Install Script" \
+    --msgbox "Welcome to KooL Ubuntu 26.04+ - Hyprland (2026) Install Script!!!\n\n\
 ATTENTION: Run a full system update and Reboot first !!! (Highly Recommended)\n\n\
 NOTE: If you are installing on a VM, ensure to enable 3D acceleration else Hyprland may NOT start!" \
     15 80
@@ -232,7 +281,7 @@ execute_script() {
 }
 
 #################
-## Default values for the options (will be overwritten by preset file if available)
+## Default values for the options (overwritten by the preset file when given)
 gtk_themes="OFF"
 bluetooth="OFF"
 thunar="OFF"
@@ -246,19 +295,42 @@ dots="OFF"
 input_group="OFF"
 nvidia="OFF"
 
+# Preset files may say Y/N or ON/OFF; whiptail only understands ON/OFF
+normalise_state() {
+    case "${1:-}" in
+    [Yy] | [Yy][Ee][Ss] | ON | on | 1 | true) echo "ON" ;;
+    *) echo "OFF" ;;
+    esac
+}
+
 # Function to load preset file
 load_preset() {
     if [ -f "$1" ]; then
         echo "✅ Loading preset: $1"
+        # shellcheck disable=SC1090
         source "$1"
+        # preset.sh spells some keys differently; accept both
+        pokemon="${pokemon:-${pokemon_choice:-}}"
+        thunar="${thunar:-${thunar_choice:-}}"
+        gtk_themes="$(normalise_state "${gtk_themes:-OFF}")"
+        bluetooth="$(normalise_state "${bluetooth:-OFF}")"
+        thunar="$(normalise_state "${thunar:-OFF}")"
+        ags="$(normalise_state "${ags:-OFF}")"
+        sddm="$(normalise_state "${sddm:-OFF}")"
+        sddm_theme="$(normalise_state "${sddm_theme:-OFF}")"
+        zsh="$(normalise_state "${zsh:-OFF}")"
+        pokemon="$(normalise_state "${pokemon:-OFF}")"
+        rog="$(normalise_state "${rog:-OFF}")"
+        dots="$(normalise_state "${dots:-OFF}")"
+        input_group="$(normalise_state "${input_group:-OFF}")"
+        nvidia="$(normalise_state "${nvidia:-OFF}")"
     else
         echo "⚠️ Preset file not found: $1. Using default values."
     fi
 }
 
-# Check if --preset argument is passed
-if [[ "$1" == "--preset" && -n "$2" ]]; then
-    load_preset "$2"
+if [ -n "$PRESET_FILE" ]; then
+    load_preset "$PRESET_FILE"
 fi
 
 # List of services to check for active login managers
@@ -303,7 +375,7 @@ options_command=(
 # Add NVIDIA options if detected
 if [ "$nvidia_detected" == "true" ]; then
     options_command+=(
-        "nvidia" "Do you want script to configure NVIDIA GPU?" "OFF"
+        "nvidia" "Do you want script to configure NVIDIA GPU?" "$nvidia"
     )
 fi
 
@@ -317,28 +389,28 @@ fi
 # Add 'input_group' option if necessary
 if [ "$input_group_detected" == "true" ]; then
     options_command+=(
-        "input_group" "Add your USER to input group for some waybar functionality?" "OFF"
+        "input_group" "Add your USER to input group for some waybar functionality?" "$input_group"
     )
 fi
 
 # Conditionally add SDDM and SDDM theme options if no active login manager is found
 if ! check_services_running; then
     options_command+=(
-        "sddm" "Install & configure SDDM login manager?" "OFF"
-        "sddm_theme" "Download & Install Additional SDDM theme?" "OFF"
+        "sddm" "Install & configure SDDM login manager?" "$sddm"
+        "sddm_theme" "Download & Install Additional SDDM theme?" "$sddm_theme"
     )
 fi
 
 # Add the remaining static options
 options_command+=(
-    "gtk_themes" "Install GTK themes (required for Dark/Light function)" "OFF"
-    "bluetooth" "Do you want script to configure Bluetooth?" "OFF"
-    "thunar" "Do you want Thunar file manager to be installed?" "OFF"
-    "ags" "Install AGS v1 for Desktop-Like Overview" "OFF"
-    "zsh" "Install zsh shell with Oh-My-Zsh?" "OFF"
-    "pokemon" "Add Pokemon color scripts to your terminal?" "OFF"
-    "rog" "Are you installing on Asus ROG laptops?" "OFF"
-    "dots" "Install KooL's Hyprland dotfiles?" "OFF"
+    "gtk_themes" "Install GTK themes (required for Dark/Light function)" "$gtk_themes"
+    "bluetooth" "Do you want script to configure Bluetooth?" "$bluetooth"
+    "thunar" "Do you want Thunar file manager to be installed?" "$thunar"
+    "ags" "Install AGS v1 for Desktop-Like Overview" "$ags"
+    "zsh" "Install zsh shell with Oh-My-Zsh?" "$zsh"
+    "pokemon" "Add Pokemon color scripts to your terminal?" "$pokemon"
+    "rog" "Are you installing on Asus ROG laptops?" "$rog"
+    "dots" "Install KooL's Hyprland dotfiles?" "$dots"
 )
 
 # Capture the selected options before the while loop starts
@@ -417,7 +489,7 @@ execute_script "02-pre-cleanup.sh"
 
 echo "${INFO} Installing ${SKY_BLUE}necessary dependencies...${RESET}" | tee -a "$LOG"
 sleep 1
-execute_script "00-dependencies.sh" | tee -a "$LOG" || {
+execute_script "00-dependencies.sh" || {
     echo "${ERROR:-[ERROR]} Dependencies installation failed" | tee -a "$LOG"
     exit 1
 }
@@ -506,7 +578,9 @@ for option in "${options[@]}"; do
         if check_services_running; then
             active_list=$(printf "%s\n" "${active_services[@]}")
             whiptail --title "Error" --msgbox "One of the following login services is running:\n$active_list\n\nPlease stop & disable it or DO not choose SDDM." 12 60
-            exec "$0"
+            # Skip SDDM instead of restarting the whole installer from scratch
+            echo "${INFO} Skipping SDDM: another login manager is active." | tee -a "$LOG"
+            echo "${NOTE} Stop and disable it, then re-run the installer if you still want SDDM (see README)." | tee -a "$LOG"
         else
             echo "${INFO} Installing and configuring ${SKY_BLUE}SDDM...${RESET}" | tee -a "$LOG"
             execute_script "sddm.sh"

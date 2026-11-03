@@ -11,13 +11,12 @@
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PARENT_DIR="$SCRIPT_DIR/.."
-cd "$PARENT_DIR" || exit 1
 
 # shellcheck source=install-scripts/Global_functions.sh
 source "$(dirname "$(readlink -f "$0")")/Global_functions.sh"
 
-LOG="Install-Logs/install-$(date +%d-%H%M%S)_hyprland-ubuntu.log"
+# Repo root as cwd + absolute, collision-free log path
+init_script "hyprland-ubuntu"
 
 note() { echo -e "${NOTE} $*" | tee -a "$LOG"; }
 info() { echo -e "${INFO} $*" | tee -a "$LOG"; }

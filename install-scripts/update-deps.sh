@@ -381,3 +381,20 @@ if [ ${#missing_pkgs[@]} -gt 0 ]; then
 else
   echo "Missing packages from final check: none detected"
 fi
+
+echo
+overall_status=0
+for st in "$dependencies_status" "$packages_status" "$yazi_status" "$swww_status" \
+  "$nwg_dock_status" "$waybar_status" "$quickshell_status" "$pre_cleanup_status" \
+  "$check_status"; do
+  [ "${st:-0}" -ne 0 ] && overall_status=1
+done
+
+if [ "$overall_status" -ne 0 ]; then
+  echo "One or more steps failed. See the logs in $LOG_DIR and Install-Logs/failed-packages.txt."
+else
+  echo "All steps completed successfully."
+fi
+
+# Propagate the failure so callers/automation can detect a broken update
+exit "$overall_status"
