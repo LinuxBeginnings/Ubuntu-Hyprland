@@ -30,6 +30,9 @@
       instead of letting `tput` fail under `set -e`
     - Install scripts share `init_script` for the repo-root/log-path preamble,
       replacing the copy-pasted block and the ad-hoc log-name counter in `zsh.sh`
+    - `uninstall.sh` restores the backups the installer leaves behind
+      (`~/.zshrc-backup`, `~/.zprofile-backup`, `/etc/sddm.conf.bak`) instead of
+      leaving the pre-install config stranded next to the new one
     - Quickshell is required on Ubuntu 26.04+ (the dotfiles now ship several
       Quickshell apps); `install.sh` aborts when it fails instead of warning and
       continuing. AGS remains available as an alternative overview.

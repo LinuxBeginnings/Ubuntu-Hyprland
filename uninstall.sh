@@ -80,6 +80,43 @@ remove_packages() {
 
 
 
+# Function to restore the backups the installer leaves before it overwrites an
+# existing config file:
+#   zsh.sh        -> ~/.zshrc-backup, ~/.zprofile-backup (previous shell config)
+#   sddm_theme.sh -> /etc/sddm.conf.bak (previous login-screen config)
+# Anything else (e.g. the dotfiles' own copy.sh backups) is left untouched.
+restore_backups() {
+    local restored=0
+    local name src dst
+
+    for name in zshrc zprofile; do
+        src="$HOME/.${name}-backup"
+        dst="$HOME/.${name}"
+        [ -f "$src" ] || continue
+        if cp "$src" "$dst"; then
+            echo "$OK Restored $dst from $src"
+            restored=$((restored + 1))
+        else
+            echo "$ERROR Failed to restore $dst from $src"
+        fi
+    done
+
+    if [ -f /etc/sddm.conf.bak ]; then
+        if sudo cp /etc/sddm.conf.bak /etc/sddm.conf; then
+            echo "$OK Restored /etc/sddm.conf from /etc/sddm.conf.bak"
+            restored=$((restored + 1))
+        else
+            echo "$ERROR Failed to restore /etc/sddm.conf from /etc/sddm.conf.bak"
+        fi
+    fi
+
+    if [ "$restored" -eq 0 ]; then
+        echo "$INFO No installer backups found to restore."
+    else
+        echo "$INFO Restored $restored backup(s)."
+    fi
+}
+
 # Function to remove selected directories
 remove_directories() {
     local selected_dirs_file=$1
@@ -270,6 +307,10 @@ done
 printf "\n%.0s" {1..1}
 printf "\n%s${SKY_BLUE}Attempting to remove selected directories${RESET}\n" "${NOTE}"
 remove_directories "$SELECTED_DIRS_FILE"
+
+printf "\n%.0s" {1..1}
+printf "\n%s${SKY_BLUE}Attempting to restore installer backups${RESET}\n" "${NOTE}"
+restore_backups
 
 printf "\n%.0s" {1..1}
 echo -e "$MAGENTA Hyprland and related components have been uninstalled.$RESET"
