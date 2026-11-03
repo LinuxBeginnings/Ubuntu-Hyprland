@@ -17,6 +17,9 @@
     - `WAYBAR_MIN_VERSION` (`0.15.0-1100-gf6f73c81`) and the `hypridle`/`hyprlock`
       minimums (`0.1.6` / `0.9.1`) to `Global_versions.sh`, with shared binary
       version helpers
+    - `tests/uninstall-test.sh`, which checks the `~/.config` backup detection and
+      the uninstall option parsing against a throwaway `HOME` (no sudo, no system
+      changes)
 - Changed:
     - `install.sh` accepts `--preset FILE` anywhere on the command line, and preset
       values now actually drive the option checklist; they were loaded and then
@@ -41,6 +44,8 @@
       rejected). With `--yes` all detected backups are restored
     - `uninstall.sh` uses the same terminal-safe colours as the install scripts and
       only clears a real terminal, so its output survives being piped
+    - `README.md` documents the uninstall options (`--yes`, `--all`, `--packages`,
+      `--dirs`, `--dry-run`) and which backups the uninstall restores
     - Quickshell is required on Ubuntu 26.04+ (the dotfiles now ship several
       Quickshell apps); `install.sh` aborts when it fails instead of warning and
       continuing. AGS remains available as an alternative overview.

@@ -139,6 +139,34 @@ chmod +x install.sh
 - I will not be responsible if your system breaks
 - The best still to revert to previous state of your system is via timeshift of snapper
 
+#### ✨ running the uninstall script
+
+- run `./uninstall.sh` from inside the cloned repo. With no options it asks which packages and `~/.config` entries to remove, then offers to restore backups
+- `./uninstall.sh --help` prints the options
+
+| Option | What it does |
+| ------ | ------------ |
+| `-y`, `--yes` | never prompt. Every detected backup is restored without asking |
+| `--all` | select every listed package and directory |
+| `--packages LIST` | comma- or space-separated packages, i.e. `--packages btop,hyprland` |
+| `--dirs LIST` | comma- or space-separated `~/.config` entries, i.e. `--dirs hypr,waybar` |
+| `-n`, `--dry-run` | print what would be removed, then exit without changing anything |
+| `-h`, `--help` | show the help |
+
+```bash
+./uninstall.sh --dry-run --all                       # preview everything
+./uninstall.sh --yes --packages waybar --dirs waybar # remove only waybar
+```
+
+- `--yes` needs `--all`, `--packages` or `--dirs`, and names that are not in the list are rejected, so a typo cannot widen what gets removed
+- `--dry-run` never prompts, so it is safe to run in a script or over ssh
+
+#### ✨ backups the uninstall restores
+
+- the installer keeps the files it overwrites: `~/.zshrc-backup`, `~/.zprofile-backup` and `/etc/sddm.conf.bak`. The uninstall offers to put them back, or does it automatically with `--yes`
+- if you copied the KooL dots, their backups are detected too (`hypr.bak`, `kitty.bak.20250101`, `waybar-backup`, `swaync_backup`, `rofi.old`, ...). Nothing is overwritten blindly: the current entry is kept as `<name>.replaced-<timestamp>`
+- `tests/uninstall-test.sh` checks that detection and the option parsing in a throwaway `HOME`, so it needs no sudo and changes nothing on your system
+
 ### ❇️ Nvidia Drivers & 🔔 NOTICE TO NVIDIA OWNERS
 
 - If you choose to configure nvidia, driver will be installed via automatic detection / install. See [NVIDIA guide](https://documentation.ubuntu.com/server/how-to/graphics/install-nvidia-drivers/index.html#installing-the-drivers-for-generic-use-e-g-desktop-and-gaming)
