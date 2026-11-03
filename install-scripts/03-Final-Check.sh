@@ -134,4 +134,9 @@ else
 
     # Add a timestamp when the missing packages were logged
     echo "${NOTE} Missing packages logged at $(date)" >>"$LOG"
+
+    # Fail the check so update-deps.sh and CI can gate on it. install.sh ignores
+    # this status on purpose: the final check is the last thing it runs and the
+    # summary above is what the user reads.
+    exit 1
 fi

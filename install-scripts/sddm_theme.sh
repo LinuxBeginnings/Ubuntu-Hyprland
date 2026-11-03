@@ -107,13 +107,18 @@ if git clone --depth=1 "$source_theme" "$theme_name"; then
   printf "${NOTE} copying ${YELLOW}JetBrains Mono Nerd Font${RESET} to ${YELLOW}/usr/local/share/fonts${RESET} .......\n"
   printf "${NOTE} necessary for the new SDDM theme to work properly........\n"
 
-  sudo mkdir -p /usr/local/share/fonts/JetBrainsMonoNerd && \
-  sudo cp -r "$HOME/.local/share/fonts/JetBrainsMonoNerd" /usr/local/share/fonts/JetBrainsMonoNerd
-
-  if [ $? -eq 0 ]; then
-    echo "Fonts copied successfully."
+  # cp -T makes the destination the copy target, instead of nesting it as
+  # /usr/local/share/fonts/JetBrainsMonoNerd/JetBrainsMonoNerd.
+  font_src="$HOME/.local/share/fonts/JetBrainsMonoNerd"
+  if [ -d "$font_src" ]; then
+    sudo mkdir -p /usr/local/share/fonts
+    if sudo cp -rT "$font_src" /usr/local/share/fonts/JetBrainsMonoNerd; then
+      echo "Fonts copied successfully."
+    else
+      echo "Failed to copy fonts."
+    fi
   else
-    echo "Failed to copy fonts."
+    echo "${WARN} $font_src not found (fonts.sh did not finish); skipping the theme font copy." | tee -a "$LOG"
   fi
 
   # Update font cache and log the output

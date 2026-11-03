@@ -34,6 +34,16 @@ echo -e "\e[35m
 \e[0m"
 printf "\n%.0s" {1..1}
 
+# Selections go to a private temp dir (never a predictable /tmp path) and are
+# removed on exit, including on Ctrl-C
+TMP_DIR="$(mktemp -d)" || {
+    echo "Failed to create a temp directory"
+    exit 1
+}
+trap 'rm -rf "$TMP_DIR"' EXIT
+SELECTED_PACKAGES_FILE="$TMP_DIR/selected_packages.txt"
+SELECTED_DIRS_FILE="$TMP_DIR/selected_directories.txt"
+
 # Show welcome message using whiptail with Yes/No options
 whiptail --title "Ubuntu-25.04-Hyprland KooL Dots Uninstall Script" --yesno \
 "Hello! This script will uninstall KooL Hyprland packages and configs.
@@ -177,7 +187,7 @@ while true; do
     if [[ -z "$package_choices" ]]; then
         echo "$NOTE No packages selected. Please select at least one package."
     else
-        echo "$package_choices" | tr -d '"' | tr ' ' '\n' > /tmp/selected_packages.txt
+        echo "$package_choices" | tr -d '"' | tr ' ' '\n' > "$SELECTED_PACKAGES_FILE"
         echo "Packages to remove: $package_choices"
         break
     fi
@@ -200,7 +210,7 @@ while true; do
         echo "$NOTE No directories selected. Please select at least one directory."
     else
         # Save each selected directory to a new line in the temporary file
-        echo "$dir_choices" | tr -d '"' | tr ' ' '\n' > /tmp/selected_directories.txt
+        echo "$dir_choices" | tr -d '"' | tr ' ' '\n' > "$SELECTED_DIRS_FILE"
         echo "Directories to remove: $dir_choices"
         break
     fi
@@ -229,7 +239,7 @@ ATTEMPT=0
 
 while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
     # Remove packages
-    remove_packages /tmp/selected_packages.txt
+    remove_packages "$SELECTED_PACKAGES_FILE"
 
     # Check if any packages still need to be removed, retry if needed
     MISSING_PACKAGE_COUNT=0
@@ -237,7 +247,7 @@ while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
         if dpkg -l | grep -q "^ii  $package "; then
             MISSING_PACKAGE_COUNT=$((MISSING_PACKAGE_COUNT + 1))
         fi
-    done < /tmp/selected_packages.txt
+    done < "$SELECTED_PACKAGES_FILE"
 
     if [ $MISSING_PACKAGE_COUNT -gt 0 ]; then
         ATTEMPT=$((ATTEMPT + 1))
@@ -259,7 +269,7 @@ done
 
 printf "\n%.0s" {1..1}
 printf "\n%s${SKY_BLUE}Attempting to remove selected directories${RESET}\n" "${NOTE}"
-remove_directories /tmp/selected_directories.txt
+remove_directories "$SELECTED_DIRS_FILE"
 
 printf "\n%.0s" {1..1}
 echo -e "$MAGENTA Hyprland and related components have been uninstalled.$RESET"

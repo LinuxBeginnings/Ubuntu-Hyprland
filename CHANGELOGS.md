@@ -45,6 +45,16 @@
       at or above the pinned tag is installed (the PPA ships newer binaries, and a
       source build would shadow them in `/usr/local/bin`)
 - Fixed:
+    - `03-Final-Check.sh` exits non-zero when something is missing, so
+      `update-deps.sh` and CI can gate on it (`install.sh` still ignores the
+      status and shows the summary)
+    - `sddm_theme.sh` copied the JetBrains Mono font into a nested
+      `JetBrainsMonoNerd/JetBrainsMonoNerd` directory, and now skips the copy
+      cleanly when `fonts.sh` did not run
+    - `uninstall.sh` wrote its selections to fixed `/tmp` paths that were never
+      removed; they now live in a private `mktemp -d` cleaned up on exit
+    - `hyprland-ubuntu.sh` installed `waybar` from APT, which `waybar.sh` then
+      purged before building from source
     - `install_package` / `re_install_package` now return non-zero and record the
       package in `Install-Logs/failed-packages.txt`; the previous always-success
       return made every `execute_script … || exit 1` guard in `install.sh`

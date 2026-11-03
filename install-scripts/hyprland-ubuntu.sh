@@ -62,12 +62,13 @@ else
 fi
 
 # Install remaining components available in Ubuntu repositories
+# waybar is deliberately absent: the APT package cannot run the Hyprland Lua
+# workflow, and waybar.sh purges it and builds from source right afterwards.
 PKGS=(
     hypridle
     hyprlock
     hyprpaper
     hyprpicker
-    waybar
     hyprwayland-scanner
     xdg-desktop-portal-hyprland
 )
