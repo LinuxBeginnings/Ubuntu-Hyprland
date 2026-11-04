@@ -176,6 +176,7 @@ chmod +x install.sh
 - `tests/hyprland-ppa-test.sh` runs the PPA install script against stubbed `sudo`/`apt`, so each outcome and the source record it writes are checked without a real install
 - `tests/install-fallback-test.sh` checks that a failed PPA path falls back to the Ubuntu repositories, and that both failing stops the install
 - `tests/update-deps-summary-test.sh` checks the `update-deps.sh` summary against a synthetic final-check log
+- `tests/final-check-summary-test.sh` checks the Hyprland source lines the final check prints for each recorded outcome
 
 ### ❇️ Nvidia Drivers & 🔔 NOTICE TO NVIDIA OWNERS
 

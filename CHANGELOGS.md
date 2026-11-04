@@ -27,8 +27,10 @@
       (the `--dry-run` PPA verdict, and that a dry run writes nothing),
       `tests/hyprland-ppa-test.sh` (the PPA script's four outcomes via stubbed
       `sudo`/`apt`), `tests/install-fallback-test.sh` (the `ppa)` branch's
-      fallback wiring) and `tests/update-deps-summary-test.sh` (the summary's
-      missing-package parsing and Hyprland state)
+      fallback wiring), `tests/update-deps-summary-test.sh` (the summary's
+      missing-package parsing and Hyprland state) and
+      `tests/final-check-summary-test.sh` (the final check's Hyprland source
+      lines, per recorded outcome)
     - `ubuntu_codename`, `ppa_suites`, `ppa_series_ok` and the Hyprland source
       record helpers to `install-scripts/Global_functions.sh`, so `install.sh`,
       `hyprland-ppa.sh`, `hyprland-ubuntu.sh`, `update-deps.sh` and
