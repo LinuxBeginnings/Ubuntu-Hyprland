@@ -59,8 +59,16 @@ check_lacks() {
 }
 
 # ─── extract run_optional and the closing summary ──────────────────────────
-awk '/^failed_optional=\(\)$/ { on = 1 } on { print } on && /^}$/ { exit }' \
-    "$INSTALL" >"$WORK/helper.sh"
+{
+    grep -m1 '^failed_optional=()$' "$INSTALL"
+    grep -m1 '^optional_failures_file=' "$INSTALL"
+} >"$WORK/helper.sh"
+for fn in record_optional_failure clear_optional_failure run_optional; do
+    # Each definition carries a trailing "# name <arg>" comment, so match the
+    # start of the line rather than the whole line.
+    awk -v fn="$fn" 'index($0, fn "() {") == 1 { on = 1 } on { print } on && /^}$/ { exit }' \
+        "$INSTALL" >>"$WORK/helper.sh"
+done
 awk '/^# Optional components that failed are listed once here/ { on = 1 }
      on { print }
      on && /^fi$/ { exit }' "$INSTALL" >"$WORK/summary.sh"
@@ -75,6 +83,7 @@ RUN="$WORK/run.sh"
 {
     printf '%s\n' '#!/usr/bin/env bash' 'set -uo pipefail'
     printf 'LOG=%q\n' "$WORK/install.log"
+    printf 'REPO_ROOT=%q\n' "$WORK/repo"
     printf '%s\n' 'INFO="[INFO]"; WARN="[WARN]"; NOTE="[NOTE]"'
     cat <<'STUB'
 execute_script() {
@@ -230,6 +239,30 @@ rm -f "$WORK/repo/Install-Logs/failed-packages.txt"
 
 out="$(bash "$ISSUES_RUN" wallust.sh </dev/null 2>&1)"
 check_contains "a non-interactive run continues" "$out" "Not running interactively"
+
+# A pty is what the real installer sees: without one the prompt is skipped, so
+# this is the only place the prompt itself is exercised.
+echo
+echo "the prompt works on a real terminal"
+if command -v script >/dev/null 2>&1; then
+    tty_run() { # tty_run <input> [components...]
+        local input="$1"
+        shift
+        printf '%s\n' "$input" | script -qec "bash '$ISSUES_RUN' $*" /dev/null 2>&1
+    }
+    out="$(tty_run c wallust.sh)"
+    check_contains "a tty run prompts" "$out" "Retry the failed parts"
+    check_contains "a tty run continues" "$out" "Continuing with the parts"
+    out="$(tty_run x wallust.sh)"
+    check_contains "an invalid answer re-prompts" "$out" "Please answer r, c or a"
+    printf 'a\n' >"$WORK/tty-abort-in"
+    script -qec "bash '$ISSUES_RUN' wallust.sh" /dev/null \
+        <"$WORK/tty-abort-in" >"$WORK/tty-abort-out" 2>&1
+    check_eq "a tty abort exits 1" "$?" "1"
+    check_contains "the tty abort is reported" "$(cat "$WORK/tty-abort-out")" "Aborted at your request"
+else
+    echo "  skip (script(1) not available)"
+fi
 
 if [ "$FAIL" -eq 0 ]; then
     printf '%s checks passed\n' "$PASS"

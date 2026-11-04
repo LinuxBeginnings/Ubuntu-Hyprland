@@ -30,8 +30,10 @@
       fallback wiring), `tests/update-deps-summary-test.sh` (the summary's
       missing-package parsing and Hyprland state) and
       `tests/final-check-summary-test.sh` (the final check's Hyprland source
-      lines, per recorded outcome) and `tests/optional-scripts-test.sh` (failing
-      optional components, and the early install-mode guard)
+      lines and optional-component summary, per recorded outcome) and
+      `tests/optional-scripts-test.sh` (failing optional components, the
+      retry/continue/abort prompt including on a pty, and the early
+      install-mode guard)
     - `ubuntu_codename`, `ppa_suites`, `ppa_series_ok` and the Hyprland source
       record helpers to `install-scripts/Global_functions.sh`, so `install.sh`,
       `hyprland-ppa.sh`, `hyprland-ubuntu.sh`, `update-deps.sh` and
@@ -100,6 +102,12 @@
       something failed, before the screen is cleared: it prints one summary and
       offers to retry the failed optional components, continue anyway, or abort
       (a non-interactive run prints the summary and continues)
+    - `dotfiles-branch.sh` now fails when `copy.sh` fails or does not create
+      `~/.config/hypr`. It always exited 0, so a broken copy was reported as an
+      installed dots setup and the final check had nothing to report
+    - `03-Final-Check.sh` prints the optional components that did not install
+      (recorded in `Install-Logs/optional-failures.txt`) after the Hyprland
+      source line; printed only, never appended to its package log
     - `install.sh` falls back to the Ubuntu repositories when the PPA path fails,
       and the recorded reason is reported by the final check instead of the
       install simply aborting

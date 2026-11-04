@@ -67,7 +67,7 @@ check_eq() {
 BLOCK="$WORK/summary.sh"
 awk '
     /^hypr_src="\$\(hyprland_source_field 1\)"$/ { on = 1 }
-    on && /^# Log missing packages/ { exit }
+    on && /^# Optional components that did not install/ { exit }
     on
 ' "$FINAL" >"$BLOCK"
 
@@ -134,7 +134,52 @@ echo "the PPA path failed outright"
 record ppa-failed "$PPA_REASON"
 check_contains "says the PPA provided nothing" "$(summary)" "The community PPA path did not provide Hyprland: $PPA_REASON."
 
+# ─── optional-component summary ────────────────────────────────────────────
+OPT_BLOCK="$WORK/optional.sh"
+awk '
+    /^# Optional components that did not install/ { on = 1 }
+    on && /^# Log missing packages/ { exit }
+    on
+' "$FINAL" >"$OPT_BLOCK"
+
+if ! grep -q 'optional-failures.txt' "$OPT_BLOCK"; then
+    echo "could not extract the optional-component summary" >&2
+    exit 1
+fi
+
+OPT_RUN="$WORK/optional-run.sh"
+{
+    printf '%s\n' '#!/usr/bin/env bash' 'set -uo pipefail'
+    printf 'GF_SKIP_SETUP=1 GF_STRICT=0 . %q\n' "$FUNCTIONS"
+    printf 'REPO_ROOT=%q\n' "$WORK/opt-repo"
+    cat "$OPT_BLOCK"
+} >"$OPT_RUN"
+
+bash -n "$OPT_RUN" || {
+    echo "extracted optional-component summary is not runnable" >&2
+    exit 1
+}
+
+OPT_FILE="$WORK/opt-repo/Install-Logs/optional-failures.txt"
+mkdir -p "$(dirname "$OPT_FILE")"
+opt_summary() { bash "$OPT_RUN" 2>&1; }
+
 echo
+echo "optional components that were skipped"
+rm -f "$OPT_FILE"
+check_eq "prints nothing when none were skipped" "$(opt_summary)" ""
+
+printf '%s\n' yazi.sh dotfiles-branch.sh >"$OPT_FILE"
+out="$(opt_summary)"
+check_contains "names the section" "$out" "These optional components did not install"
+check_contains "lists Yazi" "$out" "  - yazi.sh"
+check_contains "lists the dotfiles step" "$out" "  - dotfiles-branch.sh"
+
+printf '\n%s\n' zsh.sh >"$OPT_FILE"
+check_eq "blank entries are skipped" "$(opt_summary | grep -c '^  - ')" "1"
+
+rm -f "$OPT_FILE"
+
 if [ "$FAIL" -eq 0 ]; then
     printf '%s checks passed\n' "$PASS"
     exit 0

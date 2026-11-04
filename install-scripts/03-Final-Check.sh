@@ -131,6 +131,18 @@ ppa-failed)
     ;;
 esac
 
+# Optional components that did not install
+# install.sh records them in Install-Logs/optional-failures.txt. Printed only:
+# update-deps.sh reads this log as a list of missing packages, so these names
+# must not be appended to it.
+optional_failures="$REPO_ROOT/Install-Logs/optional-failures.txt"
+if [ -s "$optional_failures" ]; then
+    echo "${WARN} These optional components did not install:"
+    while IFS= read -r component; do
+        [ -n "$component" ] && echo "  - $component"
+    done <"$optional_failures"
+fi
+
 # Log missing packages
 if [ ${#missing[@]} -eq 0 ] && [ ${#local_missing[@]} -eq 0 ]; then
     echo "${OK} GREAT! All ${YELLOW}essential packages${RESET} have been successfully installed." | tee -a "$LOG"

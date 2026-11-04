@@ -207,6 +207,9 @@ export BUILD_ROOT BUILD_SRC BUILD_BIN
 mkdir -p "$BUILD_SRC" "$BUILD_BIN" "$REPO_ROOT/Install-Logs"
 # Start every run with a clean failure list (recorded by Global_functions.sh)
 : >"$REPO_ROOT/Install-Logs/failed-packages.txt"
+# Optional components that fail are recorded per run too, so the final check can
+# report them when someone reads the install log later.
+: >"$REPO_ROOT/Install-Logs/optional-failures.txt"
 # and no Hyprland source record, so the final check never describes how a
 # previous run installed it.
 rm -f "$REPO_ROOT/Install-Logs/hyprland-source.txt"
@@ -313,14 +316,31 @@ execute_script() {
 
 # Optional components: a failure is reported and the install carries on, so one
 # optional piece does not throw away an otherwise finished desktop. Anything
-# Hyprland or the dotfiles need stays fatal.
+# Hyprland or the dotfiles need stays fatal. Failures are also recorded in a
+# file, so the final check can list them after the run.
 failed_optional=()
+optional_failures_file="$REPO_ROOT/Install-Logs/optional-failures.txt"
+
+record_optional_failure() { # record_optional_failure <script>
+    mkdir -p "$(dirname "$optional_failures_file")"
+    printf '%s\n' "$1" >>"$optional_failures_file"
+}
+
+clear_optional_failure() { # clear_optional_failure <script>
+    [ -f "$optional_failures_file" ] || return 0
+    grep -vxF -- "$1" "$optional_failures_file" >"$optional_failures_file.tmp" || true
+    mv "$optional_failures_file.tmp" "$optional_failures_file"
+}
+
 run_optional() { # run_optional <script>
     if execute_script "$1"; then
+        # A retry that works drops the stale entry from the record.
+        clear_optional_failure "$1"
         return 0
     fi
     echo "${WARN} $1 failed; continuing without it (see the log)." | tee -a "$LOG"
     failed_optional+=("$1")
+    record_optional_failure "$1"
     return 0
 }
 
