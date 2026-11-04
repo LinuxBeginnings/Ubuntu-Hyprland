@@ -96,6 +96,7 @@ https://github.com/user-attachments/assets/49bc12b2-abaf-45de-a21c-67aacd9bb872
 - This script is meant to install Hyprland in Ubuntu 24.04 LTS ONLY!!
 - `nm-applet-gnome` has been replaced with `nm-tray` to resolve the earlier issues with the old applet
 - If you have nvidia, and wanted to use proprietary drivers, uninstall nouveau first (if installed). This script will be installing proprietary nvidia drivers and will not deal with removal of nouveau.
+- Optional components (dotfiles, SDDM, zsh and the like) no longer stop the install when they fail. Each failure is reported when it happens, recorded in `Install-Logs/optional-failures.txt`, and listed again by the final check.
 - NVIDIA users / owners, after installation, check [`THIS`](https://github.com/LinuxBeginnings/Hyprland-Dots/wiki/Notes_to_remember#--for-nvidia-gpu-users)
 
 #### ⚠️ WARNING! nwg-look takes long time to install.

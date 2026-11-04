@@ -114,8 +114,11 @@ re_install_package() {
 }
 
 # Function to check if a package has an available candidate in APT
+# apt-cache translates its field labels, so the parse is pinned to the C locale
+# for the call only; on a non-English system "Candidate:" never matched and
+# every package looked unavailable.
 has_apt_candidate() {
-  local cand
+  local cand LC_ALL=C LANG=C
   cand="$(apt-cache policy "$1" 2>/dev/null | awk '/Candidate:/ {print $2}')"
   [ -n "$cand" ] && [ "$cand" != "(none)" ]
 }

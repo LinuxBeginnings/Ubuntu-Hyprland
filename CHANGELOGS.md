@@ -1,5 +1,16 @@
 ## CHANGELOGS
 
+## Nov 2026
+
+- Fixed:
+    - `has_apt_candidate` reported every package as unavailable on non-English systems; `apt-cache policy` output is now parsed in the C locale
+    - Optional components no longer abort a nearly finished install; each failure warns and is recorded in `Install-Logs/optional-failures.txt`
+    - `03-Final-Check.sh` lists the optional components that did not install, so the list is still visible after the screen clear
+    - `dotfiles.sh` reported success even when `copy.sh` failed or copied nothing; the install is now verified against `~/.config/hypr`
+
+- Added:
+    - `tests/` covering the locale parse, the dots copy verification and the optional-component summary
+
 ## Oct 2026
 
 - Added:

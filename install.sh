@@ -160,6 +160,39 @@ execute_script() {
     fi
 }
 
+# ─── optional components ───────────────────────────────────────────────────
+# Optional steps must not abort a nearly finished install, but their failures
+# still have to be visible: each one warns, is recorded here, and is repeated by
+# 03-Final-Check.sh after the screen is cleared. Kept in its own file because
+# update-deps.sh reads the final-check log as a list of missing packages.
+failed_optional=()
+optional_failures_file="$PWD/Install-Logs/optional-failures.txt"
+mkdir -p "$(dirname "$optional_failures_file")"
+: >"$optional_failures_file"
+
+record_optional_failure() { # record_optional_failure <script>
+    mkdir -p "$(dirname "$optional_failures_file")"
+    printf '%s\n' "$1" >>"$optional_failures_file"
+}
+
+clear_optional_failure() { # clear_optional_failure <script>
+    [ -f "$optional_failures_file" ] || return 0
+    grep -vxF -- "$1" "$optional_failures_file" >"$optional_failures_file.tmp" || true
+    mv "$optional_failures_file.tmp" "$optional_failures_file"
+}
+
+run_optional() { # run_optional <script>
+    if execute_script "$1"; then
+        # A retry that works drops the stale entry from the record.
+        clear_optional_failure "$1"
+        return 0
+    fi
+    echo "${WARN} $1 failed; continuing without it (see the log)." | tee -a "$LOG"
+    failed_optional+=("$1")
+    record_optional_failure "$1"
+    return 0
+}
+
 # Block unsupported distros for the Hyprland PPA early
 if ! execute_script "check-distro-support.sh"; then
     echo "${ERROR} Distro check failed. See above for details." | tee -a "$LOG"
@@ -370,21 +403,21 @@ execute_script "01-hypr-pkgs.sh" || {
     exit 1
 }
 sleep 1
-execute_script "wallust.sh"
+run_optional "wallust.sh"
 sleep 1
-execute_script "swappy.sh"
+run_optional "swappy.sh"
 sleep 1
-execute_script "swww.sh"
+run_optional "swww.sh"
 sleep 1
-execute_script "rofi-wayland.sh"
+run_optional "rofi-wayland.sh"
 sleep 1
-execute_script "nwg-displays.sh"
+run_optional "nwg-displays.sh"
 sleep 1
-execute_script "hyprlock.sh"
+run_optional "hyprlock.sh"
 sleep 1
-execute_script "hypridle.sh"
+run_optional "hypridle.sh"
 sleep 1
-execute_script "yazi.sh"
+run_optional "yazi.sh"
 
 sleep 1
 echo "${INFO} Building and installing ${SKY_BLUE}Waybar from source${RESET} (required for Hyprland Lua workflow)..." | tee -a "$LOG"
@@ -405,59 +438,56 @@ for option in "${options[@]}"; do
     case "$option" in
     nvidia)
         echo "${INFO}Configuring ${SKY_BLUE}nvidia stuff${RESET}" | tee -a "$LOG"
-        execute_script "nvidia.sh"
+        run_optional "nvidia.sh"
         ;;
     gtk_themes)
         echo "${INFO}Installing ${SKY_BLUE}GTK themes...${RESET}" | tee -a "$LOG"
-        execute_script "gtk_themes.sh"
+        run_optional "gtk_themes.sh"
         ;;
     input_group)
         echo "${INFO}Adding user into ${SKY_BLUE}input group...${RESET}" | tee -a "$LOG"
-        execute_script "InputGroup.sh"
+        run_optional "InputGroup.sh"
         ;;
     ags)
         echo "${INFO}Installing ${SKY_BLUE}AGS v1 for Desktop Overview...${RESET}" | tee -a "$LOG"
-        execute_script "ags.sh"
+        run_optional "ags.sh"
         ;;
     sddm)
         echo "${INFO}Installing and configuring ${SKY_BLUE}SDDM...${RESET}" | tee -a "$LOG"
-        execute_script "sddm.sh"
+        run_optional "sddm.sh"
         ;;
     sddm_themes)
         echo "${INFO}Installing and configuring ${SKY_BLUE}SDDM themes...${RESET}" | tee -a "$LOG"
-        execute_script "sddm_theme.sh"
+        run_optional "sddm_theme.sh"
         ;;
     bluetooth)
         echo "${INFO}Configuring ${SKY_BLUE}Bluetooth...${RESET}" | tee -a "$LOG"
-        execute_script "bluetooth.sh"
+        run_optional "bluetooth.sh"
         ;;
     thunar)
         echo "${INFO}Installing ${SKY_BLUE}Thunar file manager...${RESET}" | tee -a "$LOG"
-        execute_script "thunar.sh"
-        execute_script "thunar_default.sh"
+        run_optional "thunar.sh"
+        run_optional "thunar_default.sh"
         ;;
     zsh)
         echo "${INFO}Installing ${SKY_BLUE}zsh with Oh-My-Zsh...${RESET}" | tee -a "$LOG"
-        execute_script "zsh.sh"
+        run_optional "zsh.sh"
         ;;
     nwg-look)
         echo "${INFO}Installing ${SKY_BLUE}nwg-look...${RESET}" | tee -a "$LOG"
-        execute_script "nwg-look.sh"
+        run_optional "nwg-look.sh"
         ;;
     pokemon)
         echo "${INFO}Adding ${SKY_BLUE}Pokemon color scripts to terminal...${RESET}" | tee -a "$LOG"
-        execute_script "zsh_pokemon.sh"
+        run_optional "zsh_pokemon.sh"
         ;;
     rog)
         echo "${INFO}Installing ${SKY_BLUE}ROG laptop packages...${RESET}" | tee -a "$LOG"
-        execute_script "rog.sh"
+        run_optional "rog.sh"
         ;;
     dots)
         echo "${INFO}Installing pre-configured ${SKY_BLUE}KooL Hyprland dotfiles...${RESET}" | tee -a "$LOG"
-        execute_script "dotfiles.sh" || {
-            echo "${ERROR:-[ERROR]} Dotfiles installation failed" | tee -a "$LOG"
-            exit 1
-        }
+        run_optional "dotfiles.sh"
         ;;
     *)
         echo "Unknown option: $option" | tee -a "$LOG"

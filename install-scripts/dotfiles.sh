@@ -47,8 +47,24 @@ else
     fi
 fi
 
-# Run copy.sh from the dotfiles repo
-chmod +x copy.sh
-./copy.sh
+# Run copy.sh and prove it installed something. Without this the script exited 0
+# no matter what copy.sh did, so a failed or empty copy still looked like an
+# installed dots setup.
+install_dots() {
+    if ! chmod +x copy.sh; then
+        echo "${ERROR} Could not make copy.sh executable in $PWD" >&2
+        return 1
+    fi
+    if ! ./copy.sh; then
+        echo "${ERROR} copy.sh failed in $PWD" >&2
+        return 1
+    fi
+    if [ ! -d "$HOME/.config/hypr" ]; then
+        echo "${ERROR} copy.sh finished but $HOME/.config/hypr is missing" >&2
+        return 1
+    fi
+}
+
+install_dots || exit 1
 
 printf "\n%.0s" {1..2}
