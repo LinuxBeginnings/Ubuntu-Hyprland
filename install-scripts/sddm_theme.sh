@@ -19,6 +19,9 @@ if ! source "$(dirname "$(readlink -f "$0")")/Global_functions.sh"; then
   exit 1
 fi
 
+# Surface failures from `cmd | tee` instead of tee's exit status
+set -o pipefail
+
 # Repo root as cwd + absolute, collision-free log path
 init_script "sddm_theme"
     

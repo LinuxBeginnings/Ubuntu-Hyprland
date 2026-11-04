@@ -33,6 +33,9 @@ if ! source "$(dirname "$(readlink -f "$0")")/Global_functions.sh"; then
   exit 1
 fi
 
+# Surface failures from `cmd | tee` instead of tee's exit status
+set -o pipefail
+
 # Shared version contract (HYPRLOCK_MIN_VERSION, hyprlock_ok)
 if ! source "$SCRIPT_DIR/Global_versions.sh"; then
   echo "Failed to source Global_versions.sh"
@@ -93,11 +96,15 @@ if git clone --recursive -b $lock_tag https://github.com/hyprwm/hyprlock.git; th
     if sudo cmake --install build 2>&1 | tee -a "$MLOG" ; then
         printf "${OK} ${YELLOW}hyprlock $lock_tag${RESET} installed successfully.\n" 2>&1 | tee -a "$MLOG"
     else
-        echo -e "${ERROR} Installation failed for ${YELLOW}hyprlock $lock_tag${RESET}" 2>&1 | tee -a "$MLOG"
+        # A failed install must fail the step, like ags.sh: printing the error
+        # and falling through let install.sh count it as done.
+        echo -e "${ERROR} Installation failed for ${YELLOW}hyprlock $lock_tag${RESET}. See ${SKY_BLUE}$MLOG${RESET}" 2>&1 | tee -a "$MLOG"
+        exit 1
     fi
     cd ..
 else
     echo -e "${ERROR} Download failed for ${YELLOW}hyprlock $lock_tag${RESET}" 2>&1 | tee -a "$LOG"
+    exit 1
 fi
 
 printf "\n%.0s" {1..2}

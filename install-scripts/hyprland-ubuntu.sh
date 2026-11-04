@@ -9,6 +9,8 @@
 # Install Hyprland and related packages from Ubuntu repositories (remove PPA if present)
 
 set -e
+# Surface failures from `cmd | tee` instead of tee's exit status
+set -o pipefail
 
 
 # shellcheck source=install-scripts/Global_functions.sh

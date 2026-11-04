@@ -85,11 +85,15 @@ if git clone --recursive -b $idle_tag https://github.com/hyprwm/hypridle.git; th
     if sudo cmake --install ./build 2>&1 | tee -a "$MLOG" ; then
         printf "${OK} ${MAGENTA}hypridle $idle_tag${RESET} installed successfully.\n" 2>&1 | tee -a "$MLOG"
     else
-        echo -e "${ERROR} Installation failed for ${YELLOW}hypridle $idle_tag${RESET}" 2>&1 | tee -a "$MLOG"
+        # A failed install must fail the step, like ags.sh: printing the error
+        # and falling through let install.sh count it as done.
+        echo -e "${ERROR} Installation failed for ${YELLOW}hypridle $idle_tag${RESET}. See ${SKY_BLUE}$MLOG${RESET}" 2>&1 | tee -a "$MLOG"
+        exit 1
     fi
     cd ..
 else
     echo -e "${ERROR} Download failed for ${YELLOW}hypridle $idle_tag${RESET}" 2>&1 | tee -a "$LOG"
+    exit 1
 fi
 
 printf "\n%.0s" {1..2}

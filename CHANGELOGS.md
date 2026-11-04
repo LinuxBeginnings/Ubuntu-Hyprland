@@ -114,6 +114,28 @@
     - Every shell script is shellcheck-clean, and `tests/run-all.sh` now fails on
       any shellcheck finding so the baseline cannot drift
 - Fixed:
+    - `ags.sh` stopped failing during install: `libaudit-dev` is installed because
+      pam's `pkg-config` entry pulls in `audit.pc`, the `apt build-dep pam` call
+      (which needs `deb-src` sources most systems lack) is gone, and the global
+      TypeScript is pinned to `5` because ags v1.9.0's tsconfig no longer
+      compiles under 6/7. Failed `npm install` / `meson setup` / `meson install`
+      steps now name the log and exit non-zero instead of dying silently or
+      reporting success, and the compile uses the `tsc` pinned in
+      `package.json`
+    - `ags.sh`, `hyprland-ubuntu.sh`, `hyprlock.sh`, `rofi-wayland.sh`,
+      `sddm.sh`, `sddm_theme.sh` and `yazi.sh` set `pipefail`, so a failed
+      `cmd | tee` is reported instead of tee's success status
+    - `build_dep` reports a failed `apt build-dep` and returns success, since the
+      `-dev` packages each caller needs are already in its own list; the failure
+      used to be counted as a successful step
+    - `hyprlock.sh`, `hypridle.sh` and `rog.sh` fail the step when the source
+      install or the clone fails. They printed the error and then ended 0, so
+      `install.sh` listed them as installed; they now show up in the optional
+      component summary instead
+    - `tests/ags-install-failure-test.sh` pins `ags.sh`'s exit status for a
+      failed clone, `npm install`, `meson setup` and `meson install` (and for a
+      successful build) by running it in a throwaway copy of the repo with
+      git/npm/meson/sudo stubbed, so no build or sudo is needed
     - `packages.sh` listed `hyprland-guiutils`, which Ubuntu 26.04 (resolute)
       does not package, so `01-hypr-pkgs.sh` aborted every clean install with
       "Unable to locate package hyprland-guiutils". It now uses

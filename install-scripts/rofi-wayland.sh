@@ -9,6 +9,8 @@
 # Install rofi (Wayland-capable) from Ubuntu repositories
 
 set -e
+# Surface failures from `cmd | tee` instead of tee's exit status
+set -o pipefail
 
 # Source the global functions script
 if ! source "$(dirname "$(readlink -f "$0")")/Global_functions.sh"; then
