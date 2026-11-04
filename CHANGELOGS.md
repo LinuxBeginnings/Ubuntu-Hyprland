@@ -143,6 +143,12 @@
       sources most systems lack, and it installs pam's own build dependencies
       rather than the pam headers hyprlock links against, which
       `libpam0g-dev` in the package list already provides
+    - `00-dependencies.sh` no longer runs `apt build-dep wlroots`: nothing in
+      the repo builds wlroots from source (Hyprland arrives from the PPA or the
+      Ubuntu repositories, wlroots with it) and that script never enables
+      `deb-src`, so the call could only fail and be reported as a warning.
+      `waybar.sh` keeps its call, the one place where a package really is built
+      from source and `deb-src` is enabled for it
     - `packages.sh` listed `hyprland-guiutils`, which Ubuntu 26.04 (resolute)
       does not package, so `01-hypr-pkgs.sh` aborted every clean install with
       "Unable to locate package hyprland-guiutils". It now uses
