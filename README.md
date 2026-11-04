@@ -148,6 +148,15 @@ chmod +x install.sh
 ./install.sh
 ```
 
+### 🔀 Choosing where Hyprland comes from
+
+- `./install.sh` installs from the community PPA (recommended, current Hyprland)
+- `./install.sh --install-ubuntu` installs from the Ubuntu repositories instead. Ubuntu 24.04's own Hyprland is older than the PPA build, so expect to adjust some config; this path also runs automatically when the PPA cannot provide Hyprland for your release
+- `./install.sh --preset preset.sh` pre-selects the options listed in the preset file
+- `./install.sh --help` prints the available options
+
+If something optional fails, the installer tells you when it happens and lists it again at the end, offering retry, continue or abort. Failures are also recorded in `Install-Logs/`.
+
 ### 💥 💥 UNINSTALL SCRIPT / Removal of Config Files
 
 - 11 March 2025, due to popular request, created a guided `uninstall.sh` script. USE this with caution as it may render your system unstable.

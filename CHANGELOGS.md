@@ -9,7 +9,16 @@
     - `dotfiles.sh` reported success even when `copy.sh` failed or copied nothing; the install is now verified against `~/.config/hypr`
 
 - Added:
-    - `tests/` covering the locale parse, the dots copy verification and the optional-component summary
+    - `--install-ppa` / `--install-ubuntu` (and `--preset FILE`, `--preset=FILE`, `--help`) to `install.sh`
+    - `install-scripts/hyprland-ubuntu.sh`, the Ubuntu-repository path used when the community PPA cannot provide Hyprland
+    - `tests/` covering the locale parse, the dots copy verification, the optional-component summary, the PPA series check and the install-issue prompt
+    - `tests/run-all.sh`, which runs the tests and lints the scripts changed by this work
+
+- Changed:
+    - `hyprland-ppa.sh` checks the series the PPA is enabled for before running `apt update`, and skips packages the PPA does not carry for this release instead of failing the step
+    - Package install failures are recorded in `Install-Logs/failed-packages.txt`; `install.sh` lists them with the failed optional components and offers retry, continue or abort before the screen is cleared
+    - `03-Final-Check.sh` reports whether Hyprland came from the PPA or the Ubuntu repositories
+    - A preset file now pre-selects the matching options in the checklist (Y/N and ON/OFF are both accepted)
 
 ## Oct 2026
 

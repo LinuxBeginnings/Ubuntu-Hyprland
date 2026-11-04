@@ -97,6 +97,27 @@ for cmd in "${path_cmds[@]}"; do
     fi
 done
 
+# How Hyprland was provided, recorded by hyprland-ppa.sh or hyprland-ubuntu.sh
+hypr_src="$(hyprland_source_field 1)"
+hypr_reason="$(hyprland_source_field 2)"
+case "$hypr_src" in
+ppa)
+    echo "${INFO} Hyprland came from the community ${MAGENTA}PPA${RESET}."
+    ;;
+ubuntu)
+    echo "${INFO} Hyprland came from the ${MAGENTA}Ubuntu repositories${RESET}."
+    if [ -n "$hypr_reason" ]; then
+        echo "${WARN} The community PPA path was not used: ${hypr_reason}."
+    fi
+    ;;
+ppa-failed)
+    echo "${WARN} The community PPA path did not provide Hyprland: ${hypr_reason}."
+    ;;
+ubuntu-failed)
+    echo "${WARN} The Ubuntu repositories did not provide Hyprland: ${hypr_reason}."
+    ;;
+esac
+
 # Optional components that did not install
 # install.sh records them in Install-Logs/optional-failures.txt. Printed only:
 # update-deps.sh reads this log as a list of missing packages, so these names

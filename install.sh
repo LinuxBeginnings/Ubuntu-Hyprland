@@ -9,10 +9,8 @@ INFO="$(tput setaf 4)[INFO]$(tput sgr0)"
 WARN="$(tput setaf 1)[WARN]$(tput sgr0)"
 CAT="$(tput setaf 6)[ACTION]$(tput sgr0)"
 MAGENTA="$(tput setaf 5)"
-ORANGE="$(tput setaf 214)"
 WARNING="$(tput setaf 1)"
 YELLOW="$(tput setaf 3)"
-GREEN="$(tput setaf 2)"
 BLUE="$(tput setaf 4)"
 SKY_BLUE="$(tput setaf 6)"
 RESET="$(tput sgr0)"
@@ -38,6 +36,69 @@ checkbox=white,black
 actcheckbox=black,cyan
 '
 fi
+
+# CLI options: Hyprland from the community PPA (default) or the Ubuntu repos
+INSTALL_MODE="${INSTALL_MODE:-ppa}"
+PRESET_FILE=""
+SHOW_HELP=0
+while [ $# -gt 0 ]; do
+    case "$1" in
+    --install-ppa)
+        INSTALL_MODE=ppa
+        ;;
+    --install-ubuntu)
+        INSTALL_MODE=ubuntu
+        ;;
+    --preset)
+        shift
+        PRESET_FILE="${1:-}"
+        if [ -z "$PRESET_FILE" ]; then
+            echo "Missing argument for --preset" >&2
+            exit 1
+        fi
+        ;;
+    --preset=*)
+        PRESET_FILE="${1#--preset=}"
+        ;;
+    -h | --help)
+        SHOW_HELP=1
+        ;;
+    *)
+        echo "Unknown option: $1" >&2
+        exit 1
+        ;;
+    esac
+    shift
+done
+
+if [ "$SHOW_HELP" = "1" ]; then
+    cat <<USAGE
+Usage: ./install.sh [options]
+
+Options:
+  --install-ppa       Install Hyprland from the community PPA (default)
+  --install-ubuntu    Install Hyprland from the Ubuntu repositories
+  --preset FILE       Load option defaults from FILE (see preset.sh)
+  -h, --help          Show this help and exit
+
+Notes:
+- The community PPA provides the latest Hyprland packages.
+- If the PPA path cannot provide Hyprland, the Ubuntu repositories are tried.
+- Only Ubuntu 24.04 is supported.
+USAGE
+    exit 0
+fi
+
+case "$INSTALL_MODE" in
+ppa | ubuntu) ;;
+*)
+    echo "Unknown install mode: $INSTALL_MODE (expected ppa or ubuntu)" >&2
+    exit 1
+    ;;
+esac
+
+# Repo root, so the record files do not depend on the caller's working directory
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Function to print colorful text
 print_color() {
@@ -77,6 +138,12 @@ esac
 if [ ! -d Install-Logs ]; then
     mkdir Install-Logs
 fi
+
+# Start this run with a clean record: the end-of-run summary and
+# 03-Final-Check.sh read both files, and the Hyprland source is re-recorded by
+# whichever installer script runs.
+: >"$REPO_ROOT/Install-Logs/failed-packages.txt"
+rm -f "$REPO_ROOT/Install-Logs/hyprland-source.txt"
 
 # Set the name of the log file to include the current date and time
 LOG="Install-Logs/01-Hyprland-Install-Scripts-$(date +%d-%H%M%S).log"
@@ -166,7 +233,7 @@ execute_script() {
 # 03-Final-Check.sh after the screen is cleared. Kept in its own file because
 # update-deps.sh reads the final-check log as a list of missing packages.
 failed_optional=()
-optional_failures_file="$PWD/Install-Logs/optional-failures.txt"
+optional_failures_file="$REPO_ROOT/Install-Logs/optional-failures.txt"
 mkdir -p "$(dirname "$optional_failures_file")"
 : >"$optional_failures_file"
 
@@ -193,6 +260,81 @@ run_optional() { # run_optional <script>
     return 0
 }
 
+# ── install issue summary ─────────────────────────────────────────────
+# Everything that did not install: optional components that failed plus any
+# package the package steps recorded. The package file is the one the final
+# check reads, so this summary matches what the final check would report.
+collect_install_issues() {
+    install_issues=("${failed_optional[@]}")
+    local pkg_file="$REPO_ROOT/Install-Logs/failed-packages.txt"
+    if [ -f "$pkg_file" ]; then
+        local pkg
+        while IFS= read -r pkg; do
+            [ -n "$pkg" ] && install_issues+=("package: $pkg")
+        done <"$pkg_file"
+    fi
+    [ ${#install_issues[@]} -gt 0 ]
+}
+
+print_install_issues() {
+    local issue
+    printf "\n${ERROR} Some parts of the install did not complete:\n"
+    for issue in "${install_issues[@]}"; do
+        printf "  - %s\n" "$issue"
+    done
+    printf "${NOTE} Logs: %s and %s/Install-Logs/\n" "$LOG" "$REPO_ROOT"
+}
+
+# Pauses when something failed, so the user can retry or stop instead of only
+# finding out at the very end. Only the optional components can be retried from
+# here; package failures need a rerun. ISSUES_ASSUME_TTY=1 lets the tests drive
+# the prompt without a terminal.
+resolve_install_issues() {
+    collect_install_issues || return 0
+    print_install_issues
+    if [ ! -t 0 ] && [ "${ISSUES_ASSUME_TTY:-0}" != "1" ]; then
+        echo "${WARN} Not running interactively; continuing to the final check." | tee -a "$LOG"
+        return 0
+    fi
+    local answer retry script
+    while true; do
+        printf "\n${CAT} Retry the failed parts (r), continue anyway (c), or abort (a)? "
+        read -r answer || answer="a"
+        answer="$(printf '%s' "$answer" | tr '[:upper:]' '[:lower:]')"
+        case "$answer" in
+        r | retry)
+            if [ ${#failed_optional[@]} -eq 0 ]; then
+                echo "${WARN} Only package entries failed; rerun the installer to retry them (see the log)." | tee -a "$LOG"
+                continue
+            fi
+            echo "${INFO} Retrying ${#failed_optional[@]} component(s)..." | tee -a "$LOG"
+            retry=("${failed_optional[@]}")
+            failed_optional=()
+            for script in "${retry[@]}"; do
+                run_optional "$script"
+            done
+            if [ ${#failed_optional[@]} -eq 0 ]; then
+                echo "${OK} Retried component(s) installed." | tee -a "$LOG"
+                return 0
+            fi
+            collect_install_issues
+            print_install_issues
+            ;;
+        c | continue | s | skip)
+            echo "${WARN} Continuing with the parts that did install." | tee -a "$LOG"
+            return 0
+            ;;
+        a | abort)
+            echo "${ERROR} Aborted at your request. Re-run ./install.sh to finish." | tee -a "$LOG"
+            exit 1
+            ;;
+        *)
+            echo "${WARN} Please answer r, c or a."
+            ;;
+        esac
+    done
+}
+
 # Block unsupported distros for the Hyprland PPA early
 if ! execute_script "check-distro-support.sh"; then
     echo "${ERROR} Distro check failed. See above for details." | tee -a "$LOG"
@@ -200,7 +342,7 @@ if ! execute_script "check-distro-support.sh"; then
 fi
 
 #################
-## Default values for the options (will be overwritten by preset file if available)
+## Default values for the options (overwritten by the preset file when given)
 gtk_themes="OFF"
 bluetooth="OFF"
 thunar="OFF"
@@ -214,19 +356,41 @@ dots="OFF"
 input_group="OFF"
 nvidia="OFF"
 
+# Preset files may say Y/N or ON/OFF; whiptail only understands ON/OFF
+normalise_state() {
+    case "${1:-}" in
+    [Yy] | [Yy][Ee][Ss] | ON | on | 1 | true) echo "ON" ;;
+    *) echo "OFF" ;;
+    esac
+}
+
 # Function to load preset file
 load_preset() {
     if [ -f "$1" ]; then
         echo "✅ Loading preset: $1"
+        # shellcheck disable=SC1090
         source "$1"
+        # The preset also sets these defaults, so they reach the checklist below.
+        gtk_themes="$(normalise_state "${gtk_themes:-OFF}")"
+        bluetooth="$(normalise_state "${bluetooth:-OFF}")"
+        thunar="$(normalise_state "${thunar:-OFF}")"
+        ags="$(normalise_state "${ags:-OFF}")"
+        sddm="$(normalise_state "${sddm:-OFF}")"
+        sddm_themes="$(normalise_state "${sddm_themes:-OFF}")"
+        zsh="$(normalise_state "${zsh:-OFF}")"
+        pokemon="$(normalise_state "${pokemon:-OFF}")"
+        rog="$(normalise_state "${rog:-OFF}")"
+        dots="$(normalise_state "${dots:-OFF}")"
+        input_group="$(normalise_state "${input_group:-OFF}")"
+        nvidia="$(normalise_state "${nvidia:-OFF}")"
     else
         echo "⚠️ Preset file not found: $1. Using default values."
     fi
 }
 
 # Check if --preset argument is passed
-if [[ "$1" == "--preset" && -n "$2" ]]; then
-    load_preset "$2"
+if [ -n "$PRESET_FILE" ]; then
+    load_preset "$PRESET_FILE"
 fi
 
 # List of services to check for active login managers
@@ -271,7 +435,7 @@ options_command=(
 # Add NVIDIA options if detected
 if [ "$nvidia_detected" == "true" ]; then
     options_command+=(
-        "nvidia" "Do you want script to configure NVIDIA GPU?" "OFF"
+        "nvidia" "Do you want script to configure NVIDIA GPU?" "$nvidia"
     )
 fi
 
@@ -285,23 +449,23 @@ fi
 # Add 'input_group' option if user is not in input group
 if [ "$input_group_detected" == "true" ]; then
     options_command+=(
-        "input_group" "Add your USER to input group for some waybar functionality?" "OFF"
+        "input_group" "Add your USER to input group for some waybar functionality?" "$input_group"
     )
 fi
 
 # Add the remaining static options
 options_command+=(
-    "gtk_themes" "Install GTK themes (required for Dark/Light function)" "OFF"
-    "bluetooth" "Do you want script to configure Bluetooth?" "OFF"
-    "thunar" "Do you want Thunar file manager to be installed?" "OFF"
-    "ags" "Install AGS v1 for Desktop-Like Overview" "OFF"
-    "sddm" "Install and configure SDDM login manager?" "OFF"
-    "sddm_themes" "Install and configure SDDM themes?" "OFF"
-    "zsh" "Install zsh shell with Oh-My-Zsh?" "OFF"
+    "gtk_themes" "Install GTK themes (required for Dark/Light function)" "$gtk_themes"
+    "bluetooth" "Do you want script to configure Bluetooth?" "$bluetooth"
+    "thunar" "Do you want Thunar file manager to be installed?" "$thunar"
+    "ags" "Install AGS v1 for Desktop-Like Overview" "$ags"
+    "sddm" "Install and configure SDDM login manager?" "$sddm"
+    "sddm_themes" "Install and configure SDDM themes?" "$sddm_themes"
+    "zsh" "Install zsh shell with Oh-My-Zsh?" "$zsh"
     "nwg-look" "Install nwg-look for GTK theming? WARNING This Package Takes long time to build!" "OFF"
-    "pokemon" "Add Pokemon color scripts to your terminal?" "OFF"
-    "rog" "Are you installing on Asus ROG laptops?" "OFF"
-    "dots" "Download and install pre-configured KooL Hyprland dotfiles?" "OFF"
+    "pokemon" "Add Pokemon color scripts to your terminal?" "$pokemon"
+    "rog" "Are you installing on Asus ROG laptops?" "$rog"
+    "dots" "Download and install pre-configured KooL Hyprland dotfiles?" "$dots"
 )
 
 # Capture the selected options before the while loop starts
@@ -374,12 +538,28 @@ printf "\n%.0s" {1..1}
 echo "${INFO} Running a ${SKY_BLUE}full system update...${RESET}" | tee -a "$LOG"
 sudo apt update
 
-# Add Hyprland PPA and install Hyprland stack early (ensures newer versions like Waybar)
-export HYPR_USE_PPA=1
-execute_script "hyprland-ppa.sh" || {
-    echo "${ERROR:-[ERROR]} Hyprland PPA setup failed" | tee -a "$LOG"
-    exit 1
-}
+# Install the Hyprland stack early (ensures newer versions like Waybar). The PPA
+# is the default path; when it cannot provide Hyprland on this release the
+# Ubuntu repositories are tried before giving up.
+case "$INSTALL_MODE" in
+ppa)
+    export HYPR_USE_PPA=1
+    if ! execute_script "hyprland-ppa.sh"; then
+        echo "${WARN} The community PPA did not provide Hyprland; trying the Ubuntu repositories." | tee -a "$LOG"
+        if ! execute_script "hyprland-ubuntu.sh"; then
+            echo "${ERROR} Hyprland could not be installed from the PPA or the Ubuntu repositories." | tee -a "$LOG"
+            exit 1
+        fi
+    fi
+    ;;
+ubuntu)
+    export HYPR_USE_PPA=0
+    if ! execute_script "hyprland-ubuntu.sh"; then
+        echo "${ERROR} Hyprland could not be installed from the Ubuntu repositories." | tee -a "$LOG"
+        exit 1
+    fi
+    ;;
+esac
 
 echo "${INFO} Installing ${SKY_BLUE}necessary dependencies...${RESET}" | tee -a "$LOG"
 sleep 1
@@ -486,6 +666,9 @@ for option in "${options[@]}"; do
         run_optional "rog.sh"
         ;;
     dots)
+        # The dots installer takes over the screen, so any earlier failure gets
+        # one chance to be retried or to stop the run first.
+        resolve_install_issues
         echo "${INFO}Installing pre-configured ${SKY_BLUE}KooL Hyprland dotfiles...${RESET}" | tee -a "$LOG"
         run_optional "dotfiles.sh"
         ;;
@@ -496,6 +679,10 @@ for option in "${options[@]}"; do
 done
 
 # Perform cleanup
+# Everything has been installed by now: surface failures once, with a chance to
+# retry, before the screen is cleared for the final check and the reboot prompt.
+resolve_install_issues
+
 printf "\n${OK} Performing some clean up.\n"
 files_to_delete=("JetBrainsMono.tar.xz" "VictorMonoAll.zip" "FantasqueSansMono.zip")
 for file in "${files_to_delete[@]}"; do
