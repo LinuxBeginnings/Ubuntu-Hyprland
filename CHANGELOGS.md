@@ -30,7 +30,8 @@
       fallback wiring), `tests/update-deps-summary-test.sh` (the summary's
       missing-package parsing and Hyprland state) and
       `tests/final-check-summary-test.sh` (the final check's Hyprland source
-      lines, per recorded outcome)
+      lines, per recorded outcome) and `tests/optional-scripts-test.sh` (failing
+      optional components, and the early install-mode guard)
     - `ubuntu_codename`, `ppa_suites`, `ppa_series_ok` and the Hyprland source
       record helpers to `install-scripts/Global_functions.sh`, so `install.sh`,
       `hyprland-ppa.sh`, `hyprland-ubuntu.sh`, `update-deps.sh` and
@@ -89,6 +90,12 @@
       counted as missing packages
     - `update-deps.sh --dry-run` prints the same Hyprland source and PPA state as
       its summary
+    - `install.sh` no longer aborts when an optional component fails: the failing
+      script is named, the install continues, and everything that failed is
+      listed once at the end. Required steps (dependencies, packages, Hyprland,
+      Waybar, Quickshell) still stop the run
+    - `install.sh` rejects an unknown install mode right after argument parsing,
+      instead of after the whole Hyprland stage
     - `install.sh` falls back to the Ubuntu repositories when the PPA path fails,
       and the recorded reason is reported by the final check instead of the
       install simply aborting
