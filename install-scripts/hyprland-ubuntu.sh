@@ -10,7 +10,6 @@
 
 set -e
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # shellcheck source=install-scripts/Global_functions.sh
 source "$(dirname "$(readlink -f "$0")")/Global_functions.sh"
@@ -48,6 +47,7 @@ for p in "${PPA_ONLY[@]}"; do
     if dpkg -l | grep -q "^ii  ${p} "; then
         if ! has_apt_candidate "$p"; then
             note "Purging stale PPA package with no Ubuntu candidate: $p"
+            apt_candidate_report "$p" >>"$LOG" 2>&1
             sudo apt -y purge "$p" 2>&1 | tee -a "$LOG" || true
         fi
     fi
@@ -59,6 +59,7 @@ if has_apt_candidate hyprland; then
     sudo apt install -y hyprland 2>&1 | tee -a "$LOG"
 else
     note "hyprland not found in APT archives; skipping"
+    apt_candidate_report hyprland >>"$LOG" 2>&1
 fi
 
 # Install remaining components available in Ubuntu repositories
@@ -79,7 +80,16 @@ for p in "${PKGS[@]}"; do
         sudo apt install -y "$p" 2>&1 | tee -a "$LOG"
     else
         note "$p not available in Ubuntu repositories; skipping"
+        apt_candidate_report "$p" >>"$LOG" 2>&1
     fi
 done
+
+# Record which path provided Hyprland for the 03-Final-Check.sh summary, keeping
+# the reason the PPA path was abandoned when it ran before this script.
+if [ "$(hyprland_source_field 1)" = "ppa-failed" ]; then
+    record_hyprland_source ubuntu "$(hyprland_source_field 2)"
+else
+    record_hyprland_source ubuntu
+fi
 
 note "Repository-based Hyprland installation completed."

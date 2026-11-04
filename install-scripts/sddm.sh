@@ -33,10 +33,7 @@ login=(
 )
 
 ## WARNING: DO NOT EDIT BEYOND THIS LINE IF YOU DON'T KNOW WHAT YOU ARE DOING! ##
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-# Change the working directory to the parent directory of the script
-PARENT_DIR="$SCRIPT_DIR/.."
 # Source the global functions script
 if ! source "$(dirname "$(readlink -f "$0")")/Global_functions.sh"; then
   echo "Failed to source Global_functions.sh"
@@ -62,7 +59,7 @@ done
 for login_manager in "${login[@]}"; do
   if dpkg -l | grep -q "^ii  $login_manager"; then
     echo "Disabling $login_manager..."
-    sudo systemctl disable "$login_manager.service" >> "$LOG" 2>&1 || echo "Failed to disable $login_manager" >> "$LOG"
+    { sudo systemctl disable "$login_manager.service"; } >> "$LOG" 2>&1 || echo "Failed to disable $login_manager" >> "$LOG"
     echo "$login_manager disabled."
   fi
 done
@@ -71,7 +68,7 @@ done
 for manager in "${login[@]}"; do
   if systemctl is-active --quiet "$manager.service" > /dev/null 2>&1; then
     echo "$manager.service is active, disabling it..." >> "$LOG" 2>&1
-    sudo systemctl disable "$manager.service" --now >> "$LOG" 2>&1 || echo "Failed to disable $manager.service" >> "$LOG"
+    { sudo systemctl disable "$manager.service" --now; } >> "$LOG" 2>&1 || echo "Failed to disable $manager.service" >> "$LOG"
   else
     echo "$manager.service is not active" >> "$LOG" 2>&1
   fi

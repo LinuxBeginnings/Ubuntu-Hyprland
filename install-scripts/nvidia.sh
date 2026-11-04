@@ -23,10 +23,7 @@ else
 fi
 
 ## WARNING: DO NOT EDIT BEYOND THIS LINE IF YOU DON'T KNOW WHAT YOU ARE DOING! ##
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-# Change the working directory to the parent directory of the script
-PARENT_DIR="$SCRIPT_DIR/.."
 # Source the global functions script
 if ! source "$(dirname "$(readlink -f "$0")")/Global_functions.sh"; then
   echo "Failed to source Global_functions.sh"
@@ -38,7 +35,6 @@ set -o pipefail
 
 # Repo root as cwd + absolute, collision-free log path
 init_script "nvidia"
-MLOG="install-$(date +%d-%H%M%S)_nvidia2.log"
 
 
 # Update the package list

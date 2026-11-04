@@ -32,6 +32,8 @@ set -euo pipefail
 tag_default="auto"
 if [ -z "${NWG_DOCK_HYPRLAND_TAG:-}" ]; then
   TAGS_FILE="$REPO_ROOT/hypr-tags.env"
+  # optional tag file, only present in a full checkout
+  # shellcheck disable=SC1090
   [ -f "$TAGS_FILE" ] && source "$TAGS_FILE"
 fi
 TAG_SRC="${NWG_DOCK_HYPRLAND_TAG:-$tag_default}"
@@ -71,13 +73,13 @@ if command -v go >/dev/null 2>&1; then
   GO_BIN="$(command -v go)"
 elif [ -x "/usr/lib/go/bin/go" ]; then
   GO_BIN="/usr/lib/go/bin/go"
-  export PATH="$(dirname "$GO_BIN"):$PATH"
+  export PATH="${GO_BIN%/*}:$PATH"
 elif [ -x "/usr/local/go/bin/go" ]; then
   GO_BIN="/usr/local/go/bin/go"
-  export PATH="$(dirname "$GO_BIN"):$PATH"
+  export PATH="${GO_BIN%/*}:$PATH"
 elif [ -x "/usr/bin/go" ]; then
   GO_BIN="/usr/bin/go"
-  export PATH="$(dirname "$GO_BIN"):$PATH"
+  export PATH="${GO_BIN%/*}:$PATH"
 else
   echo -e "${ERROR} Go compiler not found after dependency installation." | tee -a "$LOG"
   exit 1

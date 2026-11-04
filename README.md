@@ -85,6 +85,7 @@ https://github.com/user-attachments/assets/49bc12b2-abaf-45de-a21c-67aacd9bb872
 
 - This script is to install Hyprland on Ubuntu 26.04 Resolute Raccoon If you have nvidia, and wanted to use proprietary drivers, uninstall nouveau first (if installed). This script will be installing proprietary nvidia drivers and will not deal with removal of nouveau.
 - NVIDIA users / owners, after installation, check [`THIS`](https://github.com/LinuxBeginnings/Hyprland-Dots/wiki/Notes_to_remember#--for-nvidia-gpu-users)
+- Hyprland comes from the community PPA by default. When the PPA does not carry this Ubuntu release, the installer falls back to the Ubuntu repositories on its own and the final check reports which path was used and why. `./install.sh --install-ubuntu` selects the repository path from the start, and `./install.sh --dry-run` shows the verdict without changing anything
 
 #### ✨ Costumize the packages to be installed
 
@@ -165,7 +166,16 @@ chmod +x install.sh
 
 - the installer keeps the files it overwrites: `~/.zshrc-backup`, `~/.zprofile-backup` and `/etc/sddm.conf.bak`. The uninstall offers to put them back, or does it automatically with `--yes`
 - if you copied the KooL dots, their backups are detected too (`hypr.bak`, `kitty.bak.20250101`, `waybar-backup`, `swaync_backup`, `rofi.old`, ...). Nothing is overwritten blindly: the current entry is kept as `<name>.replaced-<timestamp>`
-- `tests/uninstall-test.sh` checks that detection and the option parsing in a throwaway `HOME`, so it needs no sudo and changes nothing on your system
+
+#### ✨ tests
+
+- `./tests/run-all.sh` runs every `tests/*-test.sh`; none of them need sudo or change anything on your system
+- `tests/uninstall-test.sh` checks the backup detection and the uninstall option parsing in a throwaway `HOME`
+- `tests/apt-candidate-test.sh` checks that the Hyprland package lookup still finds APT candidates under a non-English locale, against a stubbed `apt-cache`
+- `tests/ppa-series-test.sh` checks that the Hyprland PPA series guard blocks only a real suite mismatch, against fixture APT sources
+- `tests/hyprland-ppa-test.sh` runs the PPA install script against stubbed `sudo`/`apt`, so each outcome and the source record it writes are checked without a real install
+- `tests/install-fallback-test.sh` checks that a failed PPA path falls back to the Ubuntu repositories, and that both failing stops the install
+- `tests/update-deps-summary-test.sh` checks the `update-deps.sh` summary against a synthetic final-check log
 
 ### ❇️ Nvidia Drivers & 🔔 NOTICE TO NVIDIA OWNERS
 

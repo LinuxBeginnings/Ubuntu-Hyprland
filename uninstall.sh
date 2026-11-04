@@ -25,14 +25,8 @@ OK="$(_setaf 2)[OK]$RESET"
 ERROR="$(_setaf 1)[ERROR]$RESET"
 NOTE="$(_setaf 3)[NOTE]$RESET"
 INFO="$(_setaf 4)[INFO]$RESET"
-WARN="$(_setaf 1)[WARN]$RESET"
-CAT="$(_setaf 6)[ACTION]$RESET"
 MAGENTA="$(_setaf 5)"
-ORANGE="$(_setaf 214)"
-WARNING="$(_setaf 1)"
 YELLOW="$(_setaf 3)"
-GREEN="$(_setaf 2)"
-BLUE="$(_setaf 4)"
 SKY_BLUE="$(_setaf 6)"
 
 # ─── CLI ────────────────────────────────────────────────────────────────────
@@ -418,11 +412,15 @@ elif [ "$NONINTERACTIVE" -eq 1 ]; then
     : > "$SELECTED_PACKAGES_FILE"
     : > "$SELECTED_DIRS_FILE"
     if [ -n "$PACKAGES_ARG" ]; then
-        validate_names "$PACKAGES_ARG" package $(package_names)
+        mapfile -t known_pkgs < <(package_names)
+        validate_names "$PACKAGES_ARG" package "${known_pkgs[@]}"
         printf '%s\n' ${PACKAGES_ARG//,/ } > "$SELECTED_PACKAGES_FILE"
     fi
     if [ -n "$DIRS_ARG" ]; then
-        validate_names "$DIRS_ARG" "~/.config entry" $(directory_names)
+        mapfile -t known_dirs < <(directory_names)
+        # "~/.config entry" is the label the CLI prints, not a path.
+        # shellcheck disable=SC2088
+        validate_names "$DIRS_ARG" "~/.config entry" "${known_dirs[@]}"
         printf '%s\n' ${DIRS_ARG//,/ } > "$SELECTED_DIRS_FILE"
     fi
 fi

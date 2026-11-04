@@ -119,6 +119,23 @@ if [ "$DO_DRY_RUN" = "1" ]; then
     case "$INSTALL_MODE" in
     ppa)
         echo "[DRY-RUN] Would run: install-scripts/hyprland-ppa.sh (community PPA path)"
+        # Same PPA-vs-Ubuntu verdict the final check prints, so a dry run shows
+        # whether the PPA actually carries this release. Sourced with the setup
+        # disabled, so a dry run still writes nothing.
+        DRY_RUN_REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+        if GF_SKIP_SETUP=1 . "$DRY_RUN_REPO/install-scripts/Global_functions.sh" >/dev/null 2>&1; then
+            dry_series="$(ppa_suites | tr '\n' ' ' | sed 's/ $//')"
+            dry_codename="$(ubuntu_codename)"
+            if [ -z "$dry_series" ]; then
+                echo "[DRY-RUN] No Hyprland PPA enabled yet, so this release cannot be checked"
+            elif [ -z "$dry_codename" ]; then
+                echo "[DRY-RUN] PPA is enabled for ${dry_series}; this release's codename is unknown"
+            elif ppa_series_ok; then
+                echo "[DRY-RUN] PPA covers this release (${dry_codename})"
+            else
+                echo "[DRY-RUN] PPA is enabled for ${dry_series}, but this system runs ${dry_codename}: use --install-ubuntu"
+            fi
+        fi
         ;;
     ubuntu)
         echo "[DRY-RUN] Would run: install-scripts/hyprland-ubuntu.sh (Ubuntu repo path)"
@@ -179,6 +196,9 @@ export BUILD_ROOT BUILD_SRC BUILD_BIN
 mkdir -p "$BUILD_SRC" "$BUILD_BIN" "$REPO_ROOT/Install-Logs"
 # Start every run with a clean failure list (recorded by Global_functions.sh)
 : >"$REPO_ROOT/Install-Logs/failed-packages.txt"
+# and no Hyprland source record, so the final check never describes how a
+# previous run installed it.
+rm -f "$REPO_ROOT/Install-Logs/hyprland-source.txt"
 
 # Check if running as root. If root, script will exit
 if [[ $EUID -eq 0 ]]; then
@@ -513,10 +533,16 @@ case "$INSTALL_MODE" in
 ppa)
     echo "${INFO} Installing Hyprland from ${SKY_BLUE}community PPA${RESET}..." | tee -a "$LOG"
     sleep 1
-    execute_script "hyprland-ppa.sh" || {
-        echo "${ERROR:-[ERROR]} Hyprland PPA setup failed" | tee -a "$LOG"
-        exit 1
-    }
+    # The PPA script records why it failed (series mismatch, apt update, no
+    # candidate) and hyprland-ubuntu.sh carries that reason into the final
+    # check's summary, so the fallback still explains itself.
+    if ! execute_script "hyprland-ppa.sh"; then
+        echo "${WARN} Hyprland PPA setup failed; falling back to the ${SKY_BLUE}Ubuntu repositories${RESET}..." | tee -a "$LOG"
+        execute_script "hyprland-ubuntu.sh" || {
+            echo "${ERROR:-[ERROR]} Hyprland could not be installed from the PPA or the Ubuntu repositories" | tee -a "$LOG"
+            exit 1
+        }
+    fi
     ;;
 ubuntu)
     echo "${INFO} Installing Hyprland from ${SKY_BLUE}Ubuntu repositories${RESET}..." | tee -a "$LOG"

@@ -11,6 +11,10 @@
 #
 # Usage: ./tests/uninstall-test.sh
 
+# The uninstall prints "~/.config entry" as a label; those strings are text the
+# user sees, not paths, so the tilde is intentionally literal.
+# shellcheck disable=SC2088
+
 set -uo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"

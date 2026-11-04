@@ -10,8 +10,6 @@
 
 set -e
 
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-PARENT_DIR="$SCRIPT_DIR/.."
 # Source the global functions script
 if ! source "$(dirname "$(readlink -f "$0")")/Global_functions.sh"; then
   echo "Failed to source Global_functions.sh"
@@ -27,6 +25,7 @@ if has_apt_candidate rofi; then
   install_package rofi 2>&1 | tee -a "$LOG"
 else
   echo "${WARN} 'rofi' package not found in apt; skipping." | tee -a "$LOG"
+  apt_candidate_report rofi >>"$LOG" 2>&1
 fi
 
 printf "\n%.0s" {1..1}

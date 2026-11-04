@@ -9,7 +9,6 @@
 # Hyprland-Dots to download from main #
 
 #specific branch or release
-dots_tag="main"
 
 ## WARNING: DO NOT EDIT BEYOND THIS LINE IF YOU DON'T KNOW WHAT YOU ARE DOING! ##
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -29,7 +28,7 @@ printf "${NOTE} Cloning and Installing ${SKY_BLUE}KooL's Hyprland Dots for Ubunt
 
 # Check if Hyprland-Dots exists
 if [ -d Hyprland-Dots-Ubuntu ]; then
-  cd Hyprland-Dots-Ubuntu
+  cd Hyprland-Dots-Ubuntu || exit 1
   git stash && git pull
   chmod +x copy.sh
   ./copy.sh 

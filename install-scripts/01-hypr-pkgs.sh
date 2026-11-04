@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Arrays come from packages.sh, sourced below via "$SCRIPT_DIR"; shellcheck cannot
+# follow that path, so their references look unassigned here.
+# shellcheck disable=SC2154
 # ==================================================
 #  KoolDots (2026)
 #  Project URL: https://github.com/LinuxBeginnings
@@ -19,8 +22,6 @@ Extra=(
 ## WARNING: DO NOT EDIT BEYOND THIS LINE IF YOU DON'T KNOW WHAT YOU ARE DOING! ##
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# Change the working directory to the parent directory of the script
-PARENT_DIR="$SCRIPT_DIR/.."
 # Source the global functions script
 if ! source "$(dirname "$(readlink -f "$0")")/Global_functions.sh"; then
     echo "Failed to source Global_functions.sh"

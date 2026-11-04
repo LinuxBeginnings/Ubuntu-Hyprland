@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Arrays come from packages.sh, sourced below via "$SCRIPT_DIR"; shellcheck cannot
+# follow that path, so their references look unassigned here.
+# shellcheck disable=SC2154
 # ==================================================
 #  KoolDots (2026)
 #  Project URL: https://github.com/LinuxBeginnings
@@ -106,6 +109,27 @@ elif quickshell_ok; then
 else
     local_missing+=("quickshell (< $QS_MIN_VERSION required, found ${QS_VERSION:-unknown})")
 fi
+
+# Which path provided Hyprland: the PPA and the Ubuntu repositories both work,
+# but a user chasing a version or feature difference needs to know which one
+# ran. Printed only: update-deps.sh reads this log as a list of missing
+# packages, so it must stay a plain package list.
+hypr_src="$(hyprland_source_field 1)"
+hypr_reason="$(hyprland_source_field 2)"
+case "$hypr_src" in
+ppa)
+    echo "${INFO} Hyprland came from the community ${MAGENTA}PPA${RESET}."
+    ;;
+ubuntu)
+    echo "${INFO} Hyprland came from the ${MAGENTA}Ubuntu repositories${RESET}."
+    if [ -n "$hypr_reason" ]; then
+        echo "${WARN} The community PPA path was not used: ${hypr_reason}."
+    fi
+    ;;
+ppa-failed)
+    echo "${WARN} The community PPA path did not provide Hyprland: ${hypr_reason}."
+    ;;
+esac
 
 # Log missing packages
 if [ ${#missing[@]} -eq 0 ] && [ ${#local_missing[@]} -eq 0 ]; then

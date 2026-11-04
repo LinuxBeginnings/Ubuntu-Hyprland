@@ -69,6 +69,49 @@ if ! source "$SCRIPT_DIR/Global_versions.sh"; then
   echo "Failed to source Global_versions.sh"
   exit 1
 fi
+# Shared helpers (ubuntu_codename, the Hyprland PPA and source record). This
+# script handles its own errors and already created its log directory, so both
+# strict mode and the directory setup are off.
+if ! GF_STRICT=0 GF_SKIP_SETUP=1 source "$SCRIPT_DIR/Global_functions.sh"; then
+  echo "Failed to source Global_functions.sh"
+  exit 1
+fi
+
+# Where Hyprland came from and whether the PPA covers this release, from the
+# shared helpers so the dry run and the summary cannot drift from the final
+# check.
+print_hyprland_state() {
+  local hypr_src hypr_reason ppa_list ppa_codename
+  hypr_src="$(hyprland_source_field 1)"
+  hypr_reason="$(hyprland_source_field 2)"
+  case "$hypr_src" in
+  ppa)
+    echo "Hyprland: installed from the community PPA"
+    ;;
+  ubuntu)
+    if [ -n "$hypr_reason" ]; then
+      echo "Hyprland: installed from the Ubuntu repositories (PPA path not used: $hypr_reason)"
+    else
+      echo "Hyprland: installed from the Ubuntu repositories"
+    fi
+    ;;
+  ppa-failed)
+    echo "Hyprland: PPA path failed (${hypr_reason:-unknown})"
+    ;;
+  esac
+
+  ppa_list="$(ppa_suites | tr '\n' ' ' | sed 's/ $//')"
+  ppa_codename="$(ubuntu_codename)"
+  if [ -z "$ppa_list" ]; then
+    echo "Hyprland PPA: not enabled"
+  elif [ -z "$ppa_codename" ]; then
+    echo "Hyprland PPA: enabled for ${ppa_list}"
+  elif ppa_series_ok; then
+    echo "Hyprland PPA: enabled for ${ppa_list} (covers ${ppa_codename})"
+  else
+    echo "Hyprland PPA: enabled for ${ppa_list}, does not cover ${ppa_codename}"
+  fi
+}
 
 mapfile -t scripts < <(ls "$SCRIPT_DIR"/0*-*.sh 2>/dev/null | sort)
 
@@ -161,6 +204,8 @@ if [ "$DRY_RUN" -eq 1 ]; then
   fi
   [ "$INCLUDE_PRE_CLEANUP" -eq 1 ] && [ -n "$PRE_CLEANUP_SCRIPT" ] && echo "  pre-cleanup: $PRE_CLEANUP_SCRIPT"
   [ -n "$CHECK_SCRIPT" ] && echo "  final check: $CHECK_SCRIPT"
+  echo
+  print_hyprland_state | sed 's/^/  /'
   exit 0
 fi
 
@@ -316,7 +361,11 @@ if [ -n "$latest_final_log" ] && [ -f "$latest_final_log" ]; then
   # The log holds one missing package per line followed by a '[NOTE] Missing
   # packages logged at ...' trailer. Keep whole lines so multi-word entries such
   # as "waybar (source build)" are reported instead of being silently dropped.
-  mapfile -t missing_pkgs < <(strip_ansi < "$latest_final_log" | grep -v '^\[NOTE\]' | grep -v '^[[:space:]]*$')
+  # Status lines the check also prints (the Hyprland source summary, the
+  # Quickshell version note) are not package names.
+  mapfile -t missing_pkgs < <(strip_ansi < "$latest_final_log" \
+    | grep -vE '^\[(OK|NOTE|INFO|WARN|ERROR)\]' \
+    | grep -v '^[[:space:]]*$')
 fi
 
 rm -f "$clean_dependencies_log" "$clean_packages_log" "$clean_yazi_log" "$clean_swww_log" "$clean_nwg_dock_log" "$clean_waybar_log" "$clean_quickshell_log" "$clean_check_log"
@@ -375,6 +424,10 @@ if [ ${#failed_pkgs[@]} -gt 0 ]; then
 else
   echo "Failed installs: none detected"
 fi
+
+# Where Hyprland came from, and whether the PPA covers this release. Both come
+# from the shared helpers, so this summary cannot drift from the final check.
+print_hyprland_state
 
 if [ ${#missing_pkgs[@]} -gt 0 ]; then
   echo "Missing packages from final check (${#missing_pkgs[@]}): ${missing_pkgs[*]}"

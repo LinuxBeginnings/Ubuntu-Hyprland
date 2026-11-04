@@ -20,6 +20,21 @@
     - `tests/uninstall-test.sh`, which checks the `~/.config` backup detection and
       the uninstall option parsing against a throwaway `HOME` (no sudo, no system
       changes)
+    - `tests/run-all.sh` to run the suite (it also runs shellcheck and fails on
+      any finding), plus `tests/apt-candidate-test.sh` (APT candidate lookup
+      under a non-English locale, stubbed `apt-cache`), `tests/ppa-series-test.sh`
+      (PPA series guard against fixture APT sources), `tests/install-dry-run-test.sh`
+      (the `--dry-run` PPA verdict, and that a dry run writes nothing),
+      `tests/hyprland-ppa-test.sh` (the PPA script's four outcomes via stubbed
+      `sudo`/`apt`), `tests/install-fallback-test.sh` (the `ppa)` branch's
+      fallback wiring) and `tests/update-deps-summary-test.sh` (the summary's
+      missing-package parsing and Hyprland state)
+    - `ubuntu_codename`, `ppa_suites`, `ppa_series_ok` and the Hyprland source
+      record helpers to `install-scripts/Global_functions.sh`, so `install.sh`,
+      `hyprland-ppa.sh`, `hyprland-ubuntu.sh`, `update-deps.sh` and
+      `03-Final-Check.sh` share them
+    - `03-Final-Check.sh` reports whether Hyprland came from the community PPA or
+      the Ubuntu repositories, and why the PPA path was not used
 - Changed:
     - `install.sh` accepts `--preset FILE` anywhere on the command line, and preset
       values now actually drive the option checklist; they were loaded and then
@@ -60,6 +75,23 @@
     - `hyprlock.sh` and `hypridle.sh` skip the source build when a packaged build
       at or above the pinned tag is installed (the PPA ships newer binaries, and a
       source build would shadow them in `/usr/local/bin`)
+    - `install.sh --dry-run` prints the same PPA-vs-Ubuntu verdict as the final
+      check, so it shows whether the PPA actually carries this release
+    - `install.sh` clears the Hyprland source record at the start of a run, so the
+      final check never reports how a previous attempt installed it
+    - `hyprland-ppa.sh` checks the series the PPA is enabled for against the
+      running codename before `apt update`, stops with a clear message when
+      `apt update` fails, and logs why individual packages were skipped
+    - `update-deps.sh` sources the shared helpers and reports the release and PPA
+      state in its summary; status lines from the final check are no longer
+      counted as missing packages
+    - `update-deps.sh --dry-run` prints the same Hyprland source and PPA state as
+      its summary
+    - `install.sh` falls back to the Ubuntu repositories when the PPA path fails,
+      and the recorded reason is reported by the final check instead of the
+      install simply aborting
+    - Every shell script is shellcheck-clean, and `tests/run-all.sh` now fails on
+      any shellcheck finding so the baseline cannot drift
 - Fixed:
     - `packages.sh` listed `hyprland-guiutils`, which Ubuntu 26.04 (resolute)
       does not package, so `01-hypr-pkgs.sh` aborted every clean install with
@@ -100,12 +132,22 @@
     - `02-pre-cleanup.sh` no longer deletes `/usr/local/bin/waybar`, which forced
       a full Waybar source build on every install run and defeated the
       `WAYBAR_MIN_VERSION` skip check
+    - `uninstall_package` redirected `apt autoremove` output before its `grep`
+      filter, so the filter never saw the output; the filtered text now goes to
+      the log
+    - `has_apt_candidate` read `apt-cache policy` in the user's locale, so on
+      non-English systems the translated `Candidate:` label made every package
+      look unavailable and `hyprland-ppa.sh` claimed the release was unsupported.
+      The lookup now runs under `LC_ALL=C`, scoped with `local` so the rest of the
+      script keeps the user's locale
 - Removed:
     - `install-scripts/force-hl-update.sh` (unreferenced; it installed every .deb
       in `/var/cache/apt/archives` with `--force-overwrite`)
 - Docs:
     - `building-quickshell.md` no longer describes Quickshell as an optional menu
       item
+    - `README.md` documents the automatic PPA-to-Ubuntu fallback and the test
+      scripts that cover it
 
 ## Oct 2026
 

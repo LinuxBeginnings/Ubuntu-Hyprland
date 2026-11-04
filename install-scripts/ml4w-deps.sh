@@ -121,6 +121,7 @@ for pkg in "${BEST_EFFORT_APT[@]}"; do
         fi
     else
         warn "$pkg not found in Ubuntu archives; skipping APT install"
+        apt_candidate_report "$pkg" >>"$LOG" 2>&1
     fi
 done
 
@@ -202,7 +203,8 @@ build_install_repo() {
   local url="$1"; shift
   local dir="$1"; shift
   local bin_name="$1"; shift
-  local mlog="Install-Logs/install-$(date +%d-%H%M%S)_${dir}.log"
+  local mlog
+  mlog="Install-Logs/install-$(date +%d-%H%M%S)_${dir}.log"
 
   if command -v "$bin_name" >/dev/null 2>&1; then
     note "$bin_name already installed. Skipping build."

@@ -15,6 +15,10 @@
 # properly. Ensure any package added here is present in the official
 # Debian/Ubuntu repositories for the supported release.
 
+# The arrays are this file's whole purpose: they are read by the scripts that
+# source it, so "unused" here is expected.
+# shellcheck disable=SC2034
+
 # Packages needed by the dotfiles. Installed by 01-hypr-pkgs.sh and verified by
 # 03-Final-Check.sh, so the installer and the final check cannot drift apart.
 hypr_required=(

@@ -1,3 +1,6 @@
+# shellcheck shell=bash
+# Values are read by install.sh when this file is sourced, so "unused" is expected.
+# shellcheck disable=SC2034
 # ==================================================
 #  KoolDots (2026)
 #  Project URL: https://github.com/LinuxBeginnings

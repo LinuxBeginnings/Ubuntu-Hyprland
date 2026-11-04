@@ -10,7 +10,6 @@
 set -euo pipefail
 
 # Resolve locations and load globals early (defines ${OK}, ${INFO}, etc.)
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 if ! source "$(dirname "$(readlink -f "$0")")/Global_functions.sh"; then
   echo "Failed to source Global_functions.sh"
   exit 1
