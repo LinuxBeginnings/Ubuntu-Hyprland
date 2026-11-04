@@ -17,9 +17,9 @@ lock=(
     libsdbus-c++-dev
 )
 
-build_dep=(
-    pam
-)
+# No `build_dep`/`apt build-dep` here: that needs 'deb-src' sources, which most
+# systems lack, and pam's build deps are not what hyprlock needs - libpam0g-dev
+# above already provides the pam headers it links against.
 
 #specific branch or release
 lock_tag="v0.9.1"
@@ -66,10 +66,6 @@ printf "\n%s - Installing ${YELLOW}hyprlock dependencies${RESET} .... \n" "${INF
 
 for PKG1 in "${lock[@]}"; do
   re_install_package "$PKG1" "$LOG"
-done
-
-for PKG1 in "${build_dep[@]}"; do
-  build_dep "$PKG1" "$LOG"
 done
 
 # Check if hyprlock directory exists and remove it

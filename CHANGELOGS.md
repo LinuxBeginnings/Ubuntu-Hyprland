@@ -132,10 +132,17 @@
       install or the clone fails. They printed the error and then ended 0, so
       `install.sh` listed them as installed; they now show up in the optional
       component summary instead
-    - `tests/ags-install-failure-test.sh` pins `ags.sh`'s exit status for a
-      failed clone, `npm install`, `meson setup` and `meson install` (and for a
-      successful build) by running it in a throwaway copy of the repo with
-      git/npm/meson/sudo stubbed, so no build or sudo is needed
+    - `tests/source-install-failure-test.sh` pins the exit status of `ags.sh`
+      (clone, `npm install`, `meson setup`, `meson install` and a successful
+      build), `hyprlock.sh` (clone, `cmake --install`), `hypridle.sh`
+      (`cmake --install`) and `rog.sh` (one project failing while the other
+      still installs) by running them in a throwaway copy of the repo with
+      git/npm/meson/cmake/make/curl/pkg-config/dpkg-query/sudo stubbed, so no
+      build or sudo is needed
+    - `hyprlock.sh` no longer runs `apt build-dep pam`: that needs `deb-src`
+      sources most systems lack, and it installs pam's own build dependencies
+      rather than the pam headers hyprlock links against, which
+      `libpam0g-dev` in the package list already provides
     - `packages.sh` listed `hyprland-guiutils`, which Ubuntu 26.04 (resolute)
       does not package, so `01-hypr-pkgs.sh` aborted every clean install with
       "Unable to locate package hyprland-guiutils". It now uses
