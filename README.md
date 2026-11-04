@@ -86,6 +86,7 @@ https://github.com/user-attachments/assets/49bc12b2-abaf-45de-a21c-67aacd9bb872
 - This script is to install Hyprland on Ubuntu 26.04 Resolute Raccoon If you have nvidia, and wanted to use proprietary drivers, uninstall nouveau first (if installed). This script will be installing proprietary nvidia drivers and will not deal with removal of nouveau.
 - NVIDIA users / owners, after installation, check [`THIS`](https://github.com/LinuxBeginnings/Hyprland-Dots/wiki/Notes_to_remember#--for-nvidia-gpu-users)
 - If an optional component fails (dotfiles, Yazi, SDDM theme, zsh, ...), the installer warns, keeps going and lists what failed at the end, instead of aborting a nearly finished install
+- Before the screen is cleared for the final check (and before the dotfiles installer takes over), a run with failures pauses with a summary and offers to retry the failed components, continue anyway, or abort
 - Hyprland comes from the community PPA by default. When the PPA does not carry this Ubuntu release, the installer falls back to the Ubuntu repositories on its own and the final check reports which path was used and why. `./install.sh --install-ubuntu` selects the repository path from the start, and `./install.sh --dry-run` shows the verdict without changing anything
 
 #### ✨ Costumize the packages to be installed
@@ -178,7 +179,7 @@ chmod +x install.sh
 - `tests/install-fallback-test.sh` checks that a failed PPA path falls back to the Ubuntu repositories, and that both failing stops the install
 - `tests/update-deps-summary-test.sh` checks the `update-deps.sh` summary against a synthetic final-check log
 - `tests/final-check-summary-test.sh` checks the Hyprland source lines the final check prints for each recorded outcome
-- `tests/optional-scripts-test.sh` checks that a failing optional component warns instead of aborting the install, and that an unknown install mode is rejected before any work begins
+- `tests/optional-scripts-test.sh` checks that a failing optional component warns instead of aborting the install, that the failure summary can be retried, continued past or aborted, and that an unknown install mode is rejected before any work begins
 
 ### ❇️ Nvidia Drivers & 🔔 NOTICE TO NVIDIA OWNERS
 

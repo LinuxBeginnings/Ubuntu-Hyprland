@@ -96,6 +96,10 @@
       Waybar, Quickshell) still stop the run
     - `install.sh` rejects an unknown install mode right after argument parsing,
       instead of after the whole Hyprland stage
+    - `install.sh` pauses once after the Hyprland and dotfiles stages when
+      something failed, before the screen is cleared: it prints one summary and
+      offers to retry the failed optional components, continue anyway, or abort
+      (a non-interactive run prints the summary and continues)
     - `install.sh` falls back to the Ubuntu repositories when the PPA path fails,
       and the recorded reason is reported by the final check instead of the
       install simply aborting

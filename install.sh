@@ -324,6 +324,79 @@ run_optional() { # run_optional <script>
     return 0
 }
 
+# ── install issue summary ─────────────────────────────────────────────
+# Everything that did not install: optional components that failed plus any
+# package the package steps recorded. The package file is the one the final
+# check reads, so this summary matches what the final check would report.
+collect_install_issues() {
+    install_issues=("${failed_optional[@]}")
+    local pkg_file="$REPO_ROOT/Install-Logs/failed-packages.txt"
+    if [ -f "$pkg_file" ]; then
+        local pkg
+        while IFS= read -r pkg; do
+            [ -n "$pkg" ] && install_issues+=("package: $pkg")
+        done <"$pkg_file"
+    fi
+    [ ${#install_issues[@]} -gt 0 ]
+}
+
+print_install_issues() {
+    local issue
+    printf "\n${ERROR} Some parts of the install did not complete:\n"
+    for issue in "${install_issues[@]}"; do
+        printf "  - %s\n" "$issue"
+    done
+    printf "${NOTE} Logs: %s and %s/Install-Logs/\n" "$LOG" "$REPO_ROOT"
+}
+
+# Pauses before the screen is cleared when something failed, so the user can
+# retry or stop instead of only finding out at the very end.
+resolve_install_issues() {
+    collect_install_issues || return 0
+    print_install_issues
+    if [ ! -t 0 ] && [ "${ISSUES_ASSUME_TTY:-0}" != "1" ]; then
+        echo "${WARN} Not running interactively; continuing to the final check." | tee -a "$LOG"
+        return 0
+    fi
+    local answer retry script
+    while true; do
+        printf "\n${CAT} Retry the failed parts (r), continue anyway (c), or abort (a)? "
+        read -r answer || answer="a"
+        answer="$(printf '%s' "$answer" | tr '[:upper:]' '[:lower:]')"
+        case "$answer" in
+        r | retry)
+            if [ ${#failed_optional[@]} -eq 0 ]; then
+                echo "${WARN} Only package entries failed; rerun the installer to retry them (see the log)." | tee -a "$LOG"
+                continue
+            fi
+            echo "${INFO} Retrying ${#failed_optional[@]} component(s)..." | tee -a "$LOG"
+            retry=("${failed_optional[@]}")
+            failed_optional=()
+            for script in "${retry[@]}"; do
+                run_optional "$script"
+            done
+            if [ ${#failed_optional[@]} -eq 0 ]; then
+                echo "${OK} Retried component(s) installed." | tee -a "$LOG"
+                return 0
+            fi
+            collect_install_issues
+            print_install_issues
+            ;;
+        c | continue | s | skip)
+            echo "${WARN} Continuing with the parts that did install." | tee -a "$LOG"
+            return 0
+            ;;
+        a | abort)
+            echo "${ERROR} Aborted at your request. Re-run ./install.sh to finish." | tee -a "$LOG"
+            exit 1
+            ;;
+        *)
+            echo "${WARN} Please answer r, c or a."
+            ;;
+        esac
+    done
+}
+
 #################
 ## Default values for the options (overwritten by the preset file when given)
 gtk_themes="OFF"
@@ -675,6 +748,9 @@ for option in "${options[@]}"; do
         run_optional "rog.sh"
         ;;
     dots)
+        # The dots installer takes over the screen, so any earlier failure gets
+        # one chance to be retried or to stop the run first.
+        resolve_install_issues
         echo "${INFO} Installing pre-configured ${SKY_BLUE}KooL Hyprland dotfiles...${RESET}" | tee -a "$LOG"
         run_optional "dotfiles-branch.sh"
         ;;
@@ -685,6 +761,10 @@ for option in "${options[@]}"; do
 done
 
 # Perform cleanup
+# Everything has been installed by now: surface failures once, with a chance to
+# retry, before the screen is cleared for the final check and the reboot prompt.
+resolve_install_issues
+
 printf "\n${OK} Performing some clean up.\n"
 files_to_delete=("JetBrainsMono.tar.xz" "VictorMonoAll.zip" "FantasqueSansMono.zip")
 for file in "${files_to_delete[@]}"; do

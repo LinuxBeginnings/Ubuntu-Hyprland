@@ -153,7 +153,84 @@ check_contains "names the mode" "$(cat "$WORK/mode-bad")" "Unknown install mode:
 INSTALL_MODE=ubuntu bash "$MODE_RUN" >/dev/null 2>&1
 check_eq "a known mode passes" "$?" "0"
 
+# ─── issues summary: retry / continue / abort ──────────────────────────────
 echo
+echo "the failure summary can be acted on"
+
+ISSUES_HELPERS="$WORK/issues.sh"
+: >"$ISSUES_HELPERS"
+for fn in collect_install_issues print_install_issues resolve_install_issues; do
+    awk -v fn="$fn" '$0 == fn "() {" { on = 1 } on { print } on && /^}$/ { exit }' \
+        "$INSTALL" >>"$ISSUES_HELPERS"
+    grep -q "^$fn() {" "$ISSUES_HELPERS" || {
+        echo "could not extract $fn from install.sh" >&2
+        exit 1
+    }
+done
+
+mkdir -p "$WORK/repo/Install-Logs"
+ISSUES_RUN="$WORK/issues-run.sh"
+{
+    printf '%s\n' '#!/usr/bin/env bash' 'set -uo pipefail'
+    printf 'LOG=%q\n' "$WORK/issues.log"
+    printf 'REPO_ROOT=%q\n' "$WORK/repo"
+    printf '%s\n' 'INFO="[INFO]"; WARN="[WARN]"; ERROR="[ERROR]"; NOTE="[NOTE]"; OK="[OK]"; CAT="[?]"'
+    printf '%s\n' 'failed_optional=()'
+    cat <<'STUB'
+run_optional() {
+    if [ -f "$REPO_ROOT/$1.fail" ]; then
+        failed_optional+=("$1")
+        echo "[WARN] $1 failed"
+    else
+        echo "[INFO] $1 ok"
+    fi
+    return 0
+}
+STUB
+    cat "$ISSUES_HELPERS"
+    printf '%s\n' 'for s in "$@"; do failed_optional+=("$s"); done'
+    printf '%s\n' 'resolve_install_issues'
+    printf '%s\n' 'echo RESOLVED'
+} >"$ISSUES_RUN"
+bash -n "$ISSUES_RUN" || {
+    echo "extracted issue-summary harness is not runnable" >&2
+    exit 1
+}
+
+ask() { # ask <answer> [components...]
+    local answer="$1"
+    shift
+    printf '%s\n' "$answer" | ISSUES_ASSUME_TTY=1 bash "$ISSUES_RUN" "$@"
+}
+
+out="$(ask c)"
+check_contains "nothing to report is silent" "$out" "RESOLVED"
+check_lacks "no summary without issues" "$out" "did not complete"
+
+out="$(ask c wallust.sh)"
+check_contains "continue prints the summary" "$out" "Some parts of the install did not complete"
+check_contains "summary names the component" "$out" "- wallust.sh"
+check_contains "continue keeps going" "$out" "Continuing with the parts"
+
+printf 'a\n' >"$WORK/answer-a"
+ISSUES_ASSUME_TTY=1 bash "$ISSUES_RUN" sddm.sh <"$WORK/answer-a" >"$WORK/abort-out" 2>&1
+check_eq "abort exits 1" "$?" "1"
+check_contains "abort says so" "$(cat "$WORK/abort-out")" "Aborted at your request"
+check_lacks "abort does not continue" "$(cat "$WORK/abort-out")" "RESOLVED"
+
+out="$(ask r yazi.sh)"
+check_contains "retry re-runs the failed script" "$out" "Retrying 1 component(s)"
+check_contains "retry reports success" "$out" "Retried component(s) installed."
+check_contains "retry finishes the run" "$out" "RESOLVED"
+
+printf 'pkg-that-failed\n' >"$WORK/repo/Install-Logs/failed-packages.txt"
+out="$(ask c)"
+check_contains "packages from the log are listed" "$out" "package: pkg-that-failed"
+rm -f "$WORK/repo/Install-Logs/failed-packages.txt"
+
+out="$(bash "$ISSUES_RUN" wallust.sh </dev/null 2>&1)"
+check_contains "a non-interactive run continues" "$out" "Not running interactively"
+
 if [ "$FAIL" -eq 0 ]; then
     printf '%s checks passed\n' "$PASS"
     exit 0
