@@ -48,6 +48,8 @@ if ! source "$(dirname "$(readlink -f "$0")")/Global_functions.sh"; then
   echo "Failed to source Global_functions.sh"
   exit 1
 fi
+# Surface failures from `cmd | tee` instead of tee's exit status
+set -o pipefail
 
 # Set the name of the log file to include the current date and time
 LOG="Install-Logs/install-$(date +%d-%H%M%S)_rofi_wayland.log"

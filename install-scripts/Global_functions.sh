@@ -81,13 +81,23 @@ install_package() {
 }
 
 # Function for build depencies with a progress bar
+# `apt build-dep` needs 'deb-src' entries in the sources (waybar.sh adds them,
+# most systems do not have them). When it fails, the -dev packages the build
+# actually needs are already listed by the calling script, so report the failure
+# but let the caller continue instead of pretending it worked.
 build_dep() { 
-  echo -e "${INFO} building dependencies for ${MAGENTA}$1${RESET} "
+  local pkg="$1" rc=0
+  echo -e "${INFO} building dependencies for ${MAGENTA}$pkg${RESET} "
     (
-      stdbuf -oL sudo apt build-dep -y "$1" 2>&1
+      stdbuf -oL sudo apt build-dep -y "$pkg" 2>&1
     ) >> "$LOG" 2>&1 &
     PID=$!
-    show_progress $PID "$1" 
+    show_progress $PID "$pkg" 
+    wait "$PID" 2>/dev/null || rc=$?
+    if [ "$rc" -ne 0 ]; then
+      echo -e "\e[1A\e[K${WARN} Build dependencies for ${YELLOW}$pkg${RESET} could not be fetched (apt build-dep needs 'deb-src' sources); continuing with the packages the script lists. See ${SKY_BLUE}$LOG${RESET}."
+    fi
+    return 0
 }
 
 # Function for cargo install with a progress bar

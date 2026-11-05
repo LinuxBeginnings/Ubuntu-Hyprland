@@ -21,6 +21,8 @@ if ! source "$(dirname "$(readlink -f "$0")")/Global_functions.sh"; then
   echo "Failed to source Global_functions.sh"
   exit 1
 fi
+# Surface failures from `cmd | tee` instead of tee's exit status
+set -o pipefail
 
 # Check if already installed (e.g. from PPA)
 if command -v hypridle &>/dev/null || dpkg-query -W -f='${Status}' hypridle 2>/dev/null | grep -q "ok installed"; then
@@ -53,17 +55,21 @@ printf "${INFO} Installing ${YELLOW}hypridle $idle_tag${RESET} ...\n"
 if git clone --recursive -b $idle_tag https://github.com/hyprwm/hypridle.git; then
     cd hypridle || exit 1
 	cmake --no-warn-unused-cli -DCMAKE_BUILD_TYPE:STRING=Release -S . -B ./build
-	cmake --build ./build --config Release --target hypridle -j`nproc 2>/dev/null || getconf NPROCESSORS_CONF`
+	cmake --build ./build --config Release --target hypridle -j"$(nproc 2>/dev/null || getconf _NPROCESSORS_ONLN)"
     if sudo cmake --install ./build 2>&1 | tee -a "$MLOG" ; then
         printf "${OK} ${MAGENTA}hypridle $idle_tag${RESET} has been successfully installed.\n" 2>&1 | tee -a "$MLOG"
     else
-        echo -e "${ERROR} Installation failed for ${YELLOW}hypridle $idle_tag${RESET}" 2>&1 | tee -a "$MLOG"
+        # A failed install must fail the step, like ags.sh: printing the error
+        # and falling through let install.sh count it as done.
+        echo -e "${ERROR} Installation failed for ${YELLOW}hypridle $idle_tag${RESET}. See ${SKY_BLUE}$MLOG${RESET}" 2>&1 | tee -a "$MLOG"
+        exit 1
     fi
     #moving the addional logs to Install-Logs directory
     mv $MLOG ../Install-Logs/ || true 
     cd ..
 else
     echo -e "${ERROR} Download failed for ${YELLOW}hypridle $idle_tag${RESET}" 2>&1 | tee -a "$LOG"
+    exit 1
 fi
 
 printf "\n%.0s" {1..2}

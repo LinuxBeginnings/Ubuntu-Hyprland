@@ -28,9 +28,8 @@ f_ags=(
     npm
 )
 
-build_dep=(
-    pam
-)
+# No `build_dep`/`apt build-dep` here: that needs 'deb-src' sources, which most
+# systems lack, and pam's build deps are the -dev packages listed above.
 
 # specific tags to download
 ags_tag="v1.9.0"
@@ -47,6 +46,8 @@ if ! source "$(dirname "$(readlink -f "$0")")/Global_functions.sh"; then
   echo "Failed to source Global_functions.sh"
   exit 1
 fi
+# Surface failures from `cmd | tee` instead of tee's exit status
+set -o pipefail
 
 # Set the name of the log file to include the current date and time
 LOG="Install-Logs/install-$(date +%d-%H%M%S)_ags.log"
@@ -85,10 +86,6 @@ for force_ags in "${f_ags[@]}"; do
 
 printf "\n%.0s" {1..1}
 
-for PKG1 in "${build_dep[@]}"; do
-  build_dep "$PKG1" "$LOG"
-done
-
 #install typescript by npm (pin v5 to avoid TS6 tsconfig errors)
 sudo npm install --global typescript@5 2>&1 | tee -a "$LOG"
 
@@ -109,8 +106,16 @@ printf "\n%.0s" {1..1}
 # Clone repository with the specified tag and capture git output into MLOG
 if git clone --depth=1 https://github.com/LinuxBeginnings/ags_v1.9.0.git; then
     cd ags_v1.9.0 || exit 1
-    npm install
-    meson setup build
+    # Both steps log their output: a bare failure here aborted the script under
+    # `set -e` with nothing in Install-Logs to explain it.
+    if ! npm install >>"../$LOG" 2>&1; then
+        echo -e "\n${ERROR} ${YELLOW}Aylur's GTK shell $ags_tag${RESET} npm install failed. See ${SKY_BLUE}$LOG${RESET}\n"
+        exit 1
+    fi
+    if ! meson setup build >>"../$LOG" 2>&1; then
+        echo -e "\n${ERROR} ${YELLOW}Aylur's GTK shell $ags_tag${RESET} configure (meson setup) failed. See ${SKY_BLUE}$LOG${RESET}\n"
+        exit 1
+    fi
    if sudo meson install -C build 2>&1 | tee -a "$MLOG"; then
     printf "\n${OK} ${YELLOW}Aylur's GTK shell $ags_tag${RESET} installed successfully.\n" 2>&1 | tee -a "$MLOG"
 
@@ -200,7 +205,10 @@ WRAP
     sudo chmod 0644 /usr/share/com.github.Aylur.ags/com.github.Aylur.ags 2>/dev/null || true
     printf "${OK} AGS wrapper installed at /usr/local/bin/ags\n"
   else
-    echo -e "\n${ERROR} ${YELLOW}Aylur's GTK shell $ags_tag${RESET} Installation failed\n " 2>&1 | tee -a "$MLOG"
+    # A failed compile must fail the step: install.sh treats the exit status as
+    # the verdict, so falling through here reported a broken ags as installed.
+    echo -e "\n${ERROR} ${YELLOW}Aylur's GTK shell $ags_tag${RESET} Installation failed. See ${SKY_BLUE}$MLOG${RESET}\n " 2>&1 | tee -a "$MLOG"
+    exit 1
    fi
     # Move logs to Install-Logs directory
     mv "$MLOG" ../Install-Logs/ || true

@@ -18,6 +18,8 @@ if ! source "$(dirname "$(readlink -f "$0")")/Global_functions.sh"; then
   echo "Failed to source Global_functions.sh"
   exit 1
 fi
+# Surface failures from `cmd | tee` instead of tee's exit status
+set -o pipefail
 
 # Set the name of the log file to include the current date and time
 LOG="install-$(date +%d-%H%M%S)_rog.log"
@@ -38,6 +40,7 @@ sudo systemctl enable power-profiles-daemon 2>&1 | tee -a "$LOG"
 install_and_log() {
   local project_name="$1"
   local git_url="$2"
+  local rc=0
   
   printf "${NOTE} Installing $project_name\n"
 
@@ -55,6 +58,7 @@ install_and_log() {
       fi
     else
       echo -e "${ERROR} Installation failed for $project_name."
+      rc=1
     fi
 
 	#moving logs into main install-logs
@@ -62,13 +66,21 @@ install_and_log() {
     cd - || exit 1
   else
     echo -e "${ERROR} Cloning $project_name from $git_url failed."
+    rc=1
   fi
+  return "$rc"
 }
 
+# Both projects are attempted even if the first fails; the script then reports
+# the failure through its exit status.
+rog_failed=0
+
 # Download and build asusctl
-install_and_log "asusctl" "https://gitlab.com/asus-linux/asusctl.git"
+install_and_log "asusctl" "https://gitlab.com/asus-linux/asusctl.git" || rog_failed=1
 
 # Download and build supergfxctl
-install_and_log "supergfxctl" "https://gitlab.com/asus-linux/supergfxctl.git"
+install_and_log "supergfxctl" "https://gitlab.com/asus-linux/supergfxctl.git" || rog_failed=1
 
 printf "\n%.0s" {1..2}
+
+exit "$rog_failed"

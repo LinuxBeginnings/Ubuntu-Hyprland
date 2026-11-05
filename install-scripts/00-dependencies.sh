@@ -106,9 +106,10 @@ dependencies=(
     bc
 )
 
-build_dep=(
-    wlroots
-)
+# No `build_dep`/`apt build-dep` here: nothing in this repo builds wlroots from
+# source (Hyprland arrives from the PPA or the Ubuntu repositories, wlroots with
+# it) and this script never enables 'deb-src' sources, so the call could only
+# fail and then be reported as an ignored warning.
 
 ## WARNING: DO NOT EDIT BEYOND THIS LINE IF YOU DON'T KNOW WHAT YOU ARE DOING! ##
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -134,12 +135,6 @@ printf "\n%s - Installing ${SKY_BLUE}main dependencies....${RESET} \n" "${NOTE}"
 
 for PKG1 in "${dependencies[@]}"; do
     install_package "$PKG1" "$LOG"
-done
-
-printf "\n%.0s" {1..1}
-
-for PKG1 in "${build_dep[@]}"; do
-    build_dep "$PKG1" "$LOG"
 done
 
 printf "\n%.0s" {1..2}

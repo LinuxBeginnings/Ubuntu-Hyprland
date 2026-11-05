@@ -3,12 +3,18 @@
 ## Nov 2026
 
 - Fixed:
+    - The source-build scripts fail the step when the build fails: `ags.sh`, `hyprlock.sh`, `hypridle.sh` and `rog.sh` printed the error and then ended 0, so `install.sh` listed a broken build as installed
+    - `ags.sh` names the log and exits when `npm install`, `meson setup` or `meson install` fails, and `cmd | tee` no longer hides the compile status in `ags.sh`, `hyprlock.sh`, `hypridle.sh`, `rog.sh`, `rofi-wayland.sh`, `sddm.sh`, `sddm_theme.sh` and `yazi.sh`
+    - `ags.sh` and `00-dependencies.sh` no longer run `apt build-dep pam`/`wlroots`: that needs `deb-src` sources most systems lack, the packages each script lists already provide the headers the builds use, and nothing here builds wlroots from source
+    - `build_dep` now waits for `apt build-dep` and reports a failed fetch instead of only starting it, so the failure is visible rather than silently ignored
+    - `hypridle.sh` used `getconf NPROCESSORS_CONF`, which is not a valid name, so a missing `nproc` left `-j` with no argument
     - `has_apt_candidate` reported every package as unavailable on non-English systems; `apt-cache policy` output is now parsed in the C locale
     - Optional components no longer abort a nearly finished install; each failure warns and is recorded in `Install-Logs/optional-failures.txt`
     - `03-Final-Check.sh` lists the optional components that did not install, so the list is still visible after the screen clear
     - `dotfiles.sh` reported success even when `copy.sh` failed or copied nothing; the install is now verified against `~/.config/hypr`
 
 - Added:
+    - `tests/source-install-failure-test.sh` pins the exit status of `ags.sh`, `hyprlock.sh`, `hypridle.sh` and `rog.sh` in a throwaway copy of the repo with git/npm/meson/cmake/make/curl/sudo stubbed, so no build or sudo runs
     - `--install-ppa` / `--install-ubuntu` (and `--preset FILE`, `--preset=FILE`, `--help`) to `install.sh`
     - `install-scripts/hyprland-ubuntu.sh`, the Ubuntu-repository path used when the community PPA cannot provide Hyprland
     - `tests/` covering the locale parse, the dots copy verification, the optional-component summary, the PPA series check and the install-issue prompt
