@@ -698,6 +698,10 @@ echo "${INFO} Installing ${SKY_BLUE}Yazi file manager...${RESET}" | tee -a "$LOG
 run_optional "yazi.sh"
 
 sleep 1
+echo "${INFO} Installing ${SKY_BLUE}HyprMod settings app...${RESET}" | tee -a "$LOG"
+run_optional "install-hyprmod.sh"
+
+sleep 1
 echo "${INFO} Building and installing ${SKY_BLUE}Waybar from source${RESET} (required for Hyprland Lua workflow)..." | tee -a "$LOG"
 execute_script "waybar.sh" || {
     echo "${ERROR:-[ERROR]} Waybar build failed" | tee -a "$LOG"

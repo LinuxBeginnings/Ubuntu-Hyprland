@@ -40,6 +40,14 @@
       `03-Final-Check.sh` share them
     - `03-Final-Check.sh` reports whether Hyprland came from the community PPA or
       the Ubuntu repositories, and why the PPA path was not used
+    - `install-scripts/install-hyprmod.sh`, which installs the HyprMod
+      GTK4/libadwaita settings app through its upstream installer, and installs
+      the packages it needs first: GTK4/libadwaita, their
+      `gir1.2-gtk-4.0`/`gir1.2-adw-1` typelibs (without them `python3-gi` cannot
+      import either), `pipx`, and the PyGObject build dependencies - PyGObject
+      publishes no Python 3.14 wheels, so it is compiled in the tool's virtualenv
+    - `install.sh` runs that HyprMod script as an optional component, so a
+      failure warns and the install carries on
 - Changed:
     - `install.sh` accepts `--preset FILE` anywhere on the command line, and preset
       values now actually drive the option checklist; they were loaded and then
