@@ -2,6 +2,10 @@
 
 ## Apr 2025
 
+- Fixed: `wayland-protocols-src.sh` lost its "tag not found" log lines
+    - `LOG` was relative to the repo root, but the clone is entered before they are written
+    - `tee -a "$LOG"` failed on the redirect and `set -e` aborted the module, so the available tags were never shown
+    - `LOG` is now anchored to `$PARENT_DIR/Install-Logs`
 - Fixed: Stopped `install.sh` script from overwritting fastfetch config
 - Fixed: Polkit issue #2
     - Added missing QT kvantum pkgs
