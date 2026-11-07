@@ -122,6 +122,10 @@
     - Every shell script is shellcheck-clean, and `tests/run-all.sh` now fails on
       any shellcheck finding so the baseline cannot drift
 - Fixed:
+    - `ml4w-deps.sh` never wrote its `nwg-dock-hyprland` / `nwg-drawer` build logs
+        - `mlog` was relative to the repo root, but the build runs in a subshell inside the cloned repository
+        - `make build | tee -a "$mlog"` failed on the redirect, so the build output was lost and the install did not run
+        - `mlog` is now anchored to `$REPO_ROOT/Install-Logs`
     - `ags.sh` stopped failing during install: `libaudit-dev` is installed because
       pam's `pkg-config` entry pulls in `audit.pc`, the `apt build-dep pam` call
       (which needs `deb-src` sources most systems lack) is gone, and the global
