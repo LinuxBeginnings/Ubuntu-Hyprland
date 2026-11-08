@@ -47,3 +47,6 @@ rog="N"
 
 ###-Do you want to add pre-configured KooL's Hyprland dotfiles?
 dots="Y"
+
+### Build Quickshell as an AppImage? (LONG build, ~8 min and ~3 GB of free disk space)
+quickshell="N"

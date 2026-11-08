@@ -17,6 +17,9 @@
     - `tests/source-install-failure-test.sh` pins the exit status of `ags.sh`, `hyprlock.sh`, `hypridle.sh` and `rog.sh` in a throwaway copy of the repo with git/npm/meson/cmake/make/curl/sudo stubbed, so no build or sudo runs
     - `--install-ppa` / `--install-ubuntu` (and `--preset FILE`, `--preset=FILE`, `--help`) to `install.sh`
     - `install-scripts/hyprland-ubuntu.sh`, the Ubuntu-repository path used when the community PPA cannot provide Hyprland
+    - `install-scripts/quickshell.sh`: builds quickshell 0.3.2 against the official Qt 6.8.3 binaries and packages it as a self-contained AppImage, since 24.04's Qt 6.4.2 is below quickshell's 6.6 minimum and lacks the private headers it needs, and no quickshell package exists for noble
+    - `quickshell` option in the `install.sh` checklist and in `preset.sh`: installs the AppImage to `/usr/local/bin/quickshell.AppImage` with a `/usr/local/bin/quickshell` wrapper
+    - LGPLv3 notices for quickshell and the bundled Qt inside the AppImage (`usr/share/doc/quickshell`): license texts, exact versions, source URLs and repack instructions
     - `tests/` covering the locale parse, the dots copy verification, the optional-component summary, the PPA series check and the install-issue prompt
     - `tests/run-all.sh`, which runs the tests and lints the scripts changed by this work
 

@@ -347,6 +347,7 @@ gtk_themes="OFF"
 bluetooth="OFF"
 thunar="OFF"
 ags="OFF"
+quickshell="OFF"
 sddm="OFF"
 sddm_themes="OFF"
 zsh="OFF"
@@ -375,6 +376,7 @@ load_preset() {
         bluetooth="$(normalise_state "${bluetooth:-OFF}")"
         thunar="$(normalise_state "${thunar:-OFF}")"
         ags="$(normalise_state "${ags:-OFF}")"
+        quickshell="$(normalise_state "${quickshell:-OFF}")"
         sddm="$(normalise_state "${sddm:-OFF}")"
         sddm_themes="$(normalise_state "${sddm_themes:-OFF}")"
         zsh="$(normalise_state "${zsh:-OFF}")"
@@ -459,6 +461,7 @@ options_command+=(
     "bluetooth" "Do you want script to configure Bluetooth?" "$bluetooth"
     "thunar" "Do you want Thunar file manager to be installed?" "$thunar"
     "ags" "Install AGS v1 for Desktop-Like Overview" "$ags"
+    "quickshell" "Build Quickshell as an AppImage? LONG build and needs ~3GB free" "$quickshell"
     "sddm" "Install and configure SDDM login manager?" "$sddm"
     "sddm_themes" "Install and configure SDDM themes?" "$sddm_themes"
     "zsh" "Install zsh shell with Oh-My-Zsh?" "$zsh"
@@ -631,6 +634,10 @@ for option in "${options[@]}"; do
     ags)
         echo "${INFO}Installing ${SKY_BLUE}AGS v1 for Desktop Overview...${RESET}" | tee -a "$LOG"
         run_optional "ags.sh"
+        ;;
+    quickshell)
+        echo "${INFO}Building ${SKY_BLUE}Quickshell${RESET} against Qt 6.8 (takes a few minutes)..." | tee -a "$LOG"
+        run_optional "quickshell.sh"
         ;;
     sddm)
         echo "${INFO}Installing and configuring ${SKY_BLUE}SDDM...${RESET}" | tee -a "$LOG"

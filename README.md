@@ -157,6 +157,19 @@ chmod +x install.sh
 
 If something optional fails, the installer tells you when it happens and lists it again at the end, offering retry, continue or abort. Failures are also recorded in `Install-Logs/`.
 
+### 🐚 Quickshell (optional, built from source as an AppImage)
+
+- `quickshell` is offered as an option in the checklist (also `quickshell="Y"` in `preset.sh`)
+- Ubuntu 24.04 ships Qt 6.4.2, but quickshell needs Qt 6.6 or newer **and** its private headers, so the system Qt cannot be used. There is no quickshell package for 24.04 either, so it is built from source against the official Qt 6.8 binaries, which are built on 24.04 itself
+- Because quickshell uses private Qt APIs, it must run against the exact Qt it was compiled with. Qt is therefore bundled into a self-contained AppImage instead of being installed system-wide
+- It takes a few minutes (about 8 on 6 cores) and needs roughly 3 GB of free space; the sources and the Qt download stay under `build/`, so a rebuild is much faster
+- The result is installed as `/usr/local/bin/quickshell.AppImage` plus a small wrapper at `/usr/local/bin/quickshell`, and a copy stays in `build/appimage/`. Rebuild it any time with `./install-scripts/quickshell.sh`
+- Quickshell is a runtime, not a shell configuration: point it at a config with `quickshell -p ~/.config/quickshell`
+- Version pins live at the top of `install-scripts/quickshell.sh` (`QT_VERSION`, `QUICKSHELL_VERSION`); changing either means rebuilding the image
+
+> [!IMPORTANT]
+> Licensing of the AppImage: both quickshell and the bundled Qt are LGPLv3. The image ships the license texts and a notice naming the exact versions and their source URLs in `usr/share/doc/quickshell`, and keeps both as separate shared libraries so they can be replaced and the image repacked. Keep those files in place if you redistribute the AppImage.
+
 ### 💥 💥 UNINSTALL SCRIPT / Removal of Config Files
 
 - 11 March 2025, due to popular request, created a guided `uninstall.sh` script. USE this with caution as it may render your system unstable.
@@ -208,6 +221,7 @@ source ~/.zshrc
 - swappy [`LINK`](https://github.com/jtheoof/swappy)
 - xdg-desktop-portal-hyprland [`LINK`](https://github.com/hyprwm/xdg-desktop-portal-hyprland)
 - rofi-wayland [`LINK`](https://github.com/lbonn/rofi)
+- quickshell [`LINK`](https://github.com/quickshell-mirror/quickshell) (optional — built as an AppImage, see above)
     > [!TIP]
     > To update to latest packages, re-running this script will auto update all. Script is configured to pull latest packages build for you.
 
