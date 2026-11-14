@@ -12,6 +12,7 @@ packages=(
   wlogout
   kitty
   hyprland-guiutils
+  qalculate-gtk
   lua5.4
 )
 
