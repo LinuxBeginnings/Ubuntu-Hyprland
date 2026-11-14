@@ -106,5 +106,6 @@ hypr_uninstall=(
 final_check_extra=(
     hyprland
     hyprland-qtutils
+    qalculate-gtk
     yazi
 )
